@@ -1,0 +1,8 @@
+.ant-input-number-input {
+  text-align: right !important;
+  padding-right: 30px !important;
+}
+
+.boldInput > .ant-input-number-input-wrap > input {
+  font-weight: 900 !important;
+}

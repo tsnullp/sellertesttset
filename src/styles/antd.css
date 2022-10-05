@@ -1,0 +1,16 @@
+.ant-btn.ant-btn-primary {
+  /* background: #512da8 !important; */
+}
+
+.ant-cascader-menu {
+  height: 500px;
+}
+
+.ant-table-column-sorter-up, .ant-table-column-sorter-down {
+  font-size: 14px;
+  padding: 2px;
+}
+
+.ant-checkbox {
+  z-index: 10;
+}

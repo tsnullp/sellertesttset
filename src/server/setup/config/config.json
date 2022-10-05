@@ -1,0 +1,34 @@
+{
+  "development": {
+    "PORT": 5001,
+    "MONGODB_URI": "mongodb://tsnullp:xotjr313#!#@14.4.2.124:21210/?authSource=seller",
+    "JWT_SECRET": "sekdibadfdadf",
+    "JWT_AUDIENCE": "xxx-client",
+    "JWT_ISSUER": "xxx-server",
+    "CLIENT_ORIGIN": "http://localhost:3001",
+    "CLIENT_LOGIN": "http://localhost:3001/login",
+    "PUBLIC_URL": "http://localhost:5001",
+    "GRAPHQL_ENDPOINT": "/graphql",
+    "GOOGLE_CLIENTID": "1116979256625-26drs3mrh0t4tvqh3hk9sup4cvol5hhh.apps.googleusercontent.com",
+    "GOOGLE_CLIENTSECRET": "FkhkpEt9JbZsGPgg-7uvYSSN",
+    "CAFE24_CLIENT_ID": "lv8Si6qgAV6iLJqrCCYp4B",
+    "CAFE24_SECRET_KEY": "M8UFmAzlK50jVYCMXqrTjD",
+    "CAFE24_REDIRECT_URL": "https://tsnullp.herokuapp.com/cafe24/token/callbak"
+  },
+  "production": {
+    "PORT": 5001,
+    "MONGODB_URI": "mongodb://tsnullp:xotjr313#!#@14.4.2.124:21210/?authSource=seller",
+    "JWT_SECRET": "sekdibadfdadf",
+    "JWT_AUDIENCE": "xxx-client",
+    "JWT_ISSUER": "xxx-server",
+    "CLIENT_ORIGIN": "http://localhost:3001",
+    "CLIENT_LOGIN": "http://localhost:3001/login",
+    "PUBLIC_URL": "./",
+    "GRAPHQL_ENDPOINT": "/graphql",
+    "GOOGLE_CLIENTID": "116979256625-26drs3mrh0t4tvqh3hk9sup4cvol5hhh.apps.googleusercontent.com",
+    "GOOGLE_CLIENTSECRET": "FkhkpEt9JbZsGPgg-7uvYSSN",
+    "CAFE24_CLIENT_ID": "lv8Si6qgAV6iLJqrCCYp4B",
+    "CAFE24_SECRET_KEY": "M8UFmAzlK50jVYCMXqrTjD",
+    "CAFE24_REDIRECT_URL": "https://tsnullp.herokuapp.com/cafe24/token/callbak"
+  }
+}
