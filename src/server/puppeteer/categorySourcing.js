@@ -4,7 +4,7 @@ const qs = require("querystring")
 const { ranking, sleep } = require("../../lib/usrFunc")
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId
-const scrollPageToBottom = require("puppeteer-autoscroll-down")
+const {scrollPageToBottom} = require("puppeteer-autoscroll-down")
 const axios = require("axios")
 
 let productList = []
@@ -632,7 +632,7 @@ const coupangStoreSourcing = async ({ url, sort, userID }) => {
 
     await page.waitFor(1000)
 
-    await scrollPageToBottom(page)
+    await {scrollPageToBottom}(page)
 
     await page.waitFor(1000)
 

@@ -1,6 +1,6 @@
 const startBrowser = require("./startBrowser")
 const searchNaverKeyword = require("./searchNaverKeyword")
-const scrollPageToBottom = require("puppeteer-autoscroll-down")
+const {scrollPageToBottom} = require("puppeteer-autoscroll-down")
 const { korTranslate, googleTranslate, papagoTranslate, kakaoTranslate } = require("./translate")
 const { checkStr, thumbImageParser, makeTitle } = require("../../lib/usrFunc")
 const puppeteer = require("puppeteer")

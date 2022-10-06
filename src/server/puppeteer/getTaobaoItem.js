@@ -1,5 +1,5 @@
 const startBrowser = require("./startBrowser")
-const scrollPageToBottom = require("puppeteer-autoscroll-down")
+const {scrollPageToBottom} = require("puppeteer-autoscroll-down")
 const { korTranslate } = require("./translate")
 const { checkStr, thumbImageParser } = require("../../lib/usrFunc")
 const { Outbound, ReturnShippingCenter } = require("../api/Market")

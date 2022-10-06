@@ -1,6 +1,6 @@
 const startBrowser = require("./startBrowser")
 const taobaoLogin = require("./taobaoLogin")
-const scrollPageToBottom = require("puppeteer-autoscroll-down")
+const {scrollPageToBottom} = require("puppeteer-autoscroll-down")
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId
 const Market = require("../models/Market")

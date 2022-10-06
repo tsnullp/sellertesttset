@@ -1,7 +1,7 @@
 const startBrowser = require("./startBrowser")
 const taobaoLogin = require("./taobaoLogin")
 const download = require("image-downloader")
-const scrollPageToBottom = require("puppeteer-autoscroll-down")
+const {scrollPageToBottom} = require("puppeteer-autoscroll-down")
 const fs = require("fs")
 const { thumbImageParser } = require("../../lib/usrFunc")
 const Market = require("../models/Market")
