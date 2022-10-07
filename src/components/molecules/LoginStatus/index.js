@@ -5,7 +5,7 @@ import { useMutation } from "@apollo/client"
 import { AUTH_GOOGLE, ISLOGIN, ONCE_TAOBAO_LOGIN, AUTO_PRICE_MANAGE } from "gql"
 import { Menu, Dropdown } from "antd"
 
-const { ipcRenderer, isDev } = window
+const { ipcRenderer, isDev  = true } = window
 
 const LoginStatus = () => {
   const { user, action } = useContext(UserContext)

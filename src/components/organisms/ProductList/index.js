@@ -67,7 +67,7 @@ const { shell, remote } = window.require("electron")
 const { RangePicker } = DatePicker
 const { Search } = Input
 
-// const { shell, remote, isDev } = window
+// const { shell, remote, isDev  = true } = window
 
 const dateFormat = "YYYY-MM-DD"
 const ProductList = () => {
@@ -793,6 +793,7 @@ const ProductList = () => {
         webSecurity: false,
       },
     })
+    console.log("여기???????????????", isDev)
     win.setAutoHideMenuBar(true)
     // win.loadURL(`http://localhost:3001#/productUploadWindow/${encodeURIComponent(detail)}`)
     if (isDev) {

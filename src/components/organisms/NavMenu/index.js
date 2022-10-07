@@ -29,12 +29,12 @@ import { UserContext } from "context/UserContext"
 const url = require("url")
 const path = require("path")
 const { SubMenu } = Menu
-const { remote, isDev } = window
+const { remote, isDev = true } = window
 
 const NavMenu = () => {
   const [current, setCurrnet] = useState(1)
   const { user } = useContext(UserContext)
-
+  console.log("isDev--- ", isDev)
   const handleClick = (e) => {
     setCurrnet(e.key)
   }
