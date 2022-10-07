@@ -164,13 +164,13 @@ exports.ItemSKUV2 = async ({ item_id }) => {
       let mainObj = {}
       try {
         await imageCheck(item)
-        mainObj.image = item
-        const text = await tesseract.recognize(item, {
-          lang: "chi_tra",
-          oem: 1,
-          psm: 3
-        })
-        mainObj.textLength = text.length
+        // mainObj.image = item
+        // const text = await tesseract.recognize(item, {
+        //   lang: "chi_tra",
+        //   oem: 1,
+        //   psm: 3
+        // })
+        // mainObj.textLength = text.length
    
       } catch(e){
 
