@@ -21,10 +21,12 @@ module.exports = async () => {
     mongoose.connection.on("disconnected", function() {
       console.log("Mongoose default connection is disconnected ")
       mongoose.connect(`mongodb://${encodeURIComponent("tsnullp")}:${encodeURIComponent("xotjr313#!#")}@14.4.2.124:21210/?authSource=seller`, {
-        useNewUrlParser: true,
-        // autoReconnect: true,
-        useUnifiedTopology: true
-      })
+      dbName: "seller",
+      useNewUrlParser: true,
+      // useCreateIndex: true,
+      useUnifiedTopology: true,
+      // useFindAndModify: false
+    })
     })
   } catch (e) {
     console.log("Failed connection to MONGO DATABASE")

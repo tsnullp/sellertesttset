@@ -372,12 +372,12 @@ const MarketOrderForm = ( {refetch, orderID, userID, onChange, fields}) => {
       if(response && response.data.SetMarketOrder) {
         notification["success"]({
           message: '마켓 주문정보 저장 성공',
-        });
+        })
         refetch()
       } else {
         notification["error"]({
           message: '마켓 주문정보 저장 실패',
-        });
+        })
       }
       
     } catch(e) {
@@ -392,11 +392,12 @@ const MarketOrderForm = ( {refetch, orderID, userID, onChange, fields}) => {
 
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo)
-    notification["error"]({
-      message: '마켓 주문정보 저장 실패',
-      description: errorInfo
-    });
-    
+    try {
+      notification["error"]({
+        message: '마켓 주문정보 저장 실패',
+        description: errorInfo.errorFields[0].errors[0]
+      });
+    } catch(e){}
   }
 
   return (
@@ -410,6 +411,8 @@ const MarketOrderForm = ( {refetch, orderID, userID, onChange, fields}) => {
       }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
+      autoComplete="off"
+      scrollToFirstError={true}
     >
       <Form.Item
         label="마켓"
@@ -671,8 +674,10 @@ const MarketOrderForm = ( {refetch, orderID, userID, onChange, fields}) => {
         </Form.Item>
 
         <Form.Item
+          required
           label="택배사"
           name="deliveryCompanyName"
+          rules={[{ required: true, message: '택배사를 입력해주세요!!' }]}
           >
           <Input />
         </Form.Item>
@@ -767,16 +772,18 @@ const DeliveryOrderForm = ( {refetch, userID, onChange, fields, index, marketOrd
         description: e
       });
     }
-  };
+  }
 
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
+    try {
+      notification["error"]({
+        message: '배대지 주문서 저장 실패',
+        description: errorInfo.errorFields[0].errors[0]
+      });
+    } catch(e){}
     
-    notification["error"]({
-      message: '배대지 주문서 저장 실패',
-      description: errorInfo
-    });
-  };
+  }
 
   return (
     <Form 
@@ -789,6 +796,8 @@ const DeliveryOrderForm = ( {refetch, userID, onChange, fields, index, marketOrd
       }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
+      autoComplete="off"
+      scrollToFirstError={true}
     >
       <Form.List name="deliveryInfo">
       {(fields, {add, remove}, {errors}) => (
@@ -971,7 +980,7 @@ const DeliveryOrderForm = ( {refetch, userID, onChange, fields, index, marketOrd
                 hp: ordererTellNumber.value,
                 address: receiverAddr.value,
                 zipCode: receiverPostCode.value,
-                PCCode: personalCustomsClearanceCode.value,
+                PCCode: personalCustomsClearanceCode.value ? personalCustomsClearanceCode.value : "P",
                 orderItems: [{
                   orderId: orderId.value
                 }],
@@ -1065,15 +1074,17 @@ const TaobaoOrderForm = ( {userID, refetch, onChange, fields, deliveryOrderField
         description: e
       });
     }
-  };
+  }
 
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
-    notification["error"]({
-      message: '공급처 주문서 저장 실패',
-      description: errorInfo
-    });
-  };
+    try {
+      notification["error"]({
+        message: '공급처 주문서 저장 실패',
+        description: errorInfo.errorFields[0].errors[0]
+      });
+    } catch(e){}
+  }
 
   return (
     <Form 
@@ -1086,6 +1097,8 @@ const TaobaoOrderForm = ( {userID, refetch, onChange, fields, deliveryOrderField
       }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
+      autoComplete="off"
+      scrollToFirstError={true}
     >
       <Form.List name="taobaoInfo">
       {(fields, {add, remove}) => (
@@ -1242,14 +1255,14 @@ const TaobaoOrderForm = ( {userID, refetch, onChange, fields, deliveryOrderField
                           <Form.Item
                             label="원래가격"
                             name={[orderField.name, "originalPrice"]}
-                            rules={[{ required: true, message: '원래가격을 입력해주세요!!' }]}
+                           
                             >
                             <Input />
                           </Form.Item>
                           <Form.Item
-                            label="할인가격"
+                            label="판매가격"
                             name={[orderField.name, "realPrice"]}
-                            rules={[{ required: true, message: '할인가격을 입력해주세요!!' }]}
+                            rules={[{ required: true, message: '판매가격을 입력해주세요!!' }]}
                             >
                             <Input />
                           </Form.Item>
