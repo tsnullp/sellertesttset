@@ -6,7 +6,7 @@ import React, {
   useImperativeHandle,
   useContext,
 } from "react"
-import { Input, Button, Tabs, message, InputNumber } from "antd"
+import { Input, Button, Tabs, message, Popconfirm } from "antd"
 import styled, { css } from "styled-components"
 import { ifProp } from "styled-tools"
 import { NaverStoreItem, SearchFilter } from "components"
@@ -25,6 +25,7 @@ import {
   GET_COUPANG_MALL_LIST,
   SET_COUPANG_FAVORITE,
   GET_COUPANGE_STORE_ITEM_LIST,
+  SET_NAVER_FAVORITE_ITEM_DELETE
 } from "gql"
 import {
   CheckOutlined,
@@ -56,6 +57,7 @@ const NaverShoppingPage = () => {
   const [getNaverFavoriteRecommend] = useMutation(GET_NAVER_FAVORITE_RECOMMEND_ITEM_LIST)
   const [uploadNaverItem] = useMutation(UPLOAD_ITEM_NAVER_LIST)
   const [getShippingPrice] = useMutation(GET_SHIPPINGPRICE)
+  const [setNaverFavoriteItemDelete] = useMutation(SET_NAVER_FAVORITE_ITEM_DELETE)
   const [shippingPrice, SetShippingrice] = useState(200)
 
   const [isRecommend, setRecommend] = useState(false)
@@ -406,7 +408,7 @@ const NaverShoppingPage = () => {
             필터
           </Button>
           <div
-            style={{ display: "flex", alignItems: "center", marginTop: "5px", marginBottom: "5px" }}
+            style={{ marginTop: "5px", marginBottom: "5px" }}
           >
             <SearchFilter
               isModalVisible={isModalVisible}
@@ -425,6 +427,7 @@ const NaverShoppingPage = () => {
                 borderRightWidth: "3px",
                 borderRightColor: "#fdd835",
                 borderRightStyle: "solid",
+                marginBottom: "2px"
               }}
               onClick={handleRecommend}
             >
@@ -435,19 +438,65 @@ const NaverShoppingPage = () => {
               block={true}
               loading={loading}
               // icon={<RedoOutlined />}
+              type="primary"
               style={{
-                background: "#ffff6b",
+                // background: "#ffff6b",
                 borderBottomWidth: "3px",
-                borderBottomColor: "#fdd835",
+                // borderBottomColor: "#fdd835",
                 borderBottomStyle: "solid",
                 borderRightWidth: "3px",
-                borderRightColor: "#fdd835",
+                // borderRightColor: "#fdd835",
                 borderRightStyle: "solid",
+                marginBottom: "2px"
               }}
               onClick={handleSavedRecommend}
             >
-              올릴상품
+              올릴상품 가져오기
             </Button>
+            <Popconfirm
+              title="올릴상품을 삭제합니다."
+              onConfirm={async() => {
+                setLoading(true)
+                try {
+                  const response = await setNaverFavoriteItemDelete()
+                  if(response.data.SetNaverFavoriteItemDelete) {
+                    message.success('올릴 상품을 삭제하였습니다.');
+                  } else {
+                    message.error('실패하였습니다.')
+                  }
+                } catch (e) {
+                  message.error('실패하였습니다.')
+                } finally {
+                  setLoading(false)
+                }
+                
+                
+                
+              }}
+              okText="삭제"
+              cancelText="취소"
+            >
+              <Button
+                block={true}
+                loading={loading}
+                // icon={<RedoOutlined />}
+                type="primary" danger
+                style={{
+                  // background: "#ffff6b",
+                  borderBottomWidth: "3px",
+                  // borderBottomColor: "#fdd835",
+                  borderBottomStyle: "solid",
+                  borderRightWidth: "3px",
+                  // borderRightColor: "#fdd835",
+                  borderRightStyle: "solid",
+                  
+                }}
+                // onClick={handleSavedRecommend}
+              >
+                올릴상품 삭제
+              </Button>
+            </Popconfirm>
+            
           </div>
           <MallList marketClick={marketClick} handleFavoriteChange={handleFavoriteChange} />
         </TabPane>

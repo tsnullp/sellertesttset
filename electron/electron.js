@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog, session } = require("electron")
 const log = require("electron-log")
-const { autoUpdater } = require("electron-updater")
+// const { autoUpdater } = require("electron-updater")
 const url = require("url")
 const path = require("path")
 const os = require("os")
@@ -14,8 +14,8 @@ const ElectronGoogleOAuth2 = require("@getstation/electron-google-oauth2").defau
 require("events").EventEmitter.defaultMaxListeners = 0
 
 let win
-autoUpdater.logger = log
-autoUpdater.logger.transports.file.level = "info"
+// autoUpdater.logger = log
+// autoUpdater.logger.transports.file.level = "info"
 log.info("App starting...")
 
 const createWindow = async () => {
@@ -58,7 +58,8 @@ app.whenReady().then(() => {
   // console.log("getFeedUrl ", autoUpdater.getFeedURL())
   // autoUpdater.setFeedURL(autoUpdater.getFeedURL())
 
-  autoUpdater.checkForUpdates()
+  // autoUpdater.checkForUpdates()
+  
   try {
     database()
     express()
@@ -134,40 +135,40 @@ const sendStatusToWindow = (text) => {
   win.webContents.send("message", text)
 }
 
-autoUpdater.on("checking-for-update", () => {
-  sendStatusToWindow("Checking for update...")
-})
-autoUpdater.on("update-available", (info) => {
-  sendStatusToWindow("Update available.")
-})
-autoUpdater.on("update-not-abailable", (info) => {
-  sendStatusToWindow("Updata not abailable.")
-})
-autoUpdater.on("error", (err) => {
-  // sendStatusToWindow("Error in auto-update. " + err)
-})
-autoUpdater.on("download-progress", (progressObj) => {
-  let log_message = "Download speed: " + progressObj.bytesPerSecond
-  log_message = log_message + " - Downloaded " + progressObj.percent + "%"
-  log_message = log_message + " (" + progressObj.transferred + "/" + progressObj.total + ")"
-  sendStatusToWindow(log_message)
-})
-autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
-  sendStatusToWindow("Update downloaded")
+// autoUpdater.on("checking-for-update", () => {
+//   sendStatusToWindow("Checking for update...")
+// })
+// autoUpdater.on("update-available", (info) => {
+//   sendStatusToWindow("Update available.")
+// })
+// autoUpdater.on("update-not-abailable", (info) => {
+//   sendStatusToWindow("Updata not abailable.")
+// })
+// autoUpdater.on("error", (err) => {
+//   // sendStatusToWindow("Error in auto-update. " + err)
+// })
+// autoUpdater.on("download-progress", (progressObj) => {
+//   let log_message = "Download speed: " + progressObj.bytesPerSecond
+//   log_message = log_message + " - Downloaded " + progressObj.percent + "%"
+//   log_message = log_message + " (" + progressObj.transferred + "/" + progressObj.total + ")"
+//   sendStatusToWindow(log_message)
+// })
+// autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
+//   sendStatusToWindow("Update downloaded")
 
-  // autoUpdater.quitAndInstall()
+//   // autoUpdater.quitAndInstall()
 
-  const dialogOpts = {
-    type: "info",
-    buttons: ["업데이트"],
-    defaultId: 0,
-    title: "업데이트가 있습니다. 프로그램을 업데이트 하세요.",
-    message: process.platform === "win32" ? releaseNotes : releaseName,
-  }
-  dialog.showMessageBox(dialogOpts).then((returnValue) => {
-    if (returnValue.response === 0) autoUpdater.quitAndInstall()
-  })
-})
+//   const dialogOpts = {
+//     type: "info",
+//     buttons: ["업데이트"],
+//     defaultId: 0,
+//     title: "업데이트가 있습니다. 프로그램을 업데이트 하세요.",
+//     message: process.platform === "win32" ? releaseNotes : releaseName,
+//   }
+//   dialog.showMessageBox(dialogOpts).then((returnValue) => {
+//     if (returnValue.response === 0) autoUpdater.quitAndInstall()
+//   })
+// })
 
 // app.on("ready", async () => {
 //   // createDefaultUpdateWindow()

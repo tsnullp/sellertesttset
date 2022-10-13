@@ -20,7 +20,7 @@ module.exports = async () => {
     })
     mongoose.connection.on("disconnected", function() {
       console.log("Mongoose default connection is disconnected ")
-      mongoose.connect(process.env.MONGODB_URI, {
+      mongoose.connect(`mongodb://${encodeURIComponent("tsnullp")}:${encodeURIComponent("xotjr313#!#")}@14.4.2.124:21210/?authSource=seller`, {
         useNewUrlParser: true,
         autoReconnect: true,
         useUnifiedTopology: true

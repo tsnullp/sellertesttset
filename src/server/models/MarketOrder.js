@@ -63,8 +63,8 @@ const MarketOrderSchema = mongoose.Schema({
       discountPrice: Number, // 할인가격
 
       sellerProductName: String,
-      productId: Number, //
-      vendorItemId: Number,
+      productId: String, //
+      vendorItemId: String,
 
       deliveryOrderId: String // 배대지 주문번호
     }

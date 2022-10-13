@@ -42,7 +42,8 @@ const UserSchema = mongoose.Schema({
         _id: false
       }
     ]
-  }
+  },
+  group: String
 })
 
 // model methods

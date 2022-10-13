@@ -1639,6 +1639,173 @@ const schema = gql`
     engSentence: String
     prohibitWord: [String]
   }
+
+  type MakretOrdererType {
+    name: String
+    email: String
+    tellNumber: String
+    hpNumber: String
+    orderDate: String
+    orderTime: String
+  }
+  type MarketReceiverType {
+    name: String
+    tellNumber: String
+    hpNumber: String
+    addr: String
+    postCode: String
+    parcelPrintMessage: String
+  }
+  type MarketOrderItemsType {
+    image: String
+    title: String
+    option: String
+    quantity: Int
+    salesPrice: Int
+    orderPrice: Int
+    discountPrice: Int
+    sellerProductName: String
+    productId: String
+    vendorItemId: String
+    deliveryOrderId: String
+  }
+  type MarketOverseaShippingInfoDto {
+    personalCustomsClearanceCode: String
+    ordererPhoneNumber: String
+    ordererName: String
+  }
+  type MarkerOrderType {
+    userID: ID
+    market: String
+    shipmentBoxID: String
+    orderId: String
+    cafe24OrderID: String
+    orderer: MakretOrdererType
+    paidAtDate: String
+    paidAtTime: String
+    shippingPrice: Int
+    receiver: MarketReceiverType
+    orderItems: [MarketOrderItemsType]
+    overseaShippingInfoDto: MarketOverseaShippingInfoDto
+    saleType: Int
+    deliveryCompanyName: String
+    invoiceNumber: String
+    deliveryOrderId: String
+  }
+  type DeliveryOrderItemsType {
+    taobaoTrackingNo: String
+    taobaoOrderNo: String
+    orderId: String
+  }
+  type DeliveryOrderType {
+    userID: ID
+    orderSeq: String
+    orderNo: String
+    status: String
+    address: String
+    zipCode: String
+    name: String
+    hp: String
+    PCCode: String
+    orderItems: [DeliveryOrderItemsType]
+    weight: Float
+    shippingPrice: Int
+    shippingNumber: String
+    isDelete: Boolean
+  }
+
+  input MarketOrderOrdererInputType {
+    name: String
+    email: String
+    tellNumber: String
+    hpNumber: String
+    orderDate: String
+    orderTime: String
+  }
+  input MaketOrderReceiverInputType {
+    name: String
+    tellNumber: String
+    hpNumber: String
+    addr: String
+    postCode: String
+    parcelPrintMessage: String
+  }
+  input MarketOrderOrderItemsInputType {
+    title: String
+    option: String
+    quantity: Int
+    salesPrice: Int
+    orderPrice: Int
+    discountPrice: Int
+    sellerProductName: String
+    productId: String
+    vendorIteId: String
+    deliveryOrderId: String
+  }
+  input MakretOrderOverseaShippingInfoDtoInputType {
+    personalCustomsClearanceCode: String
+    ordererPhoneNumber: String
+    ordererName: String 
+  }
+  input MarketOrderInputType {
+    market: String
+    orderId: String
+    cafe24OrderID: String
+    orderer: MarketOrderOrdererInputType
+    paidAtDate: String
+    paidAtTime: String
+    shippingPrice: Int
+    receiver: MaketOrderReceiverInputType
+    orderItems: [MarketOrderOrderItemsInputType]
+    overseaShippingInfoDto: MakretOrderOverseaShippingInfoDtoInputType
+    saleType: Int
+    deliveryCompanyName: String
+    invoiceNumber: String
+    deliveryOrderId: String
+  }
+  input DeliveryOrderOrderItemsInputType {
+    taobaoTrackingNo: String
+    taobaoOrderNo: String
+    orderId: String
+  }
+  input DeliveryOrderInputType {
+    orderSeq: String
+    orderNo: String
+    status: String
+    address: String
+    zipCode: String
+    name: String
+    hp: String
+    PCCode: String
+    orderItems: [DeliveryOrderOrderItemsInputType]
+    weight: Float
+    shippingPrice: Int
+    shippingNumber: String
+    isDelete: Boolean
+  }
+
+  input TaobaoOrderOrdersOptionInputType {
+    name: String
+    value: String
+    visible: String
+  }
+  input TaobaoOrderOrdersInputType{
+    productName: String
+    thumbnail: String
+    detail: String
+    originalPrice: String
+    realPrice: String
+    quantity: String
+    option: [TaobaoOrderOrdersOptionInputType]
+  }
+  input TaobaoOrderInputType {
+    orderNumber: String
+    orderDate: String
+    orderTime: String
+    purchaseAmount: String
+    shippingFee: String
+    orders: [TaobaoOrderOrdersInputType]
+  }
   type Query {
     "A simple type for getting started!"
     hello: String
@@ -1773,6 +1940,10 @@ const schema = gql`
     GetProhibit(asin: String): ProhibitType
 
     GetNaverCatalogKeyword(catalog: String, keyword: String): [TitleKeywordType]
+
+    GetMarketOrder(orderId: String, userID: ID): MarkerOrderType
+    GetDeliveryOrder(orderId: String, userID: ID): [DeliveryOrderType]
+    GetTaobaoOrder(taobaoOrderNo: [String], userID: ID): [TaobaoOrderType]
   }
 
   type Mutation {
@@ -2028,7 +2199,7 @@ const schema = gql`
     SetNaverItemFavorite(productNo: String, isFavorite: Boolean): Boolean
     GetNaverFavoriteItemList: [NaverShoppingItemType]
     GetNaverJanpanFavoriteItemList: [NaverShoppingItemType]
-
+    SetNaverFavoriteItemDelete: Boolean
     QualityCheck(
       title: String
       category1: String
@@ -2104,6 +2275,12 @@ const schema = gql`
     OptimizationProductName(title: String): String
 
     SetFavoriteKeyword(keywordID: ID, favorite: Boolean): Boolean
+
+    SetMarketOrder(orderId: String, userID: ID, input: MarketOrderInputType): Boolean
+    SetDeliveryOrder(userID: ID, input: [DeliveryOrderInputType]): Boolean
+    SetTaobaoOrder(userID: ID, input: [TaobaoOrderInputType]): Boolean
+    SyncDeliveryOrder: Boolean
+
   }
 `
 

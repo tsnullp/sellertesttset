@@ -2,15 +2,16 @@ import React, { useState, useRef, useEffect, useContext } from "react"
 import styled, { css } from "styled-components"
 import { ifProp } from "styled-tools"
 import moment from "moment"
-import { VATLIST, GET_DELIVERY_IMAGE, VAT_SEARCH, TAOBAO_ORDER_BATCH } from "../../../gql"
+import { VATLIST, GET_DELIVERY_IMAGE, VAT_SEARCH, TAOBAO_ORDER_BATCH, SYNC_DELIVERY_ORDER } from "../../../gql"
 import { useMutation } from "@apollo/client"
 import { Table, Popover, Radio, Button, Input, DatePicker, message, Select } from "antd"
 import { FileImageOutlined, ClockCircleOutlined } from "@ant-design/icons"
 import { UserContext } from "context/UserContext"
-import {UserSelect} from "components"
+import {UserSelect, VatDataModal} from "components"
 import "moment/locale/ko"
 import ReactHTMLTableToExcel from "react-html-table-to-excel"
 import "./style.css"
+import { isNumber } from "util"
 
 const { RangePicker } = DatePicker
 const { Search } = Input
@@ -24,6 +25,7 @@ const ExplainingDataForm = () => {
   const { user } = useContext(UserContext)
   const [radio, setRadio] = useState("vatDetail")
   const [loading, setLoading] = useState(false)
+  const [syncLoading, setSyncLoading] = useState(false)
   const [vatList, SetVatList] = useState([])
   const [search, setSearch] = useState("")
   const [startDate, setStartDate] = useState("")
@@ -32,8 +34,10 @@ const ExplainingDataForm = () => {
   const [getList] = useMutation(VATLIST)
   const [vatSearch] = useMutation(VAT_SEARCH)
   const [taobaoOrder] = useMutation(TAOBAO_ORDER_BATCH)
+  const [syncDeliveryOrder] = useMutation(SYNC_DELIVERY_ORDER)
   const [selectUser, setSelectUser] = useState(null)
-
+  const [isModalVisible, setModalVisible] = useState(false)
+  const [selectedOrderID, setSelectdOrderID] = useState(null)
   // useEffect(() => {
   //   if (data && data.VatListType) {
   //     data.VatListType.forEach(item => {
@@ -93,22 +97,44 @@ const ExplainingDataForm = () => {
     }
   }
 
-  const costAccounting = (purchaseAmount, cnyPrice, usdPrice) => {
+  const isChina = (detail) => {
+    let isCny = true 
+    if(detail && (detail.includes("aliexpress.com") || detail.includes("iherb.com") || detail.includes("amazon"))){
+      isCny = false
+    }
+    return isCny
+  }
+  const costAccounting = ({detail, purchaseAmount, cnyPrice, usdPrice}) => {
+    
+    const isCny = isChina(detail)
+    
     // 1. '타오바바' 결제수수료 3% 추가
-    let cost = Number(purchaseAmount.replace(/,/gi, "")) * 1.03
+    let purchaseAmountTemp = purchaseAmount.replace(/,/gi, "")
+    if(!isNaN(Number(purchaseAmount.replace(/,/gi, "")))){
+      purchaseAmountTemp = Number(purchaseAmountTemp)
+    } else {
+      purchaseAmountTemp =  parseFloat(purchaseAmountTemp)
+    }
 
+    let cost = purchaseAmountTemp * 1.03
+    
     // 2. '카드사별 브랜드 수수료' 1% 추가 ( ex . 마스터카드 )
 
     // 4. 최종금액에 '카드사 해외이용 수수료 0.25% ' 추가
     cost = cost * 1.05
 
-    const usdExchange = Number(cnyPrice.replace(/,/gi, "")) / Number(usdPrice.replace(/,/gi, ""))
+    let usdExchange = 0
+    if(isCny) {
+      usdExchange = Number(cnyPrice.replace(/,/gi, "")) / Number(usdPrice.replace(/,/gi, ""))
+    } else {
+      usdExchange = Number(usdPrice.replace(/,/gi, "")) / Number(usdPrice.replace(/,/gi, ""))
+    } 
 
     const usdExchangePrice = usdExchange * cost * 1.01
-
+    
     // 3. '전신환매도율' 적용 하여  기준환율  x1% ( 대략 ) 적용
     let exRate = Number(usdPrice.replace(/,/gi, "")) * 1.01
-
+    
     const korPrice = usdExchangePrice * exRate
 
     return korPrice
@@ -293,15 +319,26 @@ const ExplainingDataForm = () => {
 
         return deliveryItem.map((item, i) => {
 
+          let detail = "taobao"
+          try {
+            detail = item.taobaoItem.orders[0].detail
+          } catch (e){
+
+          }
+
           if(item.taobaoItem.orderNumber === taobaoOrderNumber){
             return null
           } 
           taobaoOrderNumber = item.taobaoItem.orderNumber
 
-          const korPrice = costAccounting(
-            item.taobaoItem.purchaseAmount,
-            item.exchange.cnyPrice,
-            item.exchange.usdPrice
+          const korPrice = costAccounting({
+            detail,
+            purchaseAmount: item.taobaoItem.purchaseAmount,
+            cnyPrice: item.exchange.cnyPrice,
+            usdPrice: item.exchange.usdPrice
+          }
+            
+            
           )
           return (
             <CellRight key={i} style={{ height: "40px" }}>{`${Math.floor(korPrice).toLocaleString(
@@ -350,16 +387,23 @@ const ExplainingDataForm = () => {
         })
 
         data.deliveryItem.forEach(item => {
+          let detail = "taobao"
+          try {
+            detail = item.taobaoItem.orders[0].detail
+          } catch (e){
+
+          }
           if(item.taobaoItem.orderNumber === taobaoOrderNumber){
             return null
           } 
           taobaoOrderNumber = item.taobaoItem.orderNumber
 
-          korPrice += costAccounting(
-            item.taobaoItem.purchaseAmount,
-            item.exchange.cnyPrice,
-            item.exchange.usdPrice
-          )
+          korPrice += costAccounting({
+            detail,
+            purchaseAmount: item.taobaoItem.purchaseAmount,
+            cnyPrice: item.exchange.cnyPrice,
+            usdPrice: item.exchange.usdPrice
+          })
         })
         return (
           <CellRight style={{ height: "40px" }}>
@@ -546,17 +590,23 @@ const ExplainingDataForm = () => {
         let taobaoOrderNumber = null
 
         return deliveryItem.map((item, i) => {
+          let detail = "taobao"
+          try {
+            detail = item.taobaoItem.orders[0].detail
+          } catch (e){
 
+          }
           if(item.taobaoItem.orderNumber === taobaoOrderNumber){
             return null
           } 
           taobaoOrderNumber = item.taobaoItem.orderNumber
 
-          const korPrice = costAccounting(
-            item.taobaoItem.purchaseAmount,
-            item.exchange.cnyPrice,
-            item.exchange.usdPrice
-          )
+          const korPrice = costAccounting({
+            detail,
+            purchaseAmount: item.taobaoItem.purchaseAmount,
+            cnyPrice: item.exchange.cnyPrice,
+            usdPrice: item.exchange.usdPrice
+          })
           return (
             <CellRight key={i} style={{ height: "40px" }}>{`${Math.floor(korPrice).toLocaleString(
               "ko"
@@ -605,16 +655,23 @@ const ExplainingDataForm = () => {
         })
 
         data.deliveryItem.forEach(item => {
+          let detail = "taobao"
+          try {
+            detail = item.taobaoItem.orders[0].detail
+          } catch (e){
+
+          }
           if(item.taobaoItem.orderNumber === taobaoOrderNumber){
             return null
           } 
           taobaoOrderNumber = item.taobaoItem.orderNumber
 
-          korPrice += costAccounting(
-            item.taobaoItem.purchaseAmount,
-            item.exchange.cnyPrice,
-            item.exchange.usdPrice
-          )
+          korPrice += costAccounting({
+            detail,
+            purchaseAmount: item.taobaoItem.purchaseAmount,
+            cnyPrice: item.exchange.cnyPrice,
+            usdPrice: item.exchange.usdPrice
+          })
         })
         return (
           <CellRight style={{ height: "40px" }}>
@@ -661,10 +718,13 @@ const ExplainingDataForm = () => {
       align: "center",
       width: "100px",
       render: data => (
-        <div>
+        <ModalLink onClick={() => {
+          setSelectdOrderID(data.orderId)
+          setModalVisible(true)
+          }}>
           <CellCenter>{moment(data.paidAtDate, "YYYYMMDD").format("YYYY-MM-DD")}</CellCenter>
           <CellCenter>{moment(data.paidAtTime, "HHmmSS").format("HH:mm:SS")}</CellCenter>
-        </div>
+        </ModalLink>
       )
     },
     {
@@ -1122,14 +1182,21 @@ const ExplainingDataForm = () => {
                     if(item.taobaoItem.orderNumber === taobaoOrderNumber){
                       return null
                     } 
+                    let detail = "taobao"
+                    try {
+                      detail = item.taobaoItem.orders[0].detail
+                    } catch (e){
+
+                    }
+                    let currency = isChina(detail) ? "￥" : "$"
                     taobaoOrderNumber = item.taobaoItem.orderNumber
                     return (
                       <div key={i}>
                         {item.taobaoItem.orders.map((item, j) => (
-                          <CellRight key={j} style={{ height: "40px" }}>
-                            {`￥${item.realPrice}`}
-                          </CellRight>
-                        ))}
+                            <CellRight key={j} style={{ height: "40px" }}>
+                              {`${currency}${item.realPrice}`}
+                            </CellRight>
+                          ))}
                       </div>
                     )
                   })
@@ -1155,12 +1222,19 @@ const ExplainingDataForm = () => {
                 if(item.taobaoItem.orderNumber === taobaoOrderNumber){
                   return null
                 } 
+                let detail = "taobao"
+                try {
+                  detail = item.taobaoItem.orders[0].detail
+                } catch (e){
+
+                }
+                let currency = isChina(detail) ? "￥" : "$"
                 taobaoOrderNumber = item.taobaoItem.orderNumber
                 return (
                   <CellRight
                     key={i}
                     style={{ height: "40px" }}
-                  >{`￥${item.taobaoItem.purchaseAmount}`}</CellRight>
+                  >{`${currency}${item.taobaoItem.purchaseAmount}`}</CellRight>
                 )
               })
             }
@@ -1188,9 +1262,16 @@ const ExplainingDataForm = () => {
                 if(item.taobaoItem.orderNumber === taobaoOrderNumber){
                   return null
                 } 
+                let detail = "taobao"
+                try {
+                  detail = item.taobaoItem.orders[0].detail
+                } catch (e){
+
+                }
+                let currency = isChina(detail) ? "￥" : "$"
                 taobaoOrderNumber = item.taobaoItem.orderNumber
                 return (
-                  <CellRight key={i} style={{ height: "40px" }}>{`￥${(
+                  <CellRight key={i} style={{ height: "40px" }}>{`${currency}${(
                     Number(item.taobaoItem.purchaseAmount.replace(/,/gi, "")) * 1.03
                   ).toFixed(2)}`}</CellRight>
                 )
@@ -1271,16 +1352,26 @@ const ExplainingDataForm = () => {
                 }
               },
               children: deliveryItem.map((item, i) => {
+
+                
+                let detail = "taobao"
+                try {
+                  detail = item.taobaoItem.orders[0].detail
+                } catch (e){
+
+                }
+                
                 if(item.taobaoItem.orderNumber === taobaoOrderNumber){
                   return null
                 } 
                 taobaoOrderNumber = item.taobaoItem.orderNumber
                 
-                const korPrice = costAccounting(
-                  item.taobaoItem.purchaseAmount,
-                  item.exchange.cnyPrice,
-                  item.exchange.usdPrice
-                )
+                const korPrice = costAccounting({
+                  detail,
+                  purchaseAmount: item.taobaoItem.purchaseAmount,
+                  cnyPrice: item.exchange.cnyPrice,
+                  usdPrice: item.exchange.usdPrice
+                })
                 return (
                   <CellRightBold key={i} style={{ height: "40px" }}>{`${Math.floor(
                     korPrice
@@ -1355,7 +1446,7 @@ const ExplainingDataForm = () => {
           width: "100px",
           // dataIndex: "deliveryItem",
           render(data, _, row) {
-            console.log("data.orderItems", data)
+            // console.log("data.orderItems", data)
             return {
               props: {
                 style: {
@@ -1582,7 +1673,18 @@ const ExplainingDataForm = () => {
             let korPrice = 0
             let shipFee = 0
             let taobaoOrderNumber = null
+
+            
+            let detail = "taobao"
             data.deliveryItem.forEach(item => {
+
+              
+              try {
+                detail = item.taobaoItem.orders[0].detail
+              } catch (e){
+
+              }
+
               shipFee += item.shipFee
               
               if(item.taobaoItem.orderNumber === taobaoOrderNumber){
@@ -1590,15 +1692,16 @@ const ExplainingDataForm = () => {
               } 
               taobaoOrderNumber = item.taobaoItem.orderNumber
 
-              korPrice += costAccounting(
-                item.taobaoItem.purchaseAmount,
-                item.exchange.cnyPrice,
-                item.exchange.usdPrice
-              )
+              korPrice += costAccounting({
+                detail,
+                purchaseAmount: item.taobaoItem.purchaseAmount,
+                cnyPrice: item.exchange.cnyPrice,
+                usdPrice: item.exchange.usdPrice
+              })
               
             })
             return (
-              <CellRightBold style={{ height: "40px" }} undetermined={shipFee === 0} isMinus={Math.ceil(settlementAmount - korPrice - shipFee) <= 0}>
+              <CellRightBold style={{ height: "40px" }} undetermined={isChina(detail) && shipFee === 0} isMinus={Math.ceil(settlementAmount - korPrice - shipFee) <= 0}>
                 {Math.ceil(settlementAmount - korPrice - shipFee).toLocaleString("ko")}
               </CellRightBold>
             )
@@ -1620,7 +1723,16 @@ const ExplainingDataForm = () => {
             let korPrice = 0
             let shipFee = 0
             let taobaoOrderNumber = null
+            let detail = "taobao"
             data.deliveryItem.forEach(item => {
+
+             
+              try {
+                detail = item.taobaoItem.orders[0].detail
+              } catch (e){
+
+              }
+
               shipFee += item.shipFee
 
               if(item.taobaoItem.orderNumber === taobaoOrderNumber){
@@ -1628,18 +1740,19 @@ const ExplainingDataForm = () => {
               } 
               taobaoOrderNumber = item.taobaoItem.orderNumber
 
-              korPrice += costAccounting(
-                item.taobaoItem.purchaseAmount,
-                item.exchange.cnyPrice,
-                item.exchange.usdPrice
-              )
+              korPrice += costAccounting({
+                detail,
+                purchaseAmount: item.taobaoItem.purchaseAmount,
+                cnyPrice: item.exchange.cnyPrice,
+                usdPrice: item.exchange.usdPrice
+              })
               
             })
 
             const profit = settlementAmount - korPrice - shipFee
 
             return (
-              <CellRight style={{ height: "40px" }} undetermined={shipFee === 0} isMinus={((profit / ((orderPrice ) + data.shippingPrice)) * 100) <= 0}>
+              <CellRight style={{ height: "40px" }} undetermined={isChina(detail) && shipFee === 0} isMinus={((profit / ((orderPrice ) + data.shippingPrice)) * 100) <= 0}>
                 {`${((profit / ((orderPrice ) + data.shippingPrice)) * 100).toFixed(2)}%`}
               </CellRight>
             )
@@ -1660,8 +1773,20 @@ const ExplainingDataForm = () => {
     setSelectUser(value)
   }
 
+  const handleOk = () => {
+    setModalVisible(false)
+  }
   return (
     <Container>
+      {isModalVisible && (
+        <VatDataModal 
+          isModalVisible={isModalVisible}
+          userID={selectUser ? selectUser : user.id}
+          orderId={selectedOrderID}
+          handleOk={handleOk}
+          handleCancel={handleOk}
+        />
+      )}
       <SearchContainer>
         <RangePicker
           // locale={{ lang: { locale: "ko_KR" } }}
@@ -1757,6 +1882,34 @@ const ExplainingDataForm = () => {
               message.success("데이터 수집을 시작합니다.")
             }}
           >수집</Button>
+
+          <Button type="primary"
+          loading={syncLoading}
+            style={{
+              marginRight: "5px"
+            }}
+            icon={<ClockCircleOutlined />}
+            onClick={async () => {
+              try {
+                setSyncLoading(true)
+                const response = await syncDeliveryOrder()
+                console.log("response", response)
+                if(response.data.SyncDeliveryOrder) {
+                  message.success("계정별 배대지 동기화를 완료하였습니다.")
+                } else {
+                  message.error("계정별 배대지 동기화를 실해하였습니다.")
+                }
+              } catch(e){
+                message.error("계정별 배대지 동기화를 실해하였습니다.")
+              } finally {
+                setSyncLoading(false)
+              }
+              
+              
+            }}
+          >배대지 동기화</Button>
+
+          
           <Button type="primary"
             style={{
               marginRight: "5px"
@@ -1819,17 +1972,26 @@ const ExplainingDataForm = () => {
             })
             let taobaoOrderNumber = null
             deliveryItem.forEach(item => {
+
+              let detail = "taobao"
+              try {
+                detail = item.taobaoItem.orders[0].detail
+              } catch (e){
+
+              }
+
               totalKorShipFee += item.shipFee
               if(item.taobaoItem.orderNumber === taobaoOrderNumber){
                 return
               } 
               taobaoOrderNumber = item.taobaoItem.orderNumber
 
-              totalTaobaoPurchaseAmount += costAccounting(
-                item.taobaoItem.purchaseAmount,
-                item.exchange.cnyPrice,
-                item.exchange.usdPrice
-              )
+              totalTaobaoPurchaseAmount += costAccounting({
+                detail,
+                purchaseAmount:  item.taobaoItem.purchaseAmount,
+                cnyPrice: item.exchange.cnyPrice,
+                usdPrice: item.exchange.usdPrice
+              })
               totalCnyExchange += Number(item.exchange.cnyPrice.replace(/,/gi, ""))
               totalUsdExchange += Number(item.exchange.usdPrice.replace(/,/gi, ""))
               totalTaoboaCnyPurchaseAmount += Number(
@@ -2416,5 +2578,12 @@ const TaobaoTitle = styled.div`
   cursor: pointer;
   &:hover{
     text-decoration: underline;
+  }
+`
+
+const ModalLink = styled.div`
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline
   }
 `

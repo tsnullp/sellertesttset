@@ -6,7 +6,7 @@ const searchAuctionKeyword = require("./searchAuctionKeyword")
 const searchWemakeKeyword = require("./searchWemakeKeyword")
 const searchTmonKeyword = require("./searchTmonKeyword")
 const search11stKeyword = require("./search11stKeyword")
-const scrollPageToBottom = require("puppeteer-autoscroll-down")
+const {scrollPageToBottom} = require("puppeteer-autoscroll-down")
 
 const start = async ({ mallID, password }) => {
   const browser = await startBrowser(false)
@@ -202,6 +202,7 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
         await page.type("#eInputSearchCategory", categoryName)
         await page.keyboard.press("Enter")
         await page.waitFor(1000)
+        
         await scrollPageToBottom(page)
 
         const categories = await page.$$(

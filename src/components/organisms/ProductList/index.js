@@ -404,7 +404,7 @@ const ProductList = () => {
               korTitle={data.korTitle}
               handleNewWindow={handleNewWindow}
               data={data}
-              selectUser={setSelectUser}
+              selectUser={selectUser}
             />
           </ColumnContainer>
         )

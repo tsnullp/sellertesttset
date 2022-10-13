@@ -3829,3 +3829,137 @@ export const SET_FAVORITE_KEYWORD = gql`
     SetFavoriteKeyword(keywordID: $keywordID, favorite: $favorite)
   }
 `
+
+export const SET_NAVER_FAVORITE_ITEM_DELETE = gql`
+  mutation SetNaverFavoriteItemDelete {
+    SetNaverFavoriteItemDelete
+  }
+`
+
+export const GET_MARKET_ORDER = gql`
+  query GetMarketOrder($orderId: String, $userID: ID) {
+    GetMarketOrder(orderId: $orderId, userID: $userID) {
+      userID
+      market
+      shipmentBoxID
+      orderId
+      cafe24OrderID
+      orderer {
+        name
+        email
+        tellNumber
+        hpNumber
+        orderDate
+        orderTime
+      }     
+      paidAtDate
+      paidAtTime
+      shippingPrice
+      receiver {
+        name
+        tellNumber
+        hpNumber
+        addr
+        postCode
+        parcelPrintMessage
+      }
+      orderItems {
+        image
+        title
+        option
+        quantity
+        salesPrice
+        orderPrice
+        discountPrice
+        sellerProductName
+        productId
+        vendorItemId
+        deliveryOrderId
+      }
+      overseaShippingInfoDto {
+        personalCustomsClearanceCode
+        ordererPhoneNumber
+        ordererName
+      }
+      saleType
+      deliveryCompanyName
+      invoiceNumber
+      deliveryOrderId
+    }
+  }
+`
+
+export const GET_DELIVERY_ORDER = gql`
+  query GetDeliveryOrder($orderId: String, $userID: ID) {
+    GetDeliveryOrder(orderId: $orderId, userID: $userID){
+      userID
+      orderSeq
+      orderNo
+      status
+      address
+      zipCode
+      name
+      hp
+      PCCode
+      orderItems {
+        taobaoTrackingNo
+        taobaoOrderNo
+        orderId
+      }
+      weight
+      shippingPrice
+      shippingNumber
+      isDelete
+    }
+  }
+`
+
+export const GET_TAOBAO_ORDER = gql`
+  query GetTaobaoOrder($taobaoOrderNo: [String], $userID: ID) {
+    GetTaobaoOrder(taobaoOrderNo: $taobaoOrderNo, userID: $userID) {
+      orderNumber
+      orderDate
+      orderTime
+      orders {
+        id
+        productName
+        thumbnail
+        detail
+        skuId
+        option {
+          name
+          value
+          visible
+        }
+        originalPrice
+        realPrice
+        quantity
+      }
+      purchaseAmount
+      shippingFee
+      shippingStatus
+    }
+  }
+`
+export const SET_MARKET_ORDER = gql`
+  mutation SetMarketOrder($orderId: String, $userID: ID, $input: MarketOrderInputType) {
+    SetMarketOrder(orderId: $orderId, userID: $userID, input: $input)
+  }
+`
+
+export const SET_DELIVERY_ORDER = gql`
+  mutation SetDeliveryOrder($userID: ID, $input: [DeliveryOrderInputType]) {
+    SetDeliveryOrder(userID: $userID, input: $input)
+  }
+`
+export const SET_TAOBAO_ORDER = gql`
+  mutation SetTaobaoOrder($userID: ID, $input: [TaobaoOrderInputType]) {
+    SetTaobaoOrder(userID: $userID, input: $input)
+  }
+`
+
+export const SYNC_DELIVERY_ORDER = gql`
+  mutation SyncDeliveryOrder {
+    SyncDeliveryOrder
+  }
+`

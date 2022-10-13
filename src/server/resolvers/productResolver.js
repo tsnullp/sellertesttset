@@ -7653,6 +7653,7 @@ const resolvers = {
       { id, title, userID },
       { req, model: { Product }, logger }
     ) => {
+      
       const user = userID ? ObjectId(userID) : req.user.adminUser
       try {
         console.log("id, title", id, title, user)
@@ -7730,9 +7731,11 @@ const resolvers = {
             })
             // console.log("cafe24Response", cafe24Response)
           }
+
+          return title
         }
 
-        return title
+        return null
       } catch (e) {
         logger.error(`ModifyProductTitle: ${e}`)
         return null
@@ -9264,6 +9267,30 @@ const resolvers = {
       } catch (e) {
         logger.error(`GetNaverFavoriteItemList: ${e}`)
         return []
+      }
+    },
+    SetNaverFavoriteItemDelete: async (
+      prent, 
+      {},
+      {
+        req,
+        model : {NaverSaveItemFavorite},
+        logger
+      }
+    ) => {
+      try {
+        await NaverSaveItemFavorite.update(
+          {
+            userID: req.user.adminUser
+          },{
+            isFavorite: false,
+            isDelete: true
+          }
+        )
+        return true
+      } catch(e) {
+        logger.error(`SetNaverFavoriteItemDelete: ${e}`)
+        return false
       }
     },
     GetNaverJanpanFavoriteItemList: async (
