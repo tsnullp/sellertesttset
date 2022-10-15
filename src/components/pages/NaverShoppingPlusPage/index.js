@@ -2,15 +2,13 @@ import React, {
   useState,
   useEffect,
   useRef,
-  forwardRef,
-  useImperativeHandle,
   useContext,
 } from "react"
-import { Input, Button, message } from "antd"
+import { Button, message } from "antd"
 import styled, { css } from "styled-components"
 import { ifProp } from "styled-tools"
 import { NaverStorePlusItem, SearchFilter, SourcingImageModal } from "components"
-import { useQuery, useMutation } from "@apollo/client"
+import { useMutation } from "@apollo/client"
 import {
   GET_NAVER_RECOMMEND_ITEM_LIST,
   GET_NAVER_ITEM_LIST,
@@ -422,7 +420,7 @@ const NaverShoppingPlusPage = () => {
           try {
             if(item.isChecked){
               // 즐겨찾기
-              const response = await setFavorite({
+               await setFavorite({
                 variables: {
                   productNo: item.productNo,
                   isFavorite: true,
@@ -430,7 +428,7 @@ const NaverShoppingPlusPage = () => {
               })
              
             } else {
-              const response = await setExcept({
+              await setExcept({
                 variables: {
                   productNo: item.productNo,
                   isDelete: true,

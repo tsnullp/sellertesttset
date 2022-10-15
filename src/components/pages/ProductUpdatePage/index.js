@@ -11,7 +11,7 @@ const ProductUpdatePage = () => {
   const { ID } = useParams()
   const location = useLocation()
   const query = queryString.parse(location.search)
-  const { loading, data, error } = useQuery(PRODUCT_DETAIL, {
+  const { loading, data } = useQuery(PRODUCT_DETAIL, {
     variables: {
       productID: ID
     },

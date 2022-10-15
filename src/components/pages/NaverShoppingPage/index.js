@@ -3,8 +3,7 @@ import React, {
   useEffect,
   useRef,
   forwardRef,
-  useImperativeHandle,
-  useContext,
+  useImperativeHandle
 } from "react"
 import { Input, Button, Tabs, message, Popconfirm } from "antd"
 import styled, { css } from "styled-components"
@@ -651,7 +650,7 @@ const MallList = ({ marketClick, handleFavoriteChange }) => {
   const [list, setList] = useState([])
   const [selectedID, setSelectedID] = useState(null)
   const [filter, setFilter] = useState("")
-  const { networkStatus, data, refetch } = useQuery(GET_NAVER_MALL_LIST, {
+  const { networkStatus, refetch } = useQuery(GET_NAVER_MALL_LIST, {
     notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
       setList(data.GetNaverMallList)
@@ -696,9 +695,6 @@ const MallList = ({ marketClick, handleFavoriteChange }) => {
               if (filter.length > 0) {
                 if (item.marketName && item.marketName.includes(filter)) {
                   return true
-                }
-                {
-                  return false
                 }
               }
               return true
@@ -750,7 +746,7 @@ const CoupangMallList = ({ marketClick, handleFavoriteChange }) => {
   const [list, setList] = useState([])
   const [selectedID, setSelectedID] = useState(null)
   const [filter, setFilter] = useState("")
-  const { networkStatus, data, refetch } = useQuery(GET_COUPANG_MALL_LIST, {
+  const { networkStatus, refetch } = useQuery(GET_COUPANG_MALL_LIST, {
     notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
       setList(data.GetCoupangMallList)
@@ -795,9 +791,6 @@ const CoupangMallList = ({ marketClick, handleFavoriteChange }) => {
               if (filter.length > 0) {
                 if (item.marketName && item.marketName.includes(filter)) {
                   return true
-                }
-                {
-                  return false
                 }
               }
               return true

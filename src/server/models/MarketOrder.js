@@ -12,7 +12,7 @@ const MarketOrderSchema = mongoose.Schema({
   shipmentBoxID: String, // 배송번호(묶음배송번호)  쿠팡용
   orderId: {
     type: String,
-    index: true,
+    index: true
   }, /// 주문번호
   cafe24OrderID: String, // 카페24용
   orderer: {

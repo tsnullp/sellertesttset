@@ -6,97 +6,105 @@ const moment = require("moment")
 
 const start = async ({userID, mallID}) => {
   
-  const endDate = moment().format("YYYY-MM-DD")
-  
-  const startDate = moment().subtract(3, "month").format("YYYY-MM-DD")
-  const response = await Cafe24ListOrders({
-    mallID,
-    orderState: "",
-    startDate, endDate
-  })
+
+  for(let i = 0; i < 12; i++){
+    const startDate = moment().subtract(i+1, "month").add(1, "days").format("YYYY-MM-DD")  
+    const endDate = moment().subtract(i, "month").format("YYYY-MM-DD")
+    console.log("--", i, startDate, endDate)
+
+    const response = await Cafe24ListOrders({
+      mallID,
+      orderState: "",
+      startDate,
+      endDate
+    })
 
   
-
-  for(const item of response){
-    try {
-      if(item.items[0].order_status === "N00"){
-        continue
-      }
-      const date = moment(item.order_date).format("YYYYMMDD HHmmss")
-  
-      const temp = await MarketOrder.findOne({
-        userID: ObjectId(userID),
-        market: getMarketName(item.market_id),
-        orderId: item.market_order_info
-      })
-  
-     await MarketOrder.findOneAndUpdate(
-        {
+    for(const item of response){
+   
+      try {
+        if(item.items[0].order_status === "N00"){
+          console.log("item-->> N00", item)
+          continue
+        }
+    
+        const temp = await MarketOrder.findOne({
           userID: ObjectId(userID),
           market: getMarketName(item.market_id),
           orderId: item.market_order_info
-        },
-        {
-          $set: {
+        })
+    
+       await MarketOrder.findOneAndUpdate(
+          {
             userID: ObjectId(userID),
             market: getMarketName(item.market_id),
-            orderId: item.market_order_info,
-            cafe24OrderID: item.market_order_info,
-            orderer: {
-              name: item.buyer.name,
-              email: item.buyer.email,
-              tellNumber: item.buyer.phone,
-              hpNumber: item.buyer.cellphone,
-              orderDate: moment(item.order_date).format("YYYYMMDD"),
-              orderTime: moment(item.order_date).format("HHmmss")
-            },
-            paidAtDate: moment(item.payment_date).format("YYYYMMDD"),
-            paidAtTime: moment(item.payment_date).format("HHmmss"),
-  
-            shippingPrice: item.shipping_fee ? Number(item.shipping_fee.replace(/,/gi, "")) : Number(item.actual_order_amount.shipping_fee.replace(/,/gi, "")),
-  
-            receiver: {
-              name: item.receivers[0].name,
-              tellNumber: item.receivers[0].phone,
-              hpNumber: item.receivers[0].cellphone,
-              addr: item.receivers[0].address_full,
-              postCode: item.receivers[0].zipcode,
-              parcelPrintMessage: item.receivers[0].shipping_message
-            },
-  
-            orderItems: item.items.map(item => {
-              return {
-                title: item.product_name_default,
-                option: item.option_value.replace("옵션=", ""),
-                quantity: Number(item.quantity),
-                salesPrice: Number(item.product_price.replace(/,/gi, "")),
-                orderPrice: Number(item.product_price.replace(/,/gi, "")) * Number(item.quantity),
-                discountPrice: Number(item.additional_discount_price.replace(/,/gi, "")) + Number(item.coupon_discount_price.replace(/,/gi, "")),
-              }
-            }),
-            
-            overseaShippingInfoDto: {
-              personalCustomsClearanceCode:
-                item.receivers[0].clearance_information,
-              ordererPhoneNumber:
-              item.receivers[0].cellphone,
-            },
-  
-            saleType: getOrderState(item.items[0].order_status),
-            deliveryCompanyName:
-              temp && temp.deliveryCompanyName ? temp.deliveryCompanyName : "CJ 대한통운"
-          }
-        },
-        { upsert: true }
-      )
-  
-      
-    } catch(e){
-      console.log("ERROR", e)
-      console.log("ERROR-ITME", item)
-    }
+            orderId: item.market_order_info
+          },
+          {
+            $set: {
+              userID: ObjectId(userID),
+              market: getMarketName(item.market_id),
+              orderId: item.market_order_info,
+              cafe24OrderID: item.market_order_info,
+              orderer: {
+                name: item.buyer.name,
+                email: item.buyer.email,
+                tellNumber: item.buyer.phone,
+                hpNumber: item.buyer.cellphone,
+                orderDate: moment(item.order_date).format("YYYYMMDD"),
+                orderTime: moment(item.order_date).format("HHmmss")
+              },
+              paidAtDate: moment(item.payment_date).format("YYYYMMDD"),
+              paidAtTime: moment(item.payment_date).format("HHmmss"),
     
+              shippingPrice: item.shipping_fee ? Number(item.shipping_fee.replace(/,/gi, "")) : Number(item.actual_order_amount.shipping_fee.replace(/,/gi, "")),
+    
+              receiver: {
+                name: item.receivers[0].name,
+                tellNumber: item.receivers[0].phone,
+                hpNumber: item.receivers[0].cellphone,
+                addr: item.receivers[0].address_full,
+                postCode: item.receivers[0].zipcode,
+                parcelPrintMessage: item.receivers[0].shipping_message
+              },
+    
+              orderItems: item.items.map(item => {
+                return {
+                  title: item.product_name_default,
+                  option: item.option_value.replace("옵션=", ""),
+                  quantity: Number(item.quantity),
+                  salesPrice: Number(item.product_price.replace(/,/gi, "")),
+                  orderPrice: Number(item.product_price.replace(/,/gi, "")) * Number(item.quantity),
+                  discountPrice: Number(item.additional_discount_price.replace(/,/gi, "")) + Number(item.coupon_discount_price.replace(/,/gi, "")),
+                }
+              }),
+              
+              overseaShippingInfoDto: {
+                personalCustomsClearanceCode:
+                  item.receivers[0].clearance_information,
+                ordererPhoneNumber:
+                item.receivers[0].cellphone,
+              },
+    
+              saleType: getOrderState(item.items[0].order_status),
+              deliveryCompanyName:
+                temp && temp.deliveryCompanyName ? temp.deliveryCompanyName : "CJ 대한통운"
+            }
+          },
+          { upsert: true }
+        )
+    
+        
+      } catch(e){
+        console.log("ERROR", e)
+        console.log("ERROR-ITME", item)
+      }
+      
+    }
+
   }
+  
+  
 }
 
 module.exports = start
@@ -136,4 +144,5 @@ const getOrderState = (orderState) => {
   if(orderState.includes("E")){
     return 4
   }
+  console.log("ORDER___STATE", orderState)
 }

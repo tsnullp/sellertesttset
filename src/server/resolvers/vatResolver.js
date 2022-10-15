@@ -1541,7 +1541,7 @@ const resolvers = {
             }
 
             
-        
+        /*  // 이거는 타지 말자
             try {
               console.log("배대지 주문서 수집 시작", item)
               if (item && item.deliverySite && item.deliverySite.loginID && item.deliverySite.password) {
@@ -1571,6 +1571,7 @@ const resolvers = {
             } finally {
               console.log("타오바오 주문서 수집 끝")
             }
+            */
           }
         }, 1000)
         
