@@ -241,15 +241,17 @@ const VatDataModal = ({userID, orderId, isModalVisible, handleOk, handleCancel})
     }
   })
 
+
   // console.log("data--->>", data)
   return (
     <Modal
     title={orderId}
-    style={{minWidth: "90%", overflowX: "hidden", padding: 0}}
-    visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}
+    // style={{minWidth: "90%", overflowX: "hidden", padding: 0}}
+    width={"90%"}
+    visible={isModalVisible} 
+    onOk={handleOk} onCancel={handleCancel}
     >
       <FormContainer >
-        {marketOrderFields.length > 0 &&
         <Card type="inner" title="마켓 주문정보" hoverable bordered={false}
           style={ { background: "#f5f5f5" }}
           extra={<Button type="primary" shape="circle" icon={<RedoOutlined />} onClick={() => marketRefetch()} />}
@@ -263,7 +265,7 @@ const VatDataModal = ({userID, orderId, isModalVisible, handleOk, handleCancel})
             setMarketOrderFields(newFields)
           }}
         />
-        </Card>}
+        </Card>
         <Card type="inner" title="배대지 주문서" hoverabl
         extra={<Button type="primary" shape="circle" icon={<RedoOutlined />} onClick={() => deliveryRefetch()} />}
         e>

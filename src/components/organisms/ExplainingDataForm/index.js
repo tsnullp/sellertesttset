@@ -706,6 +706,10 @@ const ExplainingDataForm = () => {
     }
   ]
   
+  const ModalClick = orderId => {
+    setSelectdOrderID(orderId)
+    setModalVisible(true)
+  }
   const vatDetailColumns = [
     {
       title: (
@@ -719,8 +723,7 @@ const ExplainingDataForm = () => {
       width: "100px",
       render: data => (
         <ModalLink onClick={() => {
-          setSelectdOrderID(data.orderId)
-          setModalVisible(true)
+          ModalClick(data.orderId)
           }}>
           <CellCenter>{moment(data.paidAtDate, "YYYYMMDD").format("YYYY-MM-DD")}</CellCenter>
           <CellCenter>{moment(data.paidAtTime, "HHmmSS").format("HH:mm:SS")}</CellCenter>
@@ -1778,7 +1781,7 @@ const ExplainingDataForm = () => {
   }
   return (
     <Container>
-      {isModalVisible && (
+      {isModalVisible && selectedOrderID && (
         <VatDataModal 
           isModalVisible={isModalVisible}
           userID={selectUser ? selectUser : user.id}

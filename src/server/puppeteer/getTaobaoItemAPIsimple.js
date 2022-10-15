@@ -36,6 +36,7 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailmages }) => {
       new Promise(async (resolve, reject) => {
         try {
           ObjItem.content = await getContent({
+            userID,
             itemId: ObjItem.good_id,
             detailmages
           })
@@ -47,10 +48,10 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailmages }) => {
             // mainImage: Array.isArray(mainImages) && mainImages.length > 0 ? mainImages[0] : null
           })
           if (title) {
-            ObjItem.korTitle = await korTranslate(title.trim())
+            ObjItem.korTitle = await korTranslate(title.trim(), userID)
           } else {
             ObjItem.title = cnTitle
-            ObjItem.korTitle = await korTranslate(cnTitle)
+            ObjItem.korTitle = await korTranslate(cnTitle, userID)
           }
 
           ObjItem.options = options
@@ -452,7 +453,7 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
   let tempProp = []
   try {
     console.log("getOptionsV2 시작")
-    const response = await ItemSKUV2({ item_id: itemId })
+    const response = await ItemSKUV2({ userID, item_id: itemId })
 
     if (response.skus) {
       console.log("getOptionsV2 끝", response.skus.length)
@@ -471,10 +472,10 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
     if (sku_props && sku_props.length > 0) {
       let ii = 0
       for (const item of sku_props) {
-        item.korTypeName = await korTranslate(item.prop_name.trim())
+        item.korTypeName = await korTranslate(item.prop_name.trim(), userID )
         tempOptionImages = []
         for (const value of item.values) {
-          value.korValueName = await korTranslate(value.name)
+          value.korValueName = await korTranslate(value.name, userID)
 
           if (value.imageUrl) {
             const imageUrl = value.imageUrl.replace("https:", "").replace("http:", "")
@@ -946,10 +947,10 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
   }
 }
 
-const getContent = async ({ itemId, detailmages }) => {
+const getContent = async ({ userID, itemId, detailmages }) => {
   let content = []
   try {
-    let response = await ItemDescriptionV2({ item_id: itemId, detailmages })
+    let response = await ItemDescriptionV2({ userID, item_id: itemId, detailmages })
 
     content = response.map((item) => {
       return item.includes("http") ? item : `https:${item}`

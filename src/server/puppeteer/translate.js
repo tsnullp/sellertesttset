@@ -1,16 +1,32 @@
 const translate = require("translate")
 const startBrowser = require("./startBrowser")
 const axios = require("axios")
+const User = require("../models/User")
 
-const korTranslate = async (text) => {
+const korTranslate = async (text, userID) => {
   try {
+    let rapidapiKey = "932f64e27amsh78cdad966b2c2c0p129e12jsn92420146f153"
+
+    if(userID) {
+      const groupUser = await User.find(
+        {
+          group: "3"
+        }
+      )
+      const userIDs = groupUser.map(item => item._id.toString())
+   
+      if(userIDs.includes(userID.toString())) {
+        rapidapiKey = "96094e22damsh219d03f44d64534p10e61fjsn90302b426d60"
+      }
+    }
+    console.log("rapidapiKey", rapidapiKey)
     const options = {
       method: "GET",
       url: "https://nlp-translation.p.rapidapi.com/v1/translate",
       params: { text, to: "ko", from: "zh-CN" },
       headers: {
         "x-rapidapi-host": "nlp-translation.p.rapidapi.com",
-        "x-rapidapi-key": "932f64e27amsh78cdad966b2c2c0p129e12jsn92420146f153",
+        "x-rapidapi-key": rapidapiKey,
       },
     }
     const response = await axios({

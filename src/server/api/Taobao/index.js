@@ -8,6 +8,7 @@ const sharp = require('sharp')
 const fs = require("fs")
 const path = require("path")
 const {Cafe24UploadLocalImage} = require("../Market/index")
+const User = require("../../models/User")
 //https://inpa.tistory.com/entry/NODE-%F0%9F%93%9A-Sharp-%EB%AA%A8%EB%93%88-%EC%82%AC%EC%9A%A9%EB%B2%95-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EB%A6%AC%EC%82%AC%EC%9D%B4%EC%A7%95-%EC%9B%8C%ED%84%B0%EB%A7%88%ED%81%AC-%EB%84%A3%EA%B8%B0
 
 exports.TaobaoOrderList = async ({ pageNum, referer, cookie }) => {
@@ -134,10 +135,23 @@ exports.ItemSKU = async ({ num_iid }) => {
   }
 }
 
-exports.ItemSKUV2 = async ({ item_id }) => {
+exports.ItemSKUV2 = async ({ userID, item_id }) => {
   try {
-    const apiToken =
+    let apiToken =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRzbnVsbHAifQ.KLUeGxRdf088cUQwnYt-XS3Tgk8fxr-o7IpqG_BZmuI"
+
+    if(userID) {
+      const groupUser = await User.find(
+        {
+          group: "3"
+        }
+      )
+      const userIDs = groupUser.map(item => item._id.toString())
+      if(userIDs.includes(userID.toString())) {
+        apiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VybmFtZSI6InppdGFuZTM4IiwiQ29taWQiOm51bGwsIlJvbGVpZCI6bnVsbCwiaXNzIjoidG1hcGkiLCJzdWIiOiJ6aXRhbmUzOCIsImF1ZCI6WyIiXX0.csSgsUbe-9VruviWYF-AXKaZDP_mO8pFiyKNFSe0N1s"
+      }
+    }
+    console.log("apiToken", apiToken)
     // const options = {
     //   method: "GET",
     //   url: "https://taobao-tmall-product-data-v2.p.rapidapi.com/api/sc/taobao/item_detail",
@@ -282,12 +296,24 @@ exports.ItemDescription = async ({ num_iid }) => {
   }
 }
 
-exports.ItemDescriptionV2 = async ({ item_id, detailImages = [] }) => {
+exports.ItemDescriptionV2 = async ({ userID, item_id, detailImages = [] }) => {
   let detailUrls = []
   try {
     if(detailImages.length === 0) {
-      const apiToken =
+      let apiToken =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRzbnVsbHAifQ.KLUeGxRdf088cUQwnYt-XS3Tgk8fxr-o7IpqG_BZmuI"
+
+      if(userID) {
+        const groupUser = await User.find(
+          {
+            group: "3"
+          }
+        )
+        const userIDs = groupUser.map(item => item._id.toString())
+        if(userIDs.includes(userID.toString())) {
+          apiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VybmFtZSI6InppdGFuZTM4IiwiQ29taWQiOm51bGwsIlJvbGVpZCI6bnVsbCwiaXNzIjoidG1hcGkiLCJzdWIiOiJ6aXRhbmUzOCIsImF1ZCI6WyIiXX0.csSgsUbe-9VruviWYF-AXKaZDP_mO8pFiyKNFSe0N1s"
+        }
+      }
       // const options = {
       //   method: "GET",
       //   url: "https://taobao-tmall-product-data-v2.p.rapidapi.com/api/sc/taobao/item_desc",
