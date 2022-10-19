@@ -573,6 +573,7 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
         // console.log("ITEM__", item)
       }
       console.log("번역 끝")
+      console.log("sku_props.length", sku_props.length)
       if (sku_props.length === 1) {
         for (const pItem of sku_props[0].values) {
           const propPath = `${sku_props[0].pid}:${pItem.vid}`
@@ -690,20 +691,25 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
           for (const vItem of sku_props[1].values) {
             for (const v2Item of sku_props[2].values) {
               let propPath = `${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
-
+              let propPath2 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid}`
+              let propPath3 = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid}`
+              // console.log("propPath -- ", propPath)
               let skuId = null
               let price,
                 promotion_price,
                 quantity = 0
 
               let filterSku = skus
-                .filter((item) => item.props_ids === propPath)
+                .filter((item) => (item.props_ids === propPath || item.props_ids === propPath2 || item.props_ids === propPath3))
                 .filter((item) => Number(item.stock) > 0)
+
+           
               if (filterSku.length > 0) {
+                propPath = filterSku[0].props_ids
                 skuId = filterSku[0].skuid
                 price = filterSku[0].sale_price
                 promotion_price = filterSku[0].sale_price
-                quantity = filterSku[0].quantity
+                quantity = filterSku[0].stock
               } else {
                 propPath = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid}`
                 filterSku = skus.filter((item) => item.props_ids === propPath)
@@ -711,7 +717,7 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
                   skuId = filterSku[0].skuid
                   price = filterSku[0].sale_price
                   promotion_price = filterSku[0].sale_price
-                  quantity = filterSku[0].quantity
+                  quantity = filterSku[0].stock
                 }
               }
 
@@ -753,6 +759,94 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
                   active: skuId ? true : false,
                   korValue: `${pItem.korValueName} ${vItem.korValueName} ${v2Item.korValueName}`,
                 })
+              }
+            }
+          }
+        }
+      } else if (sku_props.length === 4) {
+        for (const pItem of sku_props[0].values) {
+          for (const vItem of sku_props[1].values) {
+            for (const v2Item of sku_props[2].values) {
+              for (const v3Item of sku_props[3].values) {
+                let propPath = `${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
+                let propPath2 = `${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid}`
+                let propPath3 = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid}`
+                let propPath4 = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid}`
+                let propPath5 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
+                let propPath6 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid}`
+                let propPath7 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid}`
+                let propPath8 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid}`
+
+                let skuId = null
+                let price,
+                  promotion_price,
+                  quantity = 0
+
+                let filterSku = skus
+                  .filter((item) => (item.props_ids === propPath || item.props_ids === propPath2 || item.props_ids === propPath3 || item.props_ids === propPath4 || item.props_ids === propPath5 || item.props_ids === propPath6 || item.props_ids === propPath7 || item.props_ids === propPath8) )
+                  .filter((item) => Number(item.stock) > 0)
+                if (filterSku.length > 0) {
+                  propPath = filterSku[0].props_ids
+                  skuId = filterSku[0].skuid
+                  price = filterSku[0].sale_price
+                  promotion_price = filterSku[0].sale_price
+                  quantity = filterSku[0].stock
+                } else {
+                  propPath = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid}`
+                  filterSku = skus.filter((item) => item.props_ids === propPath)
+                  if (filterSku.length > 0) {
+                    skuId = filterSku[0].skuid
+                    price = filterSku[0].sale_price
+                    promotion_price = filterSku[0].sale_price
+                    quantity = filterSku[0].stock
+                  }
+                }
+
+                if (filterSku.length > 0) {
+                  let imageUrl = pItem.imageUrl
+                    ? pItem.imageUrl.replace("https:", "").replace("http:", "")
+                    : vItem.imageUrl
+                    ? vItem.imageUrl.replace("https:", "").replace("http:", "")
+                    : v2Item.imageUrl.replace("https:", "")
+
+                  tempOption.push({
+                    key: skuId,
+                    propPath,
+                    price: price ? price : 0,
+                    promotion_price: promotion_price ? promotion_price : 0,
+                    stock: quantity ? quantity : 0,
+                    image: imageUrl && imageUrl.includes("https") ? imageUrl : `https:${imageUrl}`,
+                    attributes: [
+                      {
+                        typeName: sku_props[0].name,
+                        attributeTypeName: sku_props[0].korTypeName,
+                        valueName: pItem.name,
+                        attributeValueName: pItem.korValueName,
+                      },
+                      {
+                        typeName: sku_props[1].name,
+                        attributeTypeName: sku_props[1].korTypeName,
+                        valueName: vItem.name,
+                        attributeValueName: vItem.korValueName,
+                      },
+                      {
+                        typeName: sku_props[2].name,
+                        attributeTypeName: sku_props[2].korTypeName,
+                        valueName: v2Item.name,
+                        attributeValueName: v2Item.korValueName,
+                      },
+                      {
+                        typeName: sku_props[3].name,
+                        attributeTypeName: sku_props[3].korTypeName,
+                        valueName: v3Item.name,
+                        attributeValueName: v3Item.korValueName,
+                      },
+                    ],
+                    disabled: skuId ? false : true,
+                    active: skuId ? true : false,
+                    korValue: `${pItem.korValueName} ${vItem.korValueName} ${v2Item.korValueName} ${v3Item.korValueName}`,
+                  })
+                }
               }
             }
           }
@@ -827,7 +921,11 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
       //   active: true
       // })
     }
-  
+
+    // console.log("sku_props", sku_props)
+    // for(const item of sku_props) {
+    //   console.log("item", item)
+    // }
     
     let tempTempOption = tempOption.filter((item) => {
       if (item.korValue.includes("고객")) {

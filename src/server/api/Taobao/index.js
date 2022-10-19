@@ -176,7 +176,7 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
     //TODO:
     let mainImages = []
     const platform = os.platform()
-    
+   
     for(const item of response.data.data.main_imgs){
       let mainObj = {}
       try {
@@ -222,7 +222,9 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
         try {
           if(value.imageUrl) {
             const imageCheckValue = await imageCheck(value.imageUrl)
+          
             if(imageCheckValue && imageCheckValue.width < 500) {
+              console.log("imageCheckValue", imageCheckValue)
               try {
                 const imageRespone = await axios({
                   method: "GET",
@@ -238,7 +240,7 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
                   value.imageUrl = imageUrlResponse
                 }
               } catch(e){
-                value.imageUrl = null
+                // value.imageUrl = null
               }
             }
             

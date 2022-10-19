@@ -273,8 +273,8 @@ exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
       path,
     })
   } catch (e) {
-    console.log("Cafe24UploadLocalImage", e)
-    console.log("Cafe24UploadLocalImage", e.response)
+    // console.log("Cafe24UploadLocalImage", e)
+    console.log("Cafe24UploadLocalImage", e.message)
   }
 }
 
