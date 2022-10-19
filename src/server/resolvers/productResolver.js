@@ -3823,7 +3823,9 @@ const resolvers = {
                   })
                   console.log("cafe24Response", cafe24Response)
 
-                  if (req.user.adminUser.toString() === "5f1947bd682563be2d22f008") {
+                  if (req.user.adminUser.toString() === "5f1947bd682563be2d22f008" ||
+                  req.user.adminUser.toString() === "5f601bdf18d42d13d0d616d0"
+                  ) {
                     await CoupangWinner.findOneAndUpdate(
                       {
                         _id: winnerItem._id,
@@ -3848,8 +3850,9 @@ const resolvers = {
 
                     console.log("productItem._id", productItem._id)
                     console.log("response", response)
+                    console.log("user", user)
                     // console.log("winnerItem._id", winnerItem._id)
-                    if (response === null || response.coupang.code === null) {
+                    if (response.coupang.code === null) {
                       await CoupangWinner.findOneAndUpdate(
                         {
                           _id: winnerItem._id,
