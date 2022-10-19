@@ -3849,7 +3849,7 @@ const resolvers = {
                     console.log("productItem._id", productItem._id)
                     console.log("response", response)
                     // console.log("winnerItem._id", winnerItem._id)
-                    if (response.coupang.code === null) {
+                    if (response === null || response.coupang.code === null) {
                       await CoupangWinner.findOneAndUpdate(
                         {
                           _id: winnerItem._id,

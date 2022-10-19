@@ -19,7 +19,7 @@ const korTranslate = async (text, userID) => {
         rapidapiKey = "96094e22damsh219d03f44d64534p10e61fjsn90302b426d60"
       }
     }
-    console.log("rapidapiKey", rapidapiKey)
+    
     const options = {
       method: "GET",
       url: "https://nlp-translation.p.rapidapi.com/v1/translate",

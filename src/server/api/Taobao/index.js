@@ -3,6 +3,7 @@ const moment = require("moment")
 const axios = require("axios")
 const { imageCheck, getAppDataPath } = require("../../../lib/usrFunc")
 const tesseract = require("node-tesseract-ocr")
+const os = require("os")
 const _ = require("lodash")
 const sharp = require('sharp')
 const fs = require("fs")
@@ -151,7 +152,7 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
         apiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VybmFtZSI6InppdGFuZTM4IiwiQ29taWQiOm51bGwsIlJvbGVpZCI6bnVsbCwiaXNzIjoidG1hcGkiLCJzdWIiOiJ6aXRhbmUzOCIsImF1ZCI6WyIiXX0.csSgsUbe-9VruviWYF-AXKaZDP_mO8pFiyKNFSe0N1s"
       }
     }
-    console.log("apiToken", apiToken)
+ 
     // const options = {
     //   method: "GET",
     //   url: "https://taobao-tmall-product-data-v2.p.rapidapi.com/api/sc/taobao/item_detail",
@@ -174,17 +175,22 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
 
     //TODO:
     let mainImages = []
+    const platform = os.platform()
+    
     for(const item of response.data.data.main_imgs){
       let mainObj = {}
       try {
         await imageCheck(item)
-        // mainObj.image = item
-        // const text = await tesseract.recognize(item, {
-        //   lang: "chi_tra",
-        //   oem: 1,
-        //   psm: 3
-        // })
-        // mainObj.textLength = text.length
+        if(platform === "darwin" ) {
+          mainObj.image = item
+          const text = await tesseract.recognize(item, {
+            lang: "chi_tra",
+            oem: 1,
+            psm: 3
+          })
+          mainObj.textLength = text.length
+        }
+        
    
       } catch(e){
 

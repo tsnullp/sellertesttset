@@ -32,6 +32,7 @@ const createWindow = async () => {
     },
   })
   win.setAutoHideMenuBar(true)
+  
   if (isDev) {
     win.loadURL("http://localhost:3001")
     // win.webContents.openDevTools()
