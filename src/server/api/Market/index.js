@@ -236,45 +236,66 @@ exports.Cafe24UploadImages = async ({ mallID, images }) => {
 
 exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
   try {
+    let returnUrl = null
+    const apiKeys = ["2319d7ccd2d019c84b68246f8d3c5c69", "41ea25266472b565609f3a2f01655bca", "98da31676740bc8fc7d4cf8b4cddfc01", "3b867ac3ccdd83d401c44b3fa3f05cb0", "91e1b0aeee5ab4289f45ab77ad985f3b"].sort(() => Math.random() - 0.5)
     const agent = new https.Agent({
       rejectUnauthorized: false,
     })
-
     const params = new url.URLSearchParams({ image: base64Image.split("base64,")[1] })
 
-    const options = {
-      method: "POST",
-      url: "https://api.imgbb.com/1/upload?key=2319d7ccd2d019c84b68246f8d3c5c69",
-      httpsAgent: agent,
-      data: params.toString(),
-    }
-    const response = await axios({
-      ...options,
-    })
+    for(const apiKey of apiKeys)  {
+      try {
+        const options = {
+          method: "POST",
+          url: `https://api.imgbb.com/1/upload?key=${apiKey}`,
+          httpsAgent: agent,
+          data: params.toString(),
+        }
+        const response = await axios({
+          ...options,
+        })
+    
+        if (response && response.data && response.data.status === 200) {
+          returnUrl = response.data.data.url
+          break
+        }
+      } catch(e){
+        console.log("ImgbbUploadLocalImage", e.message)
+      }
+      
 
-    if (response && response.data && response.data.status === 200) {
-      return response.data.data.url
     }
-    return null
-    console.log("Cafe24UploadLocalImage response", response)
-    const path = `admin/products/images`
-    const payload = {
-      requests: [
-        {
-          image: base64Image,
-        },
-      ],
+    
+    if(returnUrl){
+      return returnUrl
+    } else {
+      try {
+        const path = `admin/products/images`
+        const payload = {
+          requests: [
+            {
+              image: base64Image,
+            },
+          ],
+        }
+    
+        const response = await Cafe24API({
+          mallID: "tsnullp",
+          payload,
+          method: "POST",
+          path,
+        })
+        console.log("respoinse--", response)
+        return response
+      } catch (ee){
+        console.log("Cafe24UploadLocalImage", ee.message)
+      }
     }
-
-    return await Cafe24API({
-      mallID: "tsnullp",
-      payload,
-      method: "POST",
-      path,
-    })
+    
   } catch (e) {
     // console.log("Cafe24UploadLocalImage", e)
-    console.log("Cafe24UploadLocalImage", e.message)
+    console.log("ImgbbUploadLocalImage--", e.message)
+    
   }
 }
 

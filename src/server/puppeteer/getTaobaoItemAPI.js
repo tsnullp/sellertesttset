@@ -714,7 +714,7 @@ const getOptionsV2 = async ({ userID, itemId }) => {
         for (const pItem of sku_props[0].values) {
           for (const vItem of sku_props[1].values) {
             let propPath = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid}`
-
+            let propPath2 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
             // console.log("propPath", propPath)
             let skuId = null
             let price,
@@ -722,9 +722,10 @@ const getOptionsV2 = async ({ userID, itemId }) => {
               quantity = 0
             // console.log("skus", skus)
             let filterSku = skus
-              .filter((item) => item.props_ids === propPath)
+            .filter((item) => item.props_ids === propPath || item.props_ids === propPath2)
               .filter((item) => Number(item.stock) > 0)
             if (filterSku.length > 0) {
+              propPath = filterSku[0].props_ids
               skuId = filterSku[0].skuid
               price = filterSku[0].sale_price
               promotion_price = filterSku[0].sale_price
@@ -783,9 +784,13 @@ const getOptionsV2 = async ({ userID, itemId }) => {
         for (const pItem of sku_props[0].values) {
           for (const vItem of sku_props[1].values) {
             for (const v2Item of sku_props[2].values) {
-              let propPath = `${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
-              let propPath2 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid}`
-              let propPath3 = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid}`
+              let propPath = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid}`
+              let propPath2 = `${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid}`
+              let propPath3 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid}`
+              let propPath4 = `${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${pItem.vid}`
+              let propPath5 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid}`
+              let propPath6 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
+              
               // console.log("propPath -- ", propPath)
               let skuId = null
               let price,
@@ -793,7 +798,9 @@ const getOptionsV2 = async ({ userID, itemId }) => {
                 quantity = 0
 
               let filterSku = skus
-                .filter((item) => (item.props_ids === propPath || item.props_ids === propPath2 || item.props_ids === propPath3))
+                .filter((item) => (item.props_ids === propPath || item.props_ids === propPath2 || item.props_ids === propPath3 ||
+                  item.props_ids === propPath4 || item.props_ids === propPath5 || item.props_ids === propPath6
+                  ))
                 .filter((item) => Number(item.stock) > 0)
 
            
@@ -861,22 +868,45 @@ const getOptionsV2 = async ({ userID, itemId }) => {
           for (const vItem of sku_props[1].values) {
             for (const v2Item of sku_props[2].values) {
               for (const v3Item of sku_props[3].values) {
-                let propPath = `${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
-                let propPath2 = `${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid}`
-                let propPath3 = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid}`
-                let propPath4 = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid}`
-                let propPath5 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
-                let propPath6 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid}`
-                let propPath7 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid}`
-                let propPath8 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid}`
+                let propPath = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid}`
+                let propPath2 = `${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v3Item.vid}`
+                let propPath3 = `${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[3].pid}:${v2Item.vid}`
+                let propPath4 = `${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[1].pid}:${vItem.vid}`
+                let propPath5 = `${sku_props[0].pid}:${pItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid}`
+                let propPath6 = `${sku_props[0].pid}:${pItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid}`
 
+                let propPath7 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid}`
+                let propPath8 = `${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid}`
+                let propPath9 = `${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[3].pid}:${v3Item.vid}`
+                let propPath10 = `${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[0].pid}:${pItem.vid}`
+                let propPath11 = `${sku_props[1].pid}:${vItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid}`
+                let propPath12 = `${sku_props[1].pid}:${vItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${pItem.vid}`
+
+                let propPath13 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${vItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[3].pid}:${v3Item.vid}`
+                let propPath14 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${vItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[1].pid}:${vItem.vid}`
+                let propPath15 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[3].pid}:${v3Item.vid}`
+                let propPath16 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[0].pid}:${pItem.vid}`
+                let propPath17 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
+                let propPath18 = `${sku_props[2].pid}:${v2Item.vid};${sku_props[3].pid}:${v3Item.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid}`
+
+                let propPath19 = `${sku_props[3].pid}:${v3Item.vid};${sku_props[0].pid}:${vItem.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid}`
+                let propPath20 = `${sku_props[3].pid}:${v3Item.vid};${sku_props[0].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid}`
+                let propPath21 = `${sku_props[3].pid}:${v3Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[2].pid}:${v2Item.vid}`
+                let propPath22 = `${sku_props[3].pid}:${v3Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${pItem.vid}`
+                let propPath23 = `${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[0].pid}:${pItem.vid};${sku_props[1].pid}:${vItem.vid}`
+                let propPath24 = `${sku_props[3].pid}:${v3Item.vid};${sku_props[2].pid}:${v2Item.vid};${sku_props[1].pid}:${vItem.vid};${sku_props[0].pid}:${pItem.vid}`
+
+                
                 let skuId = null
                 let price,
                   promotion_price,
                   quantity = 0
 
                 let filterSku = skus
-                  .filter((item) => (item.props_ids === propPath || item.props_ids === propPath2 || item.props_ids === propPath3 || item.props_ids === propPath4 || item.props_ids === propPath5 || item.props_ids === propPath6 || item.props_ids === propPath7 || item.props_ids === propPath8) )
+                  .filter((item) => (item.props_ids === propPath || item.props_ids === propPath2 || item.props_ids === propPath3 || item.props_ids === propPath4 || item.props_ids === propPath5 || item.props_ids === propPath6 || item.props_ids === propPath7 || item.props_ids === propPath8 ||
+                    item.props_ids === propPath9 || item.props_ids === propPath10 || item.props_ids === propPath11 || item.props_ids === propPath12 || item.props_ids === propPath13 || item.props_ids === propPath14 || item.props_ids === propPath15 || item.props_ids === propPath16 ||
+                    item.props_ids === propPath17 || item.props_ids === propPath18 || item.props_ids === propPath19 || item.props_ids === propPath20 || item.props_ids === propPath21 || item.props_ids === propPath22 || item.props_ids === propPath23 || item.props_ids === propPath24
+                    ) )
                   .filter((item) => Number(item.stock) > 0)
                 if (filterSku.length > 0) {
                   propPath = filterSku[0].props_ids
