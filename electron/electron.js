@@ -26,7 +26,7 @@ const createWindow = async () => {
       nodeIntegration: true,
       enableRemoteModule: true,
       // preload: path.resolve(`${__dirname}/preload.js`)
-      preload: __dirname + "/preload.js",
+      preload: __dirname + os.platform() === "darwin" ? "/preload.js" : "\\preload.js",
       webSecurity: false,
       contextIsolation: false
     },
