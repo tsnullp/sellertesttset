@@ -256,11 +256,12 @@ exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
         })
     
         if (response && response.data && response.data.status === 200) {
+          console.log("Imgbb 성공", response.data.data.url)
           returnUrl = response.data.data.url
           break
         }
       } catch(e){
-        console.log("ImgbbUploadLocalImage", e.message)
+        // console.log("ImgbbUploadLocalImage", e.message)
       }
       
 
