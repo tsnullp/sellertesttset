@@ -68,10 +68,15 @@ const searchNaver = async ({ keyword, mall }) => {
 
     const list = jsObj.shoppingResult.products
 
+   
+
     let findObj = _.find(list, { category4Id: catId })
 
     if (!findObj) {
       findObj = _.find(list, { category3Id: catId })
+    }
+    if( !findObj) {
+      findObj = list[0]
     }
 
     if (findObj) {

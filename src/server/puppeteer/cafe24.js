@@ -76,7 +76,7 @@ const start = async ({ mallID, password }) => {
       try {
         if (i !== 1) {
           await marketPage.goto(
-            `https://${mallID}.shopcafe.cafe24.com/mp/product/front/noSale?page=${1}`,
+            `https://${mallID}.shopcafe.cafe24.com/mp/product/front/noSale?page=${i}`,
             {
               waituntil: "networkidle0",
             }
