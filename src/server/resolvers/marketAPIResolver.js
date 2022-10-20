@@ -1019,7 +1019,7 @@ const marketAPIResolver = {
 
         let returnValue = []
         for (const item of response) {
-          console.log("item==", item)
+        
           returnValue.push({
             market_id: item.market_id,
             market_order_info: item.market_order_info,

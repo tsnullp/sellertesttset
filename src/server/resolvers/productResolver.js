@@ -2234,7 +2234,7 @@ const resolvers = {
           })
           for (const item of input) {
             try {
-              console.log("item==", item)
+            
               let product = await Product.aggregate([
                 {
                   $match: {
