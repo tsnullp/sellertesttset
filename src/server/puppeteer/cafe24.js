@@ -72,11 +72,11 @@ const start = async ({ mallID, password }) => {
 
     const totalPage = Math.ceil(Number(total.replace(/,/gi, "") || 0) / 10)
     for (let i = 1; i <= totalPage; i++) {
-      console.log("Page", i)
+      console.log("Page", i , " / ", totalPage)
       try {
         if (i !== 1) {
           await marketPage.goto(
-            `https://${mallID}.shopcafe.cafe24.com/mp/product/front/noSale?page=${i}`,
+            `https://${mallID}.shopcafe.cafe24.com/mp/product/front/noSale?page=${1}`,
             {
               waituntil: "networkidle0",
             }
