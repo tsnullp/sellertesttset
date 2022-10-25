@@ -1583,15 +1583,16 @@ const resolvers = {
       }
     },
     TaobaoOrderBatch: async (
-      parent, {}, {req, model:{Market},  logger} 
+      parent, {userID}, {req, model:{Market},  logger} 
     ) => {
       try {
+        const user = userID ? userID : req.user.adminUser
         setTimeout(async() => {
           
           const market = await Market.aggregate([
             {
               $match: {
-                userID: ObjectId(req.user.adminUser)
+                userID: ObjectId(user)
               }
             }
           ])
@@ -1622,11 +1623,11 @@ const resolvers = {
       }
     },
     TabaeOrderBatch: async (
-      parent, {}, {req, model:{Market},  logger} 
+      parent, {userID}, {req, model:{Market},  logger} 
     ) => {
       try {
         setTimeout(async() => {
-
+          const user = userID ? userID : req.user.adminUser
           try {
             console.log("환율 조회 시작")
             await findExchange()
@@ -1639,7 +1640,7 @@ const resolvers = {
           const market = await Market.aggregate([
             {
               $match: {
-                userID: ObjectId(req.user.adminUser)
+                userID: ObjectId(user)
               }
             }
           ])
@@ -1726,19 +1727,20 @@ const resolvers = {
       }
     },
     TaobaoOrderManual: async (
-      parent, {input}, {req, model: {TaobaoOrder}, logger}
+      parent, {input, userID}, {req, model: {TaobaoOrder}, logger}
     ) => {
       try {
+        const user = userID ? userID : req.user.adminUser
         for (const item of input){
           await TaobaoOrder.findOneAndUpdate(
             {
               orderNumber: item.orderNumber,
-              userID: ObjectId(req.user.adminUser)
+              userID: ObjectId(user)
             },
             {
               $set: {
                 orderNumber: item.orderNumber,
-                userID: ObjectId(req.user.adminUser),
+                userID: ObjectId(user),
                 orderDate: item.orderDate,
                 orderTime: item.orderTime,
                 orders: item.orders,

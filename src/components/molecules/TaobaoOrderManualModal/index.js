@@ -6,7 +6,7 @@ import moment from "moment"
 const { TextArea } = Input
 
 
-const TaobaoOrderManualModal = ({isModalVisible, handleOk, handleCancel}) => {
+const TaobaoOrderManualModal = ({userID, isModalVisible, handleOk, handleCancel}) => {
   const [value, setValue] = useState("")
   const [orderManual] = useMutation(TAOBAO_ORDER_MANUAL)
   const decodeUnicode = (unicodeString) => { 
@@ -66,7 +66,8 @@ const TaobaoOrderManualModal = ({isModalVisible, handleOk, handleCancel}) => {
       console.log("values", values)
       const response = await orderManual({
         variables: {
-          input: values
+          input: values,
+          userID
         }
       })
       console.log("RESPONSE", response)

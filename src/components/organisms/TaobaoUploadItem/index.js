@@ -206,8 +206,8 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
     if (!item) {
       return
     }
-    console.log("handleOptions", item)
-    console.log("options", value)
+    // console.log("handleOptions", item)
+    // console.log("options", value)
     setItem({
       ...item,
       options: value,

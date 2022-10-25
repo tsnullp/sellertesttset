@@ -232,13 +232,14 @@ const marketAPIResolver = {
     },
     ListAllOrders: async (
       parent,
-      { orderState },
+      { orderState, userID },
       { req, model: { Market, Product, DeliveryInfo, MarketOrder, OrderList }, logger }
     ) => {
       const list = []
       try {
+        const user = userID ? userID : req.user.adminUser
         const market = await Market.findOne({
-          userID: req.user.adminUser,
+          userID: user,
         })
         const endDate = moment().format("YYYY-MM-DD")
 
@@ -278,20 +279,20 @@ const marketAPIResolver = {
               }
 
               const temp = await MarketOrder.findOne({
-                userID: ObjectId(req.user.adminUser),
+                userID: ObjectId(user),
                 market: getMarketName(item.market_id),
                 orderId: item.market_order_info,
               })
 
               await MarketOrder.findOneAndUpdate(
                 {
-                  userID: ObjectId(req.user.adminUser),
+                  userID: ObjectId(user),
                   market: getMarketName(item.market_id),
                   orderId: item.market_order_info,
                 },
                 {
                   $set: {
-                    userID: ObjectId(req.user.adminUser),
+                    userID: ObjectId(user),
                     market: getMarketName(item.market_id),
                     orderId: item.market_order_info,
                     cafe24OrderID: item.market_order_info,
@@ -351,7 +352,7 @@ const marketAPIResolver = {
             const deliveryInfo = await DeliveryInfo.aggregate([
               {
                 $match: {
-                  userID: req.user.adminUser,
+                  userID: ObjectId(user),
                   "orderItems.오픈마켓주문번호": { $regex: `.*${item.market_order_info}.*` },
                 },
               },
@@ -487,7 +488,7 @@ const marketAPIResolver = {
                   option.option_value = option.option_value.split("=")[1]
 
                   const product = await Product.findOne({
-                    userID: req.user.adminUser,
+                    userID: ObjectId(user),
                     $text: {
                       $search: productName.trim(),
                     },

@@ -1899,7 +1899,7 @@ const schema = gql`
 
     GetKiprisWord(search: String): [KiprisType]
 
-    ListAllOrders(orderState: String): [OrderInfoType]
+    ListAllOrders(orderState: String, userID: ID): [OrderInfoType]
 
     SalesClendar(date: String, userID: ID): SalesClendarType
     SalesMonthClendar(date: String, userID: ID): SalesClendarType
@@ -2126,8 +2126,8 @@ const schema = gql`
     Cafe24Sync: Boolean
     GetKiprisWord(search: String): [KiprisType]
 
-    TaobaoOrderBatch: Boolean
-    TabaeOrderBatch: Boolean
+    TaobaoOrderBatch(userID: ID): Boolean
+    TabaeOrderBatch(userID: ID): Boolean
 
     GetTaobaoItem(orderNumber: String): TaobaoItemType
     UnipassValid(name: String, customID: String, phone: String): Boolean
@@ -2208,7 +2208,7 @@ const schema = gql`
       category4: String
     ): QualityCheckResponse
 
-    TaobaoOrderManual(input: [TaobaoOrderManualInputType]): Boolean
+    TaobaoOrderManual(userID: ID, input: [TaobaoOrderManualInputType]): Boolean
 
     AuctionList: Boolean
 

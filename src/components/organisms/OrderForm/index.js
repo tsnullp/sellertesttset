@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import styled from "styled-components"
 import {
   TabaeCategory,
@@ -6,24 +6,18 @@ import {
   CoolzikuOrderTable,
   TaobaoOrderModal,
   TaobaoOrderManualModal,
-  ExcelImport,
-  CoolzikuConvertTable,
+  UserSelect
 } from "components"
 import { useQuery, useMutation } from "@apollo/client"
 import {
   Table,
   Button,
   BackTop,
-  Checkbox,
   Input,
   Divider,
-  Switch,
-  message,
   notification,
   Image,
-  Tooltip,
   Tag,
-  Popconfirm,
 } from "antd"
 import {
   LIST_ALL_ORDER,
@@ -36,6 +30,7 @@ import {
 
 import moment from "moment"
 import { isPhoneNum } from "../../../lib/userFunc"
+import { UserContext } from "context/UserContext"
 import {
   CheckCircleFilled,
   ExclamationCircleFilled,
@@ -50,6 +45,8 @@ import path from "path"
 const { shell, remote } = window.require("electron")
 
 const OrderForm = ({ orderState }) => {
+  const { user } = useContext(UserContext)
+  const [selectUser, setSelectUser] = useState(null)
   const [itemData, setItemData] = useState([])
   const [selectedRow, setSelectedRow] = useState([])
   const [tabaeOrderExcel, setTaeOrderExcel] = useState([])
@@ -64,6 +61,7 @@ const OrderForm = ({ orderState }) => {
   const { data, refetch, networkStatus } = useQuery(LIST_ALL_ORDER, {
     variables: {
       orderState,
+      userID: selectUser
     },
     notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
@@ -535,6 +533,10 @@ const OrderForm = ({ orderState }) => {
     setCoolzikcuConvertModalVisible(true)
   }
 
+  const handleSelectChange = (value) => {
+    setSelectUser(value)
+  }
+
   return (
     <div>
       <ButtonContainer>
@@ -548,10 +550,17 @@ const OrderForm = ({ orderState }) => {
           onSuccess={handleExcel}
           title={"타배 주문서 -> 꿀직구 주문서"}
         /> */}
-
+        <UserSelect isRoot={false} handleSelectChange={handleSelectChange} userID={user.id} />
+        <Button 
+          onClick={() => refetch()}
+        >조회</Button>
         <Button
           onClick={async () => {
-            const response = await taobaoOrder()
+            const response = await taobaoOrder({
+              variables: {
+                userID: selectUser
+              }
+            })
 
             // message.success("데이터 수집을 시작합니다.")
             notification["success"]({
@@ -578,6 +587,7 @@ const OrderForm = ({ orderState }) => {
         </Button>
         {isTaobaoOrderModalVisible && (
           <TaobaoOrderManualModal
+            userID={selectUser}
             isModalVisible={isTaobaoOrderModalVisible}
             handleOk={() => setTaobaoOrderModalVisible(false)}
             handleCancel={() => setTaobaoOrderModalVisible(false)}
@@ -673,7 +683,11 @@ const OrderForm = ({ orderState }) => {
         <Button
           type="primary"
           onClick={async () => {
-            const response = await tabaeOrder()
+            const response = await tabaeOrder({
+              variables: {
+                userID: selectUser
+              }
+            })
             console.log("response", response)
             // message.success("데이터 수집을 시작합니다.")
             notification["success"]({

@@ -1,6 +1,6 @@
 import React, { useState, useContext}  from "react"
 import styled from "styled-components"
-import { Calendar, Badge, Button, Select } from "antd"
+import { Calendar, Badge, Button } from "antd"
 import { PRODUCT_COUNT_DAILY } from "../../../gql"
 import { useQuery } from "@apollo/client"
 import { UserContext } from "context/UserContext"
@@ -19,7 +19,6 @@ import {
 import moment from "moment"
 import "moment/locale/ko"
 moment.locale("ko")
-const { Option } = Select
 
 const ProductCalendar = () => {
   const { user } = useContext(UserContext)

@@ -5011,8 +5011,8 @@ const resolvers = {
                   new: true,
                 }
               )
-              console.log("detailItem.options", detailItem.options)
-              console.log("options", options)
+              // console.log("detailItem.options", detailItem.options)
+              // console.log("options", options)
 
               const cafe24Response = await updateCafe24({
                 id: productItem._id,
@@ -7630,9 +7630,9 @@ const resolvers = {
     },
     ModifyOptions: async (parent, { id, props, options }, { req, model: { Product }, logger }) => {
       try {
-        console.log("id", id)
-        console.log("props", props)
-        console.log("options", options)
+        // console.log("id", id)
+        // console.log("props", props)
+        // console.log("options", options)
 
         const product = await Product.findOne({
           userID: ObjectId(req.user.adminUser),

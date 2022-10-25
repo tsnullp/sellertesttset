@@ -103,6 +103,7 @@ const UserSelect = ({ isRoot = false, handleSelectChange, userID }) => {
     <Select
       style={{ minWidth: 120, maxWidth: 120, marginRight: "10px" }}
       size="middle"
+      status="warning"
       onChange={handleSelectChange}
       defaultValue={userID}
     >

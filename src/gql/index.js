@@ -2360,13 +2360,13 @@ export const GET_KIPRISWORD = gql`
 `
 
 export const TAOBAO_ORDER_BATCH = gql`
-  mutation TaobaoOrderBatch {
-    TaobaoOrderBatch
+  mutation TaobaoOrderBatch($userID: ID) {
+    TaobaoOrderBatch(userID: $userID)
   }
 `
 export const TABAE_ORDER_BATCH = gql`
-  mutation TabaeOrderBatch {
-    TabaeOrderBatch
+  mutation TabaeOrderBatch($userID: ID) {
+    TabaeOrderBatch(userID: $userID)
   }
 `
 
@@ -2405,8 +2405,8 @@ export const SALES_MONTH_CLENDAR = gql`
 `
 
 export const LIST_ALL_ORDER = gql`
-  query ListAllOrders($orderState: String) {
-    ListAllOrders(orderState: $orderState) {
+  query ListAllOrders($orderState: String, $userID: ID) {
+    ListAllOrders(orderState: $orderState, userID: $userID) {
       order_id
       market_id
       market_order_info
@@ -3141,8 +3141,8 @@ export const QUALITY_CHECK = gql`
 `
 
 export const TAOBAO_ORDER_MANUAL = gql`
-  mutation TaobaoOrderManual($input: [TaobaoOrderManualInputType]) {
-    TaobaoOrderManual(input: $input)
+  mutation TaobaoOrderManual($userID: ID, $input: [TaobaoOrderManualInputType]) {
+    TaobaoOrderManual(userID: $userID, input: $input)
   }
 `
 
