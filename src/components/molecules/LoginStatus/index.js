@@ -25,7 +25,7 @@ const LoginStatus = () => {
       })
     
       action.login(response.data.authGoogle)
-      window.location.reload()
+      // window.location.reload()
 
     }
 
@@ -52,7 +52,7 @@ const LoginStatus = () => {
   const IsLogin = async () => {
     const response = await isLoginCheck()
 
-    action.login(response.data.isLogin)
+    // action.login(response.data.isLogin)
   }
 
   if (!user) {
