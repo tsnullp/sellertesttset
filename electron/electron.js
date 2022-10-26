@@ -58,9 +58,9 @@ const createWindow = async () => {
 app.whenReady().then(() => {
   createWindow()
   // console.log("getFeedUrl ", autoUpdater.getFeedURL())
-  autoUpdater.setFeedURL(autoUpdater.getFeedURL())
+  // autoUpdater.setFeedURL(autoUpdater.getFeedURL())
 
-  autoUpdater.checkForUpdates()
+  // autoUpdater.checkForUpdates()
   
   try {
     database()
