@@ -164,5 +164,12 @@
     "electron-builder": "^22.13.1",
     "electron-rebuild": "^3.2.3",
     "wait-on": "^6.0.1"
+  },
+  "electronWebpack": {
+    "main": {
+      "extraEntries": [
+        "./electron/preload.js"
+      ]
+    }
   }
 }

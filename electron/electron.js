@@ -26,8 +26,8 @@ const createWindow = async () => {
       nodeIntegration: true,
       enableRemoteModule: true,
       // preload: path.resolve(`${__dirname}/preload.js`)
-      // preload: path.join(__dirname, (os.platform() === "darwin" ? "/preload.js" : "\\preload.js")),
-      preload: path.resolve(getElectronApp().getAppPath(), 'preload.js'),
+      preload: path.join(__dirname, (os.platform() === "darwin" ? "/preload.js" : "\\preload.js")),
+      // preload: path.resolve(getElectronApp().getAppPath(), 'preload.js'),
       webSecurity: false,
       contextIsolation: false
     },
