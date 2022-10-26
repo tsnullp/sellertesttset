@@ -26,7 +26,7 @@ const createWindow = async () => {
       nodeIntegration: true,
       enableRemoteModule: true,
       // preload: path.resolve(`${__dirname}/preload.js`)
-      preload: __dirname + (os.platform() === "darwin" ? "/preload.js" : "\\preload.js"),
+      preload: path.join(__dirname, (os.platform() === "darwin" ? "/preload.js" : "\\preload.js")),
       webSecurity: false,
       contextIsolation: false
     },
@@ -57,9 +57,9 @@ const createWindow = async () => {
 app.whenReady().then(() => {
   createWindow()
   // console.log("getFeedUrl ", autoUpdater.getFeedURL())
-  // autoUpdater.setFeedURL(autoUpdater.getFeedURL())
+  autoUpdater.setFeedURL(autoUpdater.getFeedURL())
 
-  // autoUpdater.checkForUpdates()
+  autoUpdater.checkForUpdates()
   
   try {
     database()
