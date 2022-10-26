@@ -27,7 +27,7 @@ const createWindow = async () => {
       enableRemoteModule: true,
       // preload: path.resolve(`${__dirname}/preload.js`)
       // preload: path.join(__dirname, (os.platform() === "darwin" ? "/preload.js" : "\\preload.js")),
-      preload: path.join(__dirname, "preload.js"),
+      preload: `C:\\smartseller\\electron\\preload.js`,
       webSecurity: false,
       contextIsolation: false
     },
