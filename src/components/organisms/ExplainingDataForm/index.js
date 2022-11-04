@@ -1949,7 +1949,7 @@ const ExplainingDataForm = () => {
           hideOnSinglePage: true,
           pageSize: vatList.length
         }}
-        scroll={{ x: 600, y: 590 }}
+        // scroll={{ x: 600, y: 590 }}
         // sticky={true}
         summary={pageData => {
           let totalOrderPrice = 0
