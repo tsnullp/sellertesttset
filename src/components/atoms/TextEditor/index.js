@@ -26,10 +26,12 @@ const TextEditor = ({ initHtml, html, getHtmlValue, disabled = false, height = 1
         paste_as_text: true,
         
         plugins: [
-          "advlist autolink lists link image",
+          "advlist autolink lists link",
           // "charmap print preview anchor help",
-          "searchreplace visualblocks code",
+          "searchreplace visualblocks",
           "insertdatetime media table paste wordcount",
+          "image",
+          "code",
           "hr",
           "table",
           "emoticons",

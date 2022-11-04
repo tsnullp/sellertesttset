@@ -4,18 +4,16 @@ import { ifProp } from "styled-tools"
 import moment from "moment"
 import { VATLIST, GET_DELIVERY_IMAGE, VAT_SEARCH, TAOBAO_ORDER_BATCH, SYNC_DELIVERY_ORDER } from "../../../gql"
 import { useMutation } from "@apollo/client"
-import { Table, Popover, Radio, Button, Input, DatePicker, message, Select } from "antd"
+import { Table, Popover, Radio, Button, Input, DatePicker, message } from "antd"
 import { FileImageOutlined, ClockCircleOutlined } from "@ant-design/icons"
 import { UserContext } from "context/UserContext"
 import {UserSelect, VatDataModal} from "components"
 import "moment/locale/ko"
 import ReactHTMLTableToExcel from "react-html-table-to-excel"
 import "./style.css"
-import { isNumber } from "util"
 
 const { RangePicker } = DatePicker
 const { Search } = Input
-const { Option } = Select
 moment.locale("ko")
 const { shell } = window.require("electron")
 
@@ -69,10 +67,15 @@ const ExplainingDataForm = () => {
 
   useEffect(() => {
     const table = document.querySelector(".ant-table-body > table")
-    table.setAttribute("id", "table-to-xls")
+    if(table){
+      table.setAttribute("id", "table-to-xls")
+    }
+    
     if (tableRef.current) {
       const table = tableRef.current.querySelector("table")
-      table.setAttribute("id", "table-to-xls")
+      if(table){
+        table.setAttribute("id", "table-to-xls")
+      }
     }
   }, [vatList])
 
@@ -1928,8 +1931,8 @@ const ExplainingDataForm = () => {
             id="test-table-xls-button"
             className="download-table-xls-button"
             table="table-to-xls"
-            filename="tablexls"
-            sheet="tablexls"
+            filename="table"
+            sheet="소명자료"
             buttonText="엑셀 다운"
           />
         </div>
