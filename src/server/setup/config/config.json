@@ -1,7 +1,7 @@
 {
   "development": {
     "PORT": 5001,
-    "MONGODB_URI": "mongodb://tsnullp:xotjr313#!#@14.4.2.124:21210/?authSource=seller",
+    "MONGODB_URI": "mongodb://tsnullp:xotjr313#!#@tsnullp.chickenkiller.com:21210/?authSource=seller",
     "JWT_SECRET": "sekdibadfdadf",
     "JWT_AUDIENCE": "xxx-client",
     "JWT_ISSUER": "xxx-server",
@@ -17,7 +17,7 @@
   },
   "production": {
     "PORT": 5001,
-    "MONGODB_URI": "mongodb://tsnullp:xotjr313#!#@14.4.2.124:21210/?authSource=seller",
+    "MONGODB_URI": "mongodb://tsnullp:xotjr313#!#@tsnullp.chickenkiller.com:21210/?authSource=seller",
     "JWT_SECRET": "sekdibadfdadf",
     "JWT_AUDIENCE": "xxx-client",
     "JWT_ISSUER": "xxx-server",

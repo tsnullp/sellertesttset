@@ -1883,13 +1883,15 @@ const ExplainingDataForm = () => {
             }}
             icon={<ClockCircleOutlined />}
             onClick={async () => {
-              const response = await vatSearch()
+              const response = await vatSearch({
+                variables: selectUser
+              })
               console.log("response", response)
               message.success("데이터 수집을 시작합니다.")
             }}
-          >수집</Button>
+          >카페24 데이터 수집</Button>
 
-          <Button type="primary"
+          {/* <Button type="primary"
           loading={syncLoading}
             style={{
               marginRight: "5px"
@@ -1913,7 +1915,7 @@ const ExplainingDataForm = () => {
               
               
             }}
-          >배대지 동기화</Button>
+          >배대지 동기화</Button> */}
 
           
           <Button type="primary"

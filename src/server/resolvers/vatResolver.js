@@ -1281,10 +1281,10 @@ const resolvers = {
       }
     },
     VatSearch: async (
-      parent, {}, {req, model:{Market},  logger} 
+      parent, {userID}, {req, model:{Market},  logger} 
     ) => {
       try {
-
+        const user = userID ? userID : req.user.adminUser
         setTimeout(async() => {
           try {
             console.log("환율 조회 시작")
@@ -1298,7 +1298,7 @@ const resolvers = {
           const market = await Market.aggregate([
             {
               $match: {
-                userID: ObjectId(req.user.adminUser)
+                userID: ObjectId(user)
               }
             }
           ])

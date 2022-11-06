@@ -4,7 +4,7 @@ mongoose.Promise = global.Promise
 
 module.exports = async () => {
   try { 
-    mongoose.connect(`mongodb://${encodeURIComponent("tsnullp")}:${encodeURIComponent("xotjr313#!#")}@14.4.2.124:21210/?authSource=seller`, {
+    mongoose.connect(`mongodb://${encodeURIComponent("tsnullp")}:${encodeURIComponent("xotjr313#!#")}@tsnullp.chickenkiller.com:21210/?authSource=seller`, {
       dbName: "seller",
       useNewUrlParser: true,
       // useCreateIndex: true,
@@ -20,7 +20,7 @@ module.exports = async () => {
     })
     mongoose.connection.on("disconnected", function() {
       console.log("Mongoose default connection is disconnected ")
-      mongoose.connect(`mongodb://${encodeURIComponent("tsnullp")}:${encodeURIComponent("xotjr313#!#")}@14.4.2.124:21210/?authSource=seller`, {
+      mongoose.connect(`mongodb://${encodeURIComponent("tsnullp")}:${encodeURIComponent("xotjr313#!#")}@tsnullp.chickenkiller.com:21210/?authSource=seller`, {
       dbName: "seller",
       useNewUrlParser: true,
       // useCreateIndex: true,

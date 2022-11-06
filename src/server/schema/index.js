@@ -2092,7 +2092,7 @@ const schema = gql`
     GetCoupangKeywordItemList(keyword: String): CoupangStoreItemType
     SetCoupangFavorite(_id: ID): Boolean
     SetNaverFavorite(_id: ID): Boolean
-    VatSearch: Boolean
+    VatSearch(userID: ID): Boolean
     GetSubPrice: Int
     SetSubPrice(subPrice: Int): Boolean
     SetAddPrice(_id: ID, title: Float, price: Float): Boolean

@@ -2066,8 +2066,8 @@ export const UPLOAD_ITEM_NAVER_LIST = gql`
 `
 
 export const VAT_SEARCH = gql`
-  mutation VatSearch {
-    VatSearch
+  mutation VatSearch($userID: ID) {
+    VatSearch(userID: $userID)
   }
 `
 
