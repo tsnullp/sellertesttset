@@ -3818,13 +3818,13 @@ const resolvers = {
                       mallID: marketItem.cafe24.mallID,
                       shop_no: marketItem.cafe24.shop_no,
                     },
-                    userID: req.user.adminUser,
+                    userID: user,
                     writerID: req.user._id,
                   })
                   console.log("cafe24Response", cafe24Response)
 
-                  if (req.user.adminUser.toString() === "5f1947bd682563be2d22f008" ||
-                  req.user.adminUser.toString() === "5f601bdf18d42d13d0d616d0"
+                  if (user.toString() === "5f1947bd682563be2d22f008" ||
+                  user.toString() === "5f601bdf18d42d13d0d616d0"
                   ) {
                     await CoupangWinner.findOneAndUpdate(
                       {

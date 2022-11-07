@@ -236,6 +236,21 @@ exports.Cafe24UploadImages = async ({ mallID, images }) => {
 
 exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
   try {
+
+    const options = {
+      method: "POST",
+      url: `http://tsnullp.chickenkiller.com:5100/upload`,
+      base64str: base64Image,
+    }
+    const response = await axios({
+      ...options,
+    })
+    console.log("responseData", response.data)
+    if(response && response.status === true) {
+      return response.data
+    }
+    return null
+    /*
     let returnUrl = null
     const apiKeys = ["2319d7ccd2d019c84b68246f8d3c5c69", "41ea25266472b565609f3a2f01655bca", "98da31676740bc8fc7d4cf8b4cddfc01", "3b867ac3ccdd83d401c44b3fa3f05cb0", "91e1b0aeee5ab4289f45ab77ad985f3b"].sort(() => Math.random() - 0.5)
     const agent = new https.Agent({
@@ -292,7 +307,7 @@ exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
         console.log("Cafe24UploadLocalImage", ee.message)
       }
     }
-    
+    */
   } catch (e) {
     // console.log("Cafe24UploadLocalImage", e)
     console.log("ImgbbUploadLocalImage--", e.message)
