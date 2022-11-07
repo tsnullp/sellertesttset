@@ -236,11 +236,11 @@ exports.Cafe24UploadImages = async ({ mallID, images }) => {
 
 exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
   try {
-
+    const params = new url.URLSearchParams({ base64str: base64Image.split("base64,")[1] })
     const options = {
       method: "POST",
       url: `http://tsnullp.chickenkiller.com:5100/upload`,
-      base64str: base64Image,
+      data: params.toString(),
     }
     const response = await axios({
       ...options,
