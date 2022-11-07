@@ -247,7 +247,7 @@ exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
     })
     console.log("responseData", response.data)
     if(response && response.status === true) {
-      return response.data
+      return response.data.data
     }
     return null
     /*
