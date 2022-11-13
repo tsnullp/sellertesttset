@@ -21,6 +21,9 @@ const TextEditor = ({ initHtml, html, getHtmlValue, disabled = false, height = 1
       value={html}
       disabled={disabled}
       init={{
+        referrer_policy: 'origin',
+        content_css_cors: true,
+        export_cors_hosts: [ 'tsnullp.chickenkiller.com' ],
         height,
         menubar: false,
         paste_as_text: true,

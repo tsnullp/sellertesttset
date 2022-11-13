@@ -287,7 +287,6 @@ const NaverShoppingPage = () => {
     setUploading(true)
     const val = childRef.current.showAlert()
     console.log("val", val)
-
     setSearchUrl("")
 
     const response = await uploadNaverItem({
@@ -311,6 +310,8 @@ const NaverShoppingPage = () => {
                     .map((item) => item.trim())
                 : [],
             isNaver: val.type !== "coupang" ? true : false,
+            html: item.html.length > 0 ? item.html : null,
+            detailImages: item.detailImages ? item.detailImages : []
           }
         }),
       },

@@ -59,7 +59,7 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailImages }) => {
             detailImages
           })
 
-          const { title, options, tempMainImages, tempOptionImages, prop } = await getOptionsV2({
+          const { title, options, tempMainImages, tempOptionImages, prop, videoUrl, videoGif } = await getOptionsV2({
             userID,
             itemId: ObjItem.good_id,
             // mainImage: Array.isArray(mainImages) && mainImages.length > 0 ? mainImages[0] : null
@@ -74,6 +74,8 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailImages }) => {
           ObjItem.options = options
           ObjItem.optionsImage = tempOptionImages
           ObjItem.prop = prop
+          ObjItem.videoUrl = videoUrl
+          ObjItem.videoGif = videoGif
 
           ObjItem.mainImages = tempMainImages
           const {
@@ -625,6 +627,8 @@ const getOptionsV2 = async ({ userID, itemId }) => {
   let tempMainImages = []
   let tempOptionImages = []
   let tempProp = []
+  let videoUrl = null
+  let videoGif = null
   try {
     console.log("getOptionsV2 시작")
     const response = await ItemSKUV2({ userID, item_id: itemId })
@@ -634,12 +638,13 @@ const getOptionsV2 = async ({ userID, itemId }) => {
     } else {
       console.log("getOptionsV2 실패")
     }
-    const { title, sku_props, skus, main_imgs } = response
+    const { title, sku_props, skus, main_imgs, video_url, video_gif } = response
     // console.log("item", item)
     // tempMainImags.push(
     //   item.pic.includes("https:") ? item.pic : `https:${item.pic}`
     // )
-
+    videoUrl = video_url
+    videoGif = video_gif
     tempTitle = title
     tempMainImages = main_imgs
 
@@ -1133,12 +1138,17 @@ const getOptionsV2 = async ({ userID, itemId }) => {
       tempMainImages: tempMainImages,
       tempOptionImages: tempOptionImages,
       prop: tempProp,
+      videoUrl,
+      videoGif
     }
   }
 }
 
 const getContent = async ({ userID, itemId, detailImages }) => {
   let content = []
+  if(detailImages && Array.isArray(detailImages) && detailImages.length > 0){
+    return detailImages
+  }
   try {
     const response = await ItemDescriptionV2({ userID, item_id: itemId, detailImages })
 

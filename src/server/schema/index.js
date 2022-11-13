@@ -972,6 +972,8 @@ const schema = gql`
     isShoes: Boolean
     sellerTags: [String]
     isNaver: Boolean
+    html: String
+    detailImages: [String]
   }
 
   type OtherSellerType {
@@ -2147,7 +2149,7 @@ const schema = gql`
     CoupangApprove(sellerProductId: String): Boolean
     CoupangApproves(sellerProductId: [String]): Boolean
 
-    DelleteSelectedRowItem(input: [RowInput]): Boolean
+    DelleteSelectedRowItem(input: [RowInput], userID: ID): Boolean
 
     SetSoEasyPassword(password: String): Boolean
 

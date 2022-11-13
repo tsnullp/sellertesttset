@@ -883,6 +883,7 @@ const ProductList = () => {
 
     const response = await deleteSelectRow({
       variables: {
+        userID: selectUser,
         input: selectedRow.map((item) => {
           console.log("ITEMM-", item)
           return {

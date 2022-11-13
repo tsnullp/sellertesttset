@@ -5,7 +5,7 @@ import { TextEditor } from "components"
 
 const DetailFormModal = ({isModalVisible, handleOk, handleCancel, content, html}) => {
 
-  const [detailHtml, setDetailHtml] = useState(null)
+  const [detailHtml, setDetailHtml] = useState("")
 
   useEffect(() => {
     if(html && html.length > 0){
@@ -24,7 +24,7 @@ const DetailFormModal = ({isModalVisible, handleOk, handleCancel, content, html}
     
   }, [content])
   const handleOkButton = () => {
-    handleOk(detailHtml)
+    handleOk(detailHtml.replace("http://tsnullp.chickenkiller.com", "https://tsnullp.chickenkiller.com"))
   }
 
   return (
@@ -40,7 +40,7 @@ const DetailFormModal = ({isModalVisible, handleOk, handleCancel, content, html}
       <TextEditor
         height={800}
         showHtml={true}
-        html={detailHtml}
+        html={detailHtml.replace("https://tsnullp.chickenkiller.com", "http://tsnullp.chickenkiller.com")}
         getHtmlValue={setDetailHtml}
       />
     </Modal>

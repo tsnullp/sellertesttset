@@ -26,7 +26,8 @@ const ProductSchema = mongoose.Schema({
     },
     price: String,
     salePrice: String,
-
+    videoUrl: String,
+    videoGif: String,
     mainImages: [String],
     content: [String],
     options: [
@@ -184,6 +185,7 @@ const ProductSchema = mongoose.Schema({
     mainImages: [String],
     price: String,
     salePrice: String,
+    gifHtml: String,
     topHtml: String,
     clothesHtml: String,
     isClothes: Boolean,

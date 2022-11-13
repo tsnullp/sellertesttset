@@ -41,7 +41,7 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailmages }) => {
             detailmages
           })
 
-          const { title, options, tempMainImages, tempOptionImages, prop } = await getOptionsV2({
+          const { title, options, tempMainImages, tempOptionImages, prop, videoUrl, videoGif } = await getOptionsV2({
             itemId: ObjItem.good_id,
             userID,
             url,
@@ -57,6 +57,8 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailmages }) => {
           ObjItem.options = options
           ObjItem.optionImage = tempOptionImages
           ObjItem.prop = prop
+          ObjItem.videoUrl = videoUrl
+          ObjItem.videoGif = videoGif
 
           ObjItem.mainImages = tempMainImages
 
@@ -451,6 +453,8 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
   let tempMainImages = []
   let tempOptionImages = []
   let tempProp = []
+  let videoUrl = null
+  let videoGif = null
   try {
     console.log("getOptionsV2 시작")
     const response = await ItemSKUV2({ userID, item_id: itemId })
@@ -460,12 +464,13 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
     } else {
       console.log("getOptionsV2 실패")
     }
-    const { title, sku_props, skus, main_imgs } = response
+    const { title, sku_props, skus, main_imgs, video_url, video_gif } = response
 
     // tempMainImags.push(
     //   item.pic.includes("https:") ? item.pic : `https:${item.pic}`
     // )
-
+    videoUrl = video_url
+    videoGif = video_gif
     tempTitle = title
     tempMainImages = main_imgs
 
@@ -1076,6 +1081,8 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
       tempMainImages: tempMainImages,
       tempOptionImages: tempOptionImages,
       prop: tempProp,
+      videoUrl,
+      videoGif
     }
   }
 }

@@ -1708,7 +1708,7 @@ const updateCoupang = async ({
           minSalePrice = item.salePrice
         }
       })
-    const htmlContent = `${product.topHtml}${
+    const htmlContent = `${product.gifHtml}${product.topHtml}${
       product.isClothes && product.clothesHtml ? product.clothesHtml : ""
     }${product.isShoes && product.shoesHtml ? product.shoesHtml : ""}${product.optionHtml}${
       product.html
@@ -2431,7 +2431,7 @@ const updateCafe24 = async ({
 
     searchTags = searchTags.filter((item, i) => i < 5)
 
-    const htmlContent = `${product.topHtml}${
+    const htmlContent = `${product.gifHtml}${product.topHtml}${
       product.isClothes && product.clothesHtml ? product.clothesHtml : ""
     }${product.isShoes && product.shoesHtml ? product.shoesHtml : ""}${product.optionHtml}${
       product.html

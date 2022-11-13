@@ -45,7 +45,8 @@ import {
   TaobaoImageSearchButton,
   ProductImageModal,
   SourcingTable,
-  ExcelImport
+  ExcelImport,
+  DetailFormModal
 } from "components"
 import { RandomWords } from "../../../lib/userFunc"
 import { CopyToClipboard } from "react-copy-to-clipboard"
@@ -275,6 +276,25 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
     )
   }
 
+  const setHtml = (index, productNo, html) => {
+    console.log("index, productNo", index, productNo, html)
+    setData(
+      data.filter(item => item.isChecked)
+      .map((item, i) => {
+        if (!productNo) {
+          if (item.index === index) {
+            item.html = html
+          }
+        } else {
+          if (item.productNo === productNo) {
+            item.html = html
+          }
+        }
+        return item
+      })
+    )
+  }
+
   useEffect(() => {
     setData(
       list.map((item) => {
@@ -404,6 +424,18 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
             tempWeight = tempShippWeight[0].title
           }
           
+          let html = ``
+          let detailImages = []
+          if(item["번역이미지주소"] && Array.isArray(item["번역이미지주소"].split("#")) && item["번역이미지주소"].split("#").length > 0){
+            detailImages = item["번역이미지주소"].split("#")
+            if(detailImages.length > 0){
+              html += `<hr >`
+            }
+            for(const item of detailImages){
+              html += `<img src="${item}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+            }
+          }
+
           notRegisterData.push({
             isChecked: true,
             type: "salesOrder",
@@ -418,7 +450,8 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
             keyword: item["태그"] ? item["태그"] : "",
             isClothes: false,
             isShoes: false,
-  
+            detailImages,
+            html
           })
         }
       } catch(e){
@@ -621,6 +654,7 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
                   shippingPrice={shippingPrice}
                   setShppingPrice={setShppingPrice}
                   setRootExcept={setRootExcept}
+                  setRootHtml={setHtml}
                 />
               )
             })}
@@ -711,7 +745,8 @@ const NaverItem = ({
   setShppingPrice,
   setRootExcept,
   keyword,
-  
+  detailImages = [],
+  setRootHtml
 }) => {
   const [hidden, setHidden] = useState(true)
   const [taobaoList, setTaobaoList] = useState([])
@@ -726,6 +761,8 @@ const NaverItem = ({
   const [selectKeyword, SetSelectKeyword] = useState("")
 
   const [setExcept] = useMutation(SET_NAVER_EXCEPT)
+  const [isDetailModalVisible, setDetailModalVisible] = useState(false)
+  const [html, setHtml] = useState([])
 
   // const {} = useQuery(ISREGISTER, {
   //   variables: {
@@ -900,6 +937,15 @@ const NaverItem = ({
     }
     return `${image}?type=f232_232`
   }
+
+  const handleOkDetail = (detailHtml) => {
+    setDetailModalVisible(false)
+    setHtml(detailHtml)
+    setRootHtml(index, productNo, detailHtml)
+  }
+  const handleCancelDetail = () => {
+    setDetailModalVisible(false)
+  }
   return (
     <div>
       <Divider orientation="left">
@@ -1061,7 +1107,17 @@ const NaverItem = ({
                   ? getPurchaseLable({ reviewCount, zzim, purchaseCnt, recentSaleCount })
                   : null}
               </div>
-
+              <div>
+                <div style={{display: "flex", justifyContent: "flex-end", marginBottom: "10px"}}>
+                  <Button onClick={() => setDetailModalVisible(true)}>상세페이지</Button>
+                    {isDetailModalVisible && <DetailFormModal
+                      isModalVisible={isDetailModalVisible}
+                      handleOk={handleOkDetail}
+                      handleCancel={handleCancelDetail}
+                      content={detailImages}
+                      html={html}
+                    />}
+                </div>
               <div style={{ display: "flex" }}>
                 <div style={{ display: "flex", marginRight: "20px" }}>
                   <div>
@@ -1097,6 +1153,7 @@ const NaverItem = ({
                     handleChange={handleChange}
                   />
                 </div>
+              </div>
               </div>
             </div>
           </div>

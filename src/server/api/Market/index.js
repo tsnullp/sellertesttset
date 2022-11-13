@@ -239,14 +239,14 @@ exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
     const params = new url.URLSearchParams({ base64str: base64Image.split("base64,")[1] })
     const options = {
       method: "POST",
-      url: `http://tsnullp.chickenkiller.com:5100/upload`,
+      url: `https://tsnullp.chickenkiller.com/upload`,
       data: params.toString(),
     }
     const response = await axios({
       ...options,
     })
     console.log("responseData", response.data)
-    if(response && response.status === true) {
+    if(response && response.data.status === true) {
       return response.data.data
     }
     return null

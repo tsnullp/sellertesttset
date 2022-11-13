@@ -2636,8 +2636,8 @@ export const COUPANG_APPROVES = gql`
 `
 
 export const DELETE_SELECT_ROW = gql`
-  mutation DelleteSelectedRowItem($input: [RowInput]) {
-    DelleteSelectedRowItem(input: $input)
+  mutation DelleteSelectedRowItem($input: [RowInput], $userID: ID) {
+    DelleteSelectedRowItem(input: $input, userID: $userID)
   }
 `
 

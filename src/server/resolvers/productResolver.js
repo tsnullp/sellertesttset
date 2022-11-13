@@ -1388,7 +1388,7 @@ const resolvers = {
         const marketOrder = await MarketOrder.aggregate([
           {
             $match: {
-              userID: req.user.adminUser,
+              userID: ObjectId(user),
               saleType: 1,
             },
           },
@@ -1592,7 +1592,7 @@ const resolvers = {
                   {
                     $match: {
                       userID: user,
-                      isDelete: false,
+                      isDelete: { $ne: true },
                       // product: { $ne: null },
                       // createdAt: { $exists: true },
                       "product.korTitle": { $regex: `.*${search}.*` },
@@ -1656,7 +1656,7 @@ const resolvers = {
                   {
                     $match: {
                       userID: user,
-                      isDelete: false,
+                      isDelete: { $ne: true },
                       // product: { $ne: null },
                       // createdAt: { $exists: true },
                       "product.korTitle": { $regex: `.*${search}.*` },
@@ -2223,18 +2223,20 @@ const resolvers = {
     },
     DelleteSelectedRowItem: async (
       parent,
-      { input },
+      { input, userID },
       { req, model: { Product, Market, TempProduct, AmazonCollection }, logger }
     ) => {
       try {
         //coupangID, cafe24ID, mallID
+        const user = userID ? userID : req.user.adminUser
+
         setTimeout(async () => {
           const market = await Market.findOne({
-            userID: req.user.adminUser,
+            userID: ObjectId(user),
           })
           for (const item of input) {
             try {
-            
+             
               let product = await Product.aggregate([
                 {
                   $match: {
@@ -2246,6 +2248,7 @@ const resolvers = {
                 product = await Product.aggregate([
                   {
                     $match: {
+                      userID: ObjectId(user),
                       "product.coupang.productID": item.coupangID,
                     },
                   },
@@ -2254,6 +2257,7 @@ const resolvers = {
                 product = await Product.aggregate([
                   {
                     $match: {
+                      userID: ObjectId(user),
                       "product.cafe24.product_no": item.cafe24ID,
                     },
                   },
@@ -2261,19 +2265,20 @@ const resolvers = {
               }
 
               if (!product || product.length === 0) {
+                console.log("여기 타냐?/")
                 continue
               }
 
               if (item.coupangID) {
                 const response = await CoupnagGET_PRODUCT_BY_PRODUCT_ID({
-                  userID: req.user.adminUser,
+                  userID: ObjectId(user),
                   productID: product[0].product.coupang.productID,
                 })
 
                 if (response && response.data) {
                   for (const item of response.data.items) {
                     const resposne = await CoupnagSTOP_PRODUCT_SALES_BY_ITEM({
-                      userID: req.user.adminUser,
+                      userID: ObjectId(user),
                       vendorItemId: item.vendorItemId,
                     })
                     console.log("resposne", resposne)
@@ -2286,7 +2291,7 @@ const resolvers = {
               let cafe24Delete = true
               if (item.coupangID) {
                 const coupnagResponse = await CouapngDeleteProduct({
-                  userID: req.user.adminUser,
+                  userID: ObjectId(user),
                   productID: item.coupangID,
                 })
 
@@ -2302,10 +2307,11 @@ const resolvers = {
                   mallID: market.cafe24.mallID,
                   product_no: item.cafe24ID,
                 })
-                console.log("cafe24Response", cafe24Response)
+            
                 await Product.findOneAndUpdate(
                   {
                     _id: product[0]._id,
+                    userID: ObjectId(user),
                   },
                   {
                     $set: {
@@ -2335,10 +2341,12 @@ const resolvers = {
                     cafe24Response.data === null
                 }
               }
-
+              
+            
               await Product.findOneAndUpdate(
                 {
                   _id: product[0]._id,
+                  userID: ObjectId(user),
                 },
                 {
                   $set: {
@@ -2807,8 +2815,7 @@ const resolvers = {
               let optionHtml = ``
               if (detailItem.optionsImage && !duplication) {
                 for (const item of detailItem.optionsImage.filter((i, index) => index < 100)) {
-                  optionHtml += `
-                <p style="text-align: center;" >
+                  optionHtml += `<p style="text-align: center;" >
                 <div style="text-align: center; font-size: 20px; font-weight: 700; color: white; background: #0090FF; padding: 10px; border-radius: 15px;">
                 ${item.korName}
                 </div>
@@ -3367,6 +3374,8 @@ const resolvers = {
                 _subPrice = winnerItem.subPrice
                 _isClothes = winnerItem.isClothes
                 _isShoes = winnerItem.isShoes
+                _html = winnerItem.html
+                _detailImages = winnerItem.detailImages
               } else {
                 winnerItem = await CoupangWinner.findOneAndUpdate(
                   {
@@ -3485,6 +3494,7 @@ const resolvers = {
                       url: winnerItem.detailUrl,
                       userID: user,
                       orginalTitle: winnerItem.title,
+                      detailImages: _detailImages
                     })
                   } catch (e) {
                     logger.error(`getTaobaoItem: ${e}`)
@@ -3638,12 +3648,18 @@ const resolvers = {
                     })
                   }
 
+                  let gifHtml = ``
+                  if(detailItem.videoGif && detailItem.videoGif.length > 0 && detailItem.videoGif.includes("gif")){
+                    gifHtml += `<p style="text-align: center;" >
+                    <img src="${detailItem.videoGif}" style="max-width: 800px; display: block; margin: 0 auto; " />
+                    </p>
+                    `
+                  }
                   // 옵션 HTML
                   let optionHtml = ``
                   if (detailItem.optionsImage && !duplication) {
                     for (const item of detailItem.optionsImage.filter((i, index) => index < 100)) {
-                      optionHtml += `
-                    <p style="text-align: center;" >
+                      optionHtml += `<p style="text-align: center;" >
                     <div style="text-align: center; font-size: 20px; font-weight: 700; color: white; background: #0090FF; padding: 10px; border-radius: 15px;">
                     ${item.korName}
                     </div>
@@ -3675,11 +3691,16 @@ const resolvers = {
                   }
 
                   let detailHtml = ``
-                  if (detailItem && Array.isArray(detailItem.content)) {
-                    for (const item of detailItem.content) {
-                      detailHtml += `<img src="${item}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+                  if(detailItem && _html && _html.length > 0 ){
+                    detailHtml = _html
+                  } else {
+                    if (detailItem && Array.isArray(detailItem.content)) {
+                      for (const item of detailItem.content) {
+                        detailHtml += `<img src="${item}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+                      }
                     }
                   }
+                  
 
                   // let addPrice = addPriceCalc(item.price)
                   let margin = 30
@@ -3712,6 +3733,7 @@ const resolvers = {
                         (Number(detailItem.options[0].price) * exchange + addPrice + weightPrice) *
                           0.1
                       ) * 10,
+                    gifHtml,
                     topHtml: detailItem.topImage,
                     isClothes: _isClothes,
                     isShoes: _isShoes,
@@ -4571,6 +4593,8 @@ const resolvers = {
           let _isClothes = item.isClothes
           let _isShoes = item.isShoes
           let _productNo = item.productNo
+          let _html = item.html
+          let _detailImages = item.detailImages
           isNaver = item.isNaver
           try {
             let winnerItem = await CoupangWinner.findOneAndUpdate(
@@ -4586,6 +4610,8 @@ const resolvers = {
                   state: 1,
                   title: _title,
                   detailUrl: _detailUrl,
+                  html: _html,
+                  detailImages: _detailImages,
                   shippingWeight: _shippingWeight,
                   isClothes: _isClothes,
                   isShoes: _isShoes,
@@ -4682,6 +4708,9 @@ const resolvers = {
             let _isShoes = item.isShoes
             let winnerItem = item.winnerItem
             let _productNo = item.productNo
+            let _html = item.html
+            let _detailImages = item.detailImages
+           
             // logger.error("item.winnerIitem",winnerItem)
             try {
               const marketItem = await Market.findOne({
@@ -4699,11 +4728,12 @@ const resolvers = {
                   url: _detailUrl,
                   userID: req.user.adminUser,
                   orginalTitle: _title,
+                  detailImages: _detailImages
                 })
               } catch (e) {
                 logger.error(`getTaobaoItem: ${e}`)
               }
-
+            
               // console.log("detailItem.prop", detailItem.prop)
 
               if (!detailItem) {
@@ -4849,6 +4879,13 @@ const resolvers = {
                 })
               }
 
+              let gifHtml = ``
+              if(detailItem.videoGif && detailItem.videoGif.length > 0 && detailItem.videoGif.includes("gif")){
+                gifHtml += `<p style="text-align: center;" >
+                <img src="${detailItem.videoGif}" style="max-width: 800px; display: block; margin: 0 auto; " />
+                </p>
+                `
+              }
               // 옵션 HTML
               let optionHtml = ``
               if (detailItem.optionsImage && !duplication) {
@@ -4886,11 +4923,16 @@ const resolvers = {
 
               let detailHtml = ``
 
-              if (detailItem && Array.isArray(detailItem.content)) {
-                for (const item of detailItem.content) {
-                  detailHtml += `<img src="${item}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+              if(detailItem && _html && _html.length > 0){
+                detailHtml = _html
+              } else {
+                if (detailItem && Array.isArray(detailItem.content)) {
+                  for (const item of detailItem.content) {
+                    detailHtml += `<img src="${item}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+                  }
                 }
               }
+              
 
               let margin = 30
               let maringArr = marginInfo.filter(
@@ -4921,6 +4963,7 @@ const resolvers = {
                   Math.ceil(
                     (Number(detailItem.options[0].price) * exchange + addPrice + weightPrice) * 0.1
                   ) * 10,
+                gifHtml,
                 topHtml: detailItem.topImage,
                 isClothes: _isClothes,
                 isShoes: _isShoes,
@@ -5407,8 +5450,7 @@ const resolvers = {
               let optionHtml = ``
               if (detailItem.optionsImage && !duplication) {
                 for (const item of detailItem.optionsImage.filter((i, index) => index < 100)) {
-                  optionHtml += `
-                <p style="text-align: center;" >
+                  optionHtml += `<p style="text-align: center;" >
                 <div style="text-align: center; font-size: 20px; font-weight: 700; color: white; background: #0090FF; padding: 10px; border-radius: 15px;">
                 ${item.korName}
                 </div>
@@ -8127,8 +8169,7 @@ const resolvers = {
                 for (const item of detail.prop) {
                   for (const value of item.values.filter((i, index) => index < 100)) {
                     if (value.image) {
-                      optionHtml += `
-                    <p style="text-align: center;" >
+                      optionHtml += `<p style="text-align: center;" >
                     <div style="text-align: center; font-size: 20px; font-weight: 700; color: white; background: #0090FF; padding: 10px; border-radius: 15px;">
                     ${value.korValueName}
                     </div>
@@ -9073,7 +9114,7 @@ const resolvers = {
             },
           },
           {
-            $sort: { createdAt: -1 },
+            $sort: { _id: -1 },
           },
         ])
 
@@ -9189,11 +9230,11 @@ const resolvers = {
           //     }
           //   }
           // },
-          // {
-          //   $sort: {
-          //     "favorite._id": -1
-          //   }
-          // },
+          {
+            $sort: {
+              createdAt: -1
+            }
+          },
         ])
         console.log("naverItem11", naverItem.length)
         naverItem = naverItem.map((item) => {

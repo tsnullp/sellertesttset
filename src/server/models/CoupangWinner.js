@@ -19,6 +19,8 @@ const CoupangWinner = mongoose.Schema({
   state: Number, // 1: 준비중 2: 업로드 완료, 3: 에러 4: 재등록중
   title: String,
   detailUrl: String,
+  html: String,
+  detailImages: [String],
   subPrice: Number,
   isClothes: Boolean,
   isShoes: Boolean,
