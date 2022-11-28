@@ -4,6 +4,7 @@ const searchInterParkKeyword = require("./searchInterParkKeyword")
 const searchGmarketKeyword = require("./searchGmarketKeyword")
 const searchAuctionKeyword = require("./searchAuctionKeyword")
 const searchWemakeKeyword = require("./searchWemakeKeyword")
+const searchLotteOnKeyword = require("./searchLotteOnKeyword")
 const searchTmonKeyword = require("./searchTmonKeyword")
 const search11stKeyword = require("./search11stKeyword")
 const {scrollPageToBottom} = require("puppeteer-autoscroll-down")
@@ -140,7 +141,7 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
       "#wrap > div:nth-child(3) > div:nth-child(4) > div > table > tbody > tr"
     )
 
-    let naver, gmarket, auction, interpark, wemake, tmon, sk11st
+    let naver, gmarket, auction, interpark, wemake, tmon, sk11st, lotteOn
     for (const item of categoryGruop) {
       await page.$eval("#eInputSearchCategory", (el) => (el.value = ""))
 
@@ -170,6 +171,9 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
         case "11번가":
           // sk11st = true
           break
+        case "롯데ON":
+          // lotteOn = true
+          break
         default:
           break
       }
@@ -184,6 +188,7 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
       wemake,
       tmon,
       sk11st,
+      lotteOn
     })
     console.log("category", category)
     let i = 0
@@ -277,7 +282,7 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
   }
 }
 
-const getCategory = async ({ title, naver, gmarket, auction, interpark, wemake, tmon, sk11st }) => {
+const getCategory = async ({ title, naver, gmarket, auction, interpark, wemake, tmon, sk11st, lotteOn }) => {
   try {
     const category = {}
 
@@ -377,6 +382,22 @@ const getCategory = async ({ title, naver, gmarket, auction, interpark, wemake, 
           try {
             // category.sk11st = await search11stKeyword({ title })
             category.sk11st = await searchNaverKeyword({ title, mall: "17703" })
+            resolve()
+          } catch (e) {
+            reject(e)
+          }
+        })
+      )
+    }
+    if (lotteOn) {
+      promiseArray.push(
+        new Promise(async (resolve, reject) => {
+          try {
+            category.lotteOn = await searchLotteOnKeyword({ title })
+            // category.interpark = await searchNaverKeyword({ title, mall: "3" })
+            // if (!category.interpark) {
+            //   category.interpark = await searchInterParkKeyword({ title })
+            // }
             resolve()
           } catch (e) {
             reject(e)
@@ -492,6 +513,20 @@ const getCategoryName = ({ category, market }) => {
       }
       if (category && category.sk11st && category.sk11st.category4Name) {
         categoryName += ` ${category.sk11st.category4Name}`
+      }
+      break
+    case "롯데ON":
+      if (category && category.lotteOn && category.lotteOn.category1Name) {
+        categoryName = category.lotteOn.category1Name
+      }
+      if (category && category.lotteOn && category.lotteOn.category2Name) {
+        categoryName += ` ${category.lotteOn.category2Name}`
+      }
+      if (category && category.lotteOn && category.lotteOn.category3Name) {
+        categoryName += ` ${category.lotteOn.category3Name}`
+      }
+      if (category && category.lotteOn && category.lotteOn.category4Name) {
+        categoryName += ` ${category.lotteOn.category4Name}`
       }
       break
     default:

@@ -23,9 +23,10 @@ const {
   ShippingData,
   NaverKeywordInfo,
   NaverCatalog,
+  NaverKeywordRel
 } = require("../api/Naver")
 const { GetNaverExcelItem } = require("../api/ExcelFile")
-const { sleep, checkStr, AmazonAsin, ranking } = require("../../lib/usrFunc")
+const { sleep, checkStr, AmazonAsin, ranking, DimensionArray } = require("../../lib/usrFunc")
 const { updateCoupang, updateCafe24 } = require("./marketAPIResolver")
 
 const ObjectId = mongoose.Types.ObjectId
@@ -33,6 +34,7 @@ const moment = require("moment")
 const cheerio = require("cheerio")
 const { getKiprisWords } = require("./marketAPIResolver")
 const { korTranslate, engTranslate, kortoEngTranslate } = require("../puppeteer/translate")
+const { getCoupangRelatedKeyword } = require("../puppeteer/keywordSourcing")
 const getTaobaoItem = require("../puppeteer/getTaobaoItemNewDetail")
 const getTaobaoItemAPI = require("../puppeteer/getTaobaoItemAPI")
 const coupangDetailSingle = require("../puppeteer/coupangDetailSingle")
@@ -43,6 +45,8 @@ const getNaverRecommendShopping = require("../puppeteer/getNaverRecommendShoppin
 
 const smartStoreCategory = require("../../components/organisms/CategoryForm/category")
 const url = require("url")
+const _ = require("lodash")
+
 
 const resolvers = {
   Query: {
@@ -3356,6 +3360,7 @@ const resolvers = {
               let _subPrice = subPrice
               let _isClothes = isClothes
               let _isShoes = isShoes
+              let _sellerTags = []
               if (_id) {
                 winnerItem = await CoupangWinner.findOneAndUpdate(
                   { _id },
@@ -3376,6 +3381,7 @@ const resolvers = {
                 _isShoes = winnerItem.isShoes
                 _html = winnerItem.html
                 _detailImages = winnerItem.detailImages
+                _sellerTags = winnerItem.sellerTags
               } else {
                 winnerItem = await CoupangWinner.findOneAndUpdate(
                   {
@@ -3714,7 +3720,13 @@ const resolvers = {
                   }
 
                   let addPrice = addPriceCalc(detailItem.options[0].price, weightPrice, margin)
-
+                
+                  let sellerTags = _sellerTags
+                  if(sellerTags.length === 0) {
+                    sellerTags = await getRelatedKeyword(_title)
+                    console.log("sellerTags : ", sellerTags)
+                  }
+                  
                   const product = {
                     addPrice,
                     weightPrice,
@@ -3752,6 +3764,7 @@ const resolvers = {
                     cafe24_mainImage: detailItem.cafe24_mainImage,
                     coupang_productID: detailItem.coupang_productID,
                     naverCategoryCode: detailItem.naverCategoryCode,
+                    keyword: sellerTags,
                   }
 
                   const coupang = {
@@ -4595,6 +4608,8 @@ const resolvers = {
           let _productNo = item.productNo
           let _html = item.html
           let _detailImages = item.detailImages
+          let _sellerTags = item.sellerTags
+
           isNaver = item.isNaver
           try {
             let winnerItem = await CoupangWinner.findOneAndUpdate(
@@ -4615,6 +4630,7 @@ const resolvers = {
                   shippingWeight: _shippingWeight,
                   isClothes: _isClothes,
                   isShoes: _isShoes,
+                  sellerTags: _sellerTags,
                   lastUpdate: moment().toDate(),
                 },
                 $setOnInsert: {
@@ -4946,6 +4962,12 @@ const resolvers = {
 
               let addPrice = addPriceCalc(detailItem.options[0].price, weightPrice, margin)
 
+              let sellerTags = item.sellerTags.length > 0 ? item.sellerTags : []
+              if(sellerTags.length === 0){
+                sellerTags = await getRelatedKeyword(_title)
+                console.log("sellerTags : ", sellerTags)
+              }
+
               const product = {
                 addPrice,
                 weightPrice,
@@ -4982,7 +5004,7 @@ const resolvers = {
                 cafe24_mainImage: detailItem.cafe24_mainImage,
                 coupang_productID: detailItem.coupang_productID,
                 naverCategoryCode: detailItem.naverCategoryCode,
-                keyword: item.sellerTags.length > 0 ? item.sellerTags : _title.split(" "),
+                keyword: sellerTags,
               }
 
               const coupang = {
@@ -7602,6 +7624,7 @@ const resolvers = {
           })
         }
         product.weightPrice = shippingPrice.price
+        console.log("product.weightPrice ", product.weightPrice )
         const productResponse = await CoupnagGET_PRODUCT_BY_PRODUCT_ID({
           userID: user,
           productID: product.product.coupang.productID,
@@ -7621,12 +7644,12 @@ const resolvers = {
               price: item.salePrice + (shippingPrice.price - tempWeightPrice),
             })
 
-            if (response && response.code === "SUCCESS") {
+            // if (response && response.code === "SUCCESS") {
               product.product.weightPrice = shippingPrice.price
               item.weightPrice = shippingPrice.price
               item.salePrice = item.salePrice + (shippingPrice.price - tempWeightPrice)
               item.productPrice = item.productPrice + (shippingPrice.price - tempWeightPrice)
-            }
+            // }
           }
         }
 
@@ -7661,7 +7684,7 @@ const resolvers = {
             userID: user,
             writerID: user,
           })
-          // console.log("cafe24Response", cafe24Response)
+          console.log("cafe24Response", cafe24Response)
         }
 
         return product.product.korTitle
@@ -7846,7 +7869,7 @@ const resolvers = {
             product.basic.url.includes("iherb.com") && product.options.length === 1 ? true : false
           console.log("있어", product.product.korTitle)
 
-          const htmlContent = `${product.product.topHtml}${
+          const htmlContent = `${product.product.gifHtml ? product.product.gifHtml : ""}${product.product.topHtml}${
             product.product.isClothes && product.product.clothesHtml
               ? product.product.clothesHtml
               : ""
@@ -8448,7 +8471,7 @@ const resolvers = {
     ) => {
       try {
         const match = {
-          originArea:{$regex: `.*중국.*`}
+          $or: [{originArea: {$regex: `.*중국.*`}}, {originArea: {$regex: `.*상세.*`}}]
         }
         let sortValue = {
           
@@ -10599,4 +10622,48 @@ const getGoodid = (url) => {
     }
   }
   return id
+}
+
+
+const getRelatedKeyword = async (title) => {
+  let mainKeywordArray = []
+  try {
+    
+    for(const item of title.split(" ").filter(item => item.length > 1)) {
+      const relKeyword = await getCoupangRelatedKeyword({keyword: item})
+      // console.log("relKeyword", relKeyword)
+
+      for (const items of DimensionArray(relKeyword, 5)) {
+        const response = await NaverKeywordRel({ keyword: items.join(",") })
+        for (const item of items) {
+          if (response && response.keywordList) {
+            const keywordObj = _.find(response.keywordList, { relKeyword: item.replace(/ /gi, "") })
+            if (keywordObj) {
+              mainKeywordArray.push({
+                ...keywordObj,
+                monthlyPcQcCnt: Number(keywordObj.monthlyPcQcCnt.toString().replace("< ", "")),
+                monthlyMobileQcCnt: Number(
+                  keywordObj.monthlyMobileQcCnt.toString().replace("< ", "")
+                ),
+              })
+            }
+          }
+        }
+      }
+
+      await sleep(200)
+      
+    }
+    mainKeywordArray = mainKeywordArray.sort((a, b) =>  (b.monthlyPcQcCnt + b.monthlyMobileQcCnt) - (a.monthlyPcQcCnt + a.monthlyMobileQcCnt))
+    mainKeywordArray = _.unionBy(mainKeywordArray, "relKeyword")
+    .filter(item => item.monthlyPcQcCnt + item.monthlyPcQcCnt < 10000)
+    .filter((item, index) => index < 20)
+    .map(item => item.relKeyword)
+    
+
+    return mainKeywordArray
+  } catch (e){
+    console.log("에러가??", e)
+    return title.split(" ")
+  }
 }

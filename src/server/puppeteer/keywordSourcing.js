@@ -106,11 +106,11 @@ const getMainKeyword = async (keyword, only = false) => {
   }
 }
 
-const getCoupnagRelatedKeyword = async ({ keyword }) => {
+const getCoupangRelatedKeyword = async ({ keyword }) => {
   const browser = await startBrowser()
   const page = await browser.newPage()
   try {
-    console.log("getCoupnagRelatedKeyword", keyword)
+   
     await page.setJavaScriptEnabled(true)
     await page.goto(
       `https://www.coupang.com/np/search?component=&q=${encodeURI(keyword)}&channel=relate`,
@@ -141,7 +141,7 @@ const getCoupnagRelatedKeyword = async ({ keyword }) => {
       .split(",")
       .filter((item) => item.trim().length > 0)
       .map((item) => item.trim())
-    console.log("getCoupnagRelatedKeyword keywords", keywords)
+   
     return keywords
   } catch (e) {
     console.log("getCoupnagRelatedKeyword", e)
@@ -157,7 +157,7 @@ const getCoupnagRelatedKeyword = async ({ keyword }) => {
   }
 }
 
-const getCoupnagAutoKeyword = async ({ keyword }) => {
+const getCoupangAutoKeyword = async ({ keyword }) => {
   try {
     const content = await axios({
       url: `https://www.coupang.com/np/search/autoComplete?callback=jQuery&keyword=${encodeURI(
@@ -323,6 +323,6 @@ const searchKeywordTitle = async ({ page, keyword, index = 1 }) => {
 
 module.exports = {
   getMainKeyword,
-  getCoupnagRelatedKeyword,
-  getCoupnagAutoKeyword,
+  getCoupangRelatedKeyword,
+  getCoupangAutoKeyword,
 }

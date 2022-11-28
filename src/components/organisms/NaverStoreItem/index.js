@@ -431,7 +431,7 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
             if(detailImages.length > 0){
               html += `<hr >`
             }
-            for(const item of detailImages){
+            for(const item of detailImages.filter(item => item.length > 0 && item.includes("http"))){
               html += `<img src="${item}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
             }
           }

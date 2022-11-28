@@ -178,7 +178,7 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
     const platform = os.platform()
     if(response.data.data.video_url && response.data.data.video_url.includes(".mp4")){
       try {
-        console.log("여기 타는데", response.data.data.video_url)
+        // console.log("여기 타는데", response.data.data.video_url)
         const gifResponse = await axios({
           method: "POST",
           url: `https://tsnullp.chickenkiller.com/upload-mp4`,
@@ -187,7 +187,7 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
           }
         })
   
-        console.log("gifResponse.data", gifResponse.data)
+        // console.log("gifResponse.data", gifResponse.data)
         if(gifResponse && gifResponse.data && gifResponse.data.status){
           response.data.data.video_gif = gifResponse.data.data
         }

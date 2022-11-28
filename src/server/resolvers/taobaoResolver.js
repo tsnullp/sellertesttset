@@ -14,6 +14,8 @@ const { googleTranslate, papagoTranslate, kakaoTranslate } = require("../puppete
 const { makeTitle, getAppDataPath } = require("../../lib/usrFunc")
 const searchNaverKeyword = require("../puppeteer/searchNaverKeyword")
 const search11stKeyword = require("../puppeteer/search11stKeyword")
+const searchLotteOnKeyword = require("../puppeteer/searchLotteOnKeyword")
+const {getCoupangRelatedKeyword} = require("../puppeteer/keywordSourcing")
 const cafe24 = require("../puppeteer/cafe24")
 const interpark = require("../puppeteer/interpark")
 const moment = require("moment")
@@ -31,9 +33,11 @@ const Cookie = require("../models/Cookie")
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId
 const { updateCafe24 } = require("./marketAPIResolver")
-const { sleep, AmazonAsin, regExp_test } = require("../../lib/usrFunc")
+const { sleep, AmazonAsin, regExp_test, DimensionArray } = require("../../lib/usrFunc")
 const {
   CoupnagGET_PRODUCT_BY_PRODUCT_ID,
+  CoupnagUPDATE_PRODUCT,
+  CoupangAPPROVE_PRODUCT,
   CouapngDeleteProduct,
   CoupnagSTOP_PRODUCT_SALES_BY_ITEM,
 } = require("../api/Market")
@@ -215,6 +219,154 @@ const resolvers = {
     },
     Test: async (parent, { keyword }, { req, model: { AmazonCollection, Product }, logger }) => {
       try {
+
+        setTimeout(async() => {
+          const products = await Product.aggregate([
+            {
+              $match: {
+                "basic.content": ""
+              }
+            },
+            {
+              $sort:{
+                _id: -1
+              }
+            }
+          ])
+          let i = 0
+          for(const product of products){
+            console.log("상품명--->", `${++i} / ${products.length} `, product.product.korTitle)
+            let isSingle =
+              product.basic.url.includes("iherb.com") && product.options.length === 1 ? true : false
+            let html = ``
+            for(const item of product.basic.content.filter(fItem => fItem && fItem.length > 0 && fItem.includes("http"))){
+              html += `<img src="${item}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+            }
+            const htmlContent = `${product.product.gifHtml ? product.product.gifHtml : ""}${product.product.topHtml}${
+              product.product.isClothes && product.product.clothesHtml
+                ? product.product.clothesHtml
+                : ""
+            }${
+              product.product.isShoes && product.product.shoesHtml ? product.product.shoesHtml : ""
+            }${product.product.optionHtml}${html}${product.product.bottomHtml}`
+  
+            const response = await CoupnagGET_PRODUCT_BY_PRODUCT_ID({
+              userID: product.userID,
+              productID: product.product.coupang.productID,
+            })
+  
+            if (response && response.code === "SUCCESS") {
+              for (const item of response.data.items) {
+                for (const content of item.contents) {
+                  content.contentDetails[0].content = htmlContent
+                  // console.log("content.contentDetails[0].content", content.contentDetails[0].content)
+                }
+              }
+  
+              // console.log("response", response.data)
+              const updateProduct = await CoupnagUPDATE_PRODUCT({
+                userID: product.userID,
+                product: response.data,
+              })
+  
+              // console.log("response.data", response.data)
+              // for (const item of response.data.items){
+              //   console.log("item.vendorItemId", item.vendorItemId)
+              //   const a = await CoupnagRESUME_PRODUCT_SALES_BY_ITEM({
+              //     userID: user,
+              //     vendorItemId: item.vendorItemId
+              //   })
+              //   console.log("*******", a)
+              // }
+              // console.log("updateProduct", updateProduct)
+  
+              const approveResponse = await CoupangAPPROVE_PRODUCT({
+                userID: product.userID,
+                sellerProductId: response.data.sellerProductId,
+              })
+              // console.log("approveResponse", approveResponse)
+              if (updateProduct && updateProduct.code === "SUCCESS") {
+                await Product.findOneAndUpdate(
+                  {
+                    userID: product.userID,
+                    _id: ObjectId(product._id),
+                  },
+                  {
+                    $set: {
+                      "basic.content": product.basic.content.filter(fItem => fItem && fItem.length > 0 && fItem.includes("http")),
+                      "product.html": html,
+                    },
+                  },
+                  { new: true }
+                )
+              }
+            }
+  
+            // 카페 24
+            if (
+              product.product.cafe24 &&
+              product.product.cafe24.mallID &&
+              product.product.cafe24.shop_no
+            ) {
+              product.product.cafe24_product_no = product.product.cafe24.product_no
+              product.product.html = html
+              const cafe24Response = await updateCafe24({
+                id: product._id,
+                isSingle,
+                product: product.product,
+                options: product.options,
+                cafe24: {
+                  mallID: product.product.cafe24.mallID,
+                  shop_no: product.product.cafe24.shop_no,
+                },
+                userID: product.userID,
+                writerID: product.writerID,
+              })
+           
+            }
+          }
+          console.log("끝--->")
+        }, 1000);
+        return false
+
+        await searchLotteOnKeyword({title: keyword})
+        return
+
+        let mainKeywordArray = []
+        for(const item of keyword.split(" ")) {
+          const relKeyword = await getCoupangRelatedKeyword({keyword: item})
+          // console.log("relKeyword", relKeyword)
+
+          for (const items of DimensionArray(relKeyword, 5)) {
+            const response = await NaverKeywordRel({ keyword: items.join(",") })
+            for (const item of items) {
+              if (response && response.keywordList) {
+                const keywordObj = _.find(response.keywordList, { relKeyword: item.replace(/ /gi, "") })
+                if (keywordObj) {
+                  mainKeywordArray.push({
+                    ...keywordObj,
+                    monthlyPcQcCnt: Number(keywordObj.monthlyPcQcCnt.toString().replace("< ", "")),
+                    monthlyMobileQcCnt: Number(
+                      keywordObj.monthlyMobileQcCnt.toString().replace("< ", "")
+                    ),
+                  })
+                }
+              }
+            }
+          }
+
+          await sleep(200)
+          
+        }
+        mainKeywordArray = mainKeywordArray.sort((a, b) =>  (b.monthlyPcQcCnt + b.monthlyMobileQcCnt) - (a.monthlyPcQcCnt + a.monthlyMobileQcCnt))
+        mainKeywordArray = _.unionBy(mainKeywordArray, "relKeyword")
+        .filter(item => item.monthlyPcQcCnt + item.monthlyPcQcCnt < 10000)
+        .filter((item, index) => index < 20)
+        .map(item => item.relKeyword)
+        
+        console.log("mainKeywordArray", mainKeywordArray, mainKeywordArray.length)
+        return
+
         const amazonCollection = await AmazonCollection.aggregate([
           {
             $match: {

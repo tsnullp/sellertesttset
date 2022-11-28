@@ -7,7 +7,7 @@ const {
   naverStoreSourcing,
   searchKeywordCategory,
 } = require("../puppeteer/categorySourcing")
-const { getCoupnagRelatedKeyword, getCoupnagAutoKeyword } = require("../puppeteer/keywordSourcing")
+const { getCoupangRelatedKeyword, getCoupangAutoKeyword } = require("../puppeteer/keywordSourcing")
 const { NaverKeywordRel } = require("../api/Naver")
 const mongoose = require("mongoose")
 const { DimensionArray, GetKeywordScore, isNumber, regExp_test } = require("../../lib/usrFunc")
@@ -303,8 +303,8 @@ const resolvers = {
           }),
           new Promise(async (resolve, reject) => {
             try {
-              const coupnagAutoReponse = await getCoupnagAutoKeyword({ keyword })
-              keywordArray.push(...coupnagAutoReponse)
+              const coupangAutoReponse = await getCoupangAutoKeyword({ keyword })
+              keywordArray.push(...coupangAutoReponse)
               resolve()
             } catch (e) {
               reject(e)
@@ -358,7 +358,7 @@ const resolvers = {
     },
     SearchCoupangRelatedKeywrod: async (parent, { keyword }, { logger }) => {
       try {
-        return await getCoupnagRelatedKeyword({ keyword })
+        return await getCoupangRelatedKeyword({ keyword })
       } catch (e) {
         logger.error(`SearchCoupangRelatedKeywrod: ${e}`)
         return []

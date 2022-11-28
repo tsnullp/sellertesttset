@@ -21,6 +21,7 @@ const CoupangWinner = mongoose.Schema({
   detailUrl: String,
   html: String,
   detailImages: [String],
+  sellerTags: [String],
   subPrice: Number,
   isClothes: Boolean,
   isShoes: Boolean,
