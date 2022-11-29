@@ -3963,3 +3963,19 @@ export const SYNC_DELIVERY_ORDER = gql`
     SyncDeliveryOrder
   }
 `
+
+export const CATEGORY_SALES = gql`
+  query GetCategorySales($sort: String) {
+    GetCategorySales(sort: $sort) {
+      _id
+      categoryId
+      count
+      purchaseCnt
+      recentSaleCount
+      category1
+      category2
+      category3
+      category4
+    }
+  }
+`

@@ -1,5 +1,5 @@
 import React from "react"
-import { SourcingKeyword, NaverMainKeywordForm, MyFavoriteKeyword } from "components"
+import { CategorySalesForm, SourcingKeyword, NaverMainKeywordForm, MyFavoriteKeyword } from "components"
 import styled from "styled-components"
 import { Tabs } from "antd"
 import { StarFilled } from "@ant-design/icons"
@@ -10,7 +10,10 @@ const NaverMainKeywordPage = () => {
   return (
     <Container>
       <Tabs defaultActiveKey="1">
-        <TabPane tab="키워드 소싱" key="1">
+        <TabPane tab="카테고리 판매량" key="1">
+          <CategorySalesForm />
+        </TabPane>
+        <TabPane tab="키워드 소싱" key="2">
           <SourcingKeyword />
         </TabPane>
         <TabPane
@@ -25,11 +28,11 @@ const NaverMainKeywordPage = () => {
               내 키워드
             </span>
           }
-          key="2"
+          key="3"
         >
           <MyFavoriteKeyword />
         </TabPane>
-        <TabPane tab="데이터 랩" key="3">
+        <TabPane tab="데이터 랩" key="4">
           <NaverMainKeywordForm />
         </TabPane>
       </Tabs>

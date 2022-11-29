@@ -1808,6 +1808,19 @@ const schema = gql`
     shippingFee: String
     orders: [TaobaoOrderOrdersInputType]
   }
+  type CategroySalesType {
+    _id: String
+    categoryId: String
+    count: Int
+    purchaseCnt: Int
+    recentSaleCount: Int
+    category1: String
+    category2: String
+    category3: String
+    category4: String
+  }
+
+
   type Query {
     "A simple type for getting started!"
     hello: String
@@ -1946,6 +1959,8 @@ const schema = gql`
     GetMarketOrder(orderId: String, userID: ID): MarkerOrderType
     GetDeliveryOrder(orderId: String, userID: ID): [DeliveryOrderType]
     GetTaobaoOrder(taobaoOrderNo: [String], userID: ID): [TaobaoOrderType]
+
+    GetCategorySales(sort: String):[CategroySalesType]
   }
 
   type Mutation {
@@ -2282,7 +2297,7 @@ const schema = gql`
     SetDeliveryOrder(userID: ID, input: [DeliveryOrderInputType]): Boolean
     SetTaobaoOrder(userID: ID, input: [TaobaoOrderInputType]): Boolean
     SyncDeliveryOrder: Boolean
-
+    
   }
 `
 

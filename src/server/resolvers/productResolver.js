@@ -8471,7 +8471,8 @@ const resolvers = {
     ) => {
       try {
         const match = {
-          $or: [{originArea: {$regex: `.*중국.*`}}, {originArea: {$regex: `.*상세.*`}}]
+          originArea: {$regex: `.*중국.*`}
+          // $or: [{originArea: {$regex: `.*중국.*`}}, {originArea: {$regex: `.*상세.*`}}]
         }
         let sortValue = {
           

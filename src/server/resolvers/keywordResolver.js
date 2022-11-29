@@ -8,6 +8,9 @@ const {
 } = require("../puppeteer/keyword")
 const { sleep } = require("../../lib/usrFunc")
 const startBrowser = require("../puppeteer/startBrowser")
+const smartStoreCategory = require("../../components/organisms/CategoryForm/category")
+const _ = require("lodash"
+)
 const resolvers = {
   Query: {
     RelatedKeywordsOnly: async (parent, { keywords }, { logger }) => {
@@ -163,6 +166,80 @@ const resolvers = {
         return null
       }
     },
+    GetCategorySales: async (parent, {sort}, {model: {NaverFavoriteItem}, logger}) => {
+
+      let sortQuery = null
+      switch(sort){
+        case "1":
+          sortQuery = {count: -1}
+          break
+        case "2":
+          sortQuery = {count: 1}
+          break
+        case "3":
+          sortQuery = {purchaseCnt: -1}
+          break
+        case "4":
+          sortQuery = {purchaseCnt: 1}
+          break
+        case "5":
+          sortQuery = {recentSaleCount: -1}
+          break
+        case "6":
+          sortQuery = {recentSaleCount: 1}
+          break
+        default:
+          sortQuery = {count: -1}
+          break
+      }
+      try {
+        let favoriteItems = await NaverFavoriteItem.aggregate([
+          {
+            $match: {
+              originArea: {$regex: `.*중국.*`}
+            }
+          },
+          {
+            $group: {
+              _id: "$categoryId",
+              count: {$sum: 1},
+              purchaseCnt: {$sum: "$purchaseCnt"},
+              recentSaleCount: {$sum: "$recentSaleCount"},
+            }
+          },
+          {
+            $sort: sortQuery
+          }
+          
+          ])
+          
+        favoriteItems = favoriteItems.map(item => {
+          try {
+            const category = _.find(smartStoreCategory, {"카테고리코드": Number(item._id)})
+        
+            if(category){
+              return {
+                ...item,
+               category1: category.대분류, 
+               category2: category.중분류, 
+               category3: category.소분류, 
+               category4: category.세분류, 
+              }
+            } else {
+              return item
+            }
+          } catch(e){
+            return item
+          }
+          
+          
+        })
+        return favoriteItems
+      } catch (e) {
+        logger.error(`GetCategorySales: ${e}`)
+        return []
+      }
+    }
   },
   Mutation: {
     RelatedKeyword: async (parent, { keyword }, { logger }) => {
@@ -229,6 +306,7 @@ const resolvers = {
         return false
       }
     },
+   
   },
 }
 
