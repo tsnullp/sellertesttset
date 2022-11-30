@@ -196,7 +196,8 @@ const resolvers = {
         let favoriteItems = await NaverFavoriteItem.aggregate([
           {
             $match: {
-              originArea: {$regex: `.*중국.*`}
+              // originArea: {$regex: `.*중국.*`}
+              $or: [{originArea: {$regex: `.*중국.*`}}, {originArea: {$regex: `.*CHINA.*`}}]
             }
           },
           {

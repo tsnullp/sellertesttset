@@ -6,7 +6,8 @@ import {
   CoolzikuOrderTable,
   TaobaoOrderModal,
   TaobaoOrderManualModal,
-  UserSelect
+  UserSelect,
+  LinkUrlModal
 } from "components"
 import { useQuery, useMutation } from "@apollo/client"
 import {
@@ -18,6 +19,8 @@ import {
   notification,
   Image,
   Tag,
+  message,
+  Tooltip
 } from "antd"
 import {
   LIST_ALL_ORDER,
@@ -26,6 +29,7 @@ import {
   TAOBAO_ORDER_BATCH,
   TABAE_ORDER_BATCH,
   SET_ORDER_SHIPPING,
+  SET_TAOBAO_URL
 } from "gql"
 
 import moment from "moment"
@@ -36,8 +40,11 @@ import {
   ExclamationCircleFilled,
   EnterOutlined,
   CalendarOutlined,
+  CopyOutlined,
+  EditOutlined
 } from "@ant-design/icons"
 import { useLocation } from "react-router-dom"
+import { CopyToClipboard } from "react-copy-to-clipboard"
 import queryString from "query-string"
 import url from "url"
 import path from "path"
@@ -761,6 +768,9 @@ const ProductForm = ({ row, index, item, handleTaobaoOrderNumber, handleTabaeCat
 
   const [isSearching, setSearching] = useState(false)
 
+  const [linkUrl, setLinkUrl] = useState(item.url)
+  const [isLinkModalVisible, setIsLinkMOdalVisible] = useState(false)
+
   const location = useLocation()
   const query = queryString.parse(location.search)
 
@@ -919,6 +929,16 @@ const ProductForm = ({ row, index, item, handleTaobaoOrderNumber, handleTabaeCat
     }
   }
 
+  const handleOkLink = (url) => {
+   
+    setLinkUrl(url)
+    setIsLinkMOdalVisible(false)
+  }
+
+  const handleCancelLink = () => {
+   
+    setIsLinkMOdalVisible(false)
+  }
   return (
     <ProductContainer key={index}>
       <div style={{ display: "flex" }}>
@@ -927,49 +947,62 @@ const ProductForm = ({ row, index, item, handleTaobaoOrderNumber, handleTabaeCat
         </div>
         <ProductTitleContainer>
           <TaobaoNumberContainer>
-            <div style={{ display: "flex" }}>
-              <Tag
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                }}
-                icon={
-                  <img style={{ marginRight: "4px" }} src={getMarketIcon(item.url)} alt="taobao" />
-                }
-                onClick={() => {
-                  if (item.url) {
-                    shell.openExternal(item.url)
+            <div style={{ display: "flex"}}>
+              
+                <Tag
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                  icon={
+                    <img style={{ marginRight: "4px" }} src={getMarketIcon(linkUrl)} alt="taobao" />
                   }
-                }}
-              >
-                {getMarketName(item.url)}
-              </Tag>
-              <Input
-                placeholder="타오바오 주문번호 등록"
-                style={{
-                  width: "200px",
-                }}
-                // defaultValue={item.taobaoOrderNumber}
-                value={orderNumber}
-                size="small"
-                allowClear={true}
-                onChange={(e) => {
-                  if (e.target.value.length === 0) {
-                    handleTaobaoOrders("")
-                  }
-                  setOrderNumber(e.target.value)
-                }}
-              />
-              <Button
-                loading={isSearching}
-                style={{ marginLeft: "5px" }}
-                onClick={() => {
-                  handleTaobaoOrders(orderNumber)
-                }}
-              >
-                검색
-              </Button>
+                  onClick={() => {
+                    if (linkUrl) {
+                      shell.openExternal(linkUrl)
+                    }
+                  }}
+                >
+                  {getMarketName(linkUrl)}
+                </Tag>
+                {item.productID && <Button icon={<EditOutlined />} onClick={() => setIsLinkMOdalVisible(true)}/>}
+                {isLinkModalVisible && (
+                <LinkUrlModal
+                  isModalVisible={isLinkModalVisible}
+                  handleOk={handleOkLink}
+                  handleCancel={handleCancelLink}
+                  url={linkUrl}
+                  _id={item.productID}
+                />
+              )}
+                <Input
+                  placeholder="타오바오 주문번호 등록"
+                  style={{
+                    marginLeft: "20px",
+                    width: "200px",
+                  }}
+                  // defaultValue={item.taobaoOrderNumber}
+                  value={orderNumber}
+                  size="small"
+                  allowClear={true}
+                  onChange={(e) => {
+                    if (e.target.value.length === 0) {
+                      handleTaobaoOrders("")
+                    }
+                    setOrderNumber(e.target.value)
+                  }}
+                />
+                <Button
+                  loading={isSearching}
+                  style={{ marginLeft: "5px" }}
+                  onClick={() => {
+                    handleTaobaoOrders(orderNumber)
+                  }}
+                >
+                  검색
+                </Button>
+              
             </div>
             {item.vendorItemId && (
               <div>
@@ -1010,9 +1043,21 @@ const ProductForm = ({ row, index, item, handleTaobaoOrderNumber, handleTabaeCat
             )}
           </TaobaoNumberContainer>
           <TabaeCategory categoryChange={handleCategroyChange} />
-          <ProductName onClick={() => handleNewWindow(item.productID)}>
-            {item.product_name}
-          </ProductName>
+          <DownloadContainer>
+            <ProductName onClick={() => handleNewWindow(item.productID)}>
+              {item.product_name}
+            </ProductName>
+            <CopyToClipboard text={item.product_name} onCopy={() => message.success("복사하였습니다.")}>
+              {/* <a href={image} download> */}
+
+              <Tooltip title="상품명을를 클립보드에 저장">
+                <Button icon={<CopyOutlined />} block>
+                  복사
+                </Button>
+              </Tooltip>
+              {/* </a> */}
+            </CopyToClipboard>
+          </DownloadContainer>
           <OptionLabel>{`(${item.option_value})`}</OptionLabel>
           {item.korValue && item.isMatch && (
             <OptionValueLabel>{`${item.korValue}`}</OptionValueLabel>
@@ -1303,4 +1348,18 @@ const ProductName = styled.div`
   &:hover {
     text-decoration: underline;
   }
+`
+
+const DownloadContainer = styled.div`
+  display: flex;
+  align-items: center;
+  & > :nth-child(1) {
+    width: 100%;
+  }
+  & > :nth-child(2) {
+    margin-left: 10px;
+    max-width: 70px;
+    min-width: 70px;
+  }
+  
 `

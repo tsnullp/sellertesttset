@@ -2297,7 +2297,7 @@ const schema = gql`
     SetDeliveryOrder(userID: ID, input: [DeliveryOrderInputType]): Boolean
     SetTaobaoOrder(userID: ID, input: [TaobaoOrderInputType]): Boolean
     SyncDeliveryOrder: Boolean
-    
+    SetTaobaoUrl(_id: ID, url: String): Boolean
   }
 `
 

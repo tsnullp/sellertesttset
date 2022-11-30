@@ -3979,3 +3979,9 @@ export const CATEGORY_SALES = gql`
     }
   }
 `
+
+export const SET_TAOBAO_URL = gql`
+  mutation SetTaobaoUrl($_id: ID, $url: String){
+    SetTaobaoUrl(_id: $_id, url: $url)
+  }
+`

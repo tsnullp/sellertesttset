@@ -8471,8 +8471,8 @@ const resolvers = {
     ) => {
       try {
         const match = {
-          originArea: {$regex: `.*중국.*`}
-          // $or: [{originArea: {$regex: `.*중국.*`}}, {originArea: {$regex: `.*상세.*`}}]
+          // originArea: {$regex: `.*중국.*`}
+          $or: [{originArea: {$regex: `.*중국.*`}}, {originArea: {$regex: `.*CHINA.*`}}]
         }
         let sortValue = {
           
@@ -10420,6 +10420,29 @@ const resolvers = {
         }
       }
     },
+    SetTaobaoUrl: async (
+      parent,
+      {_id, url},
+      {req, model: {Product}, logger}
+    ) => {
+      try {
+        if(!url || !url.includes("http")){
+          return false
+        }
+        await Product.findOneAndUpdate(
+          {_id},
+          {
+            $set: {
+              "basic.url": url
+            }
+          }
+        )
+        return true
+      } catch(e) {
+        logger.error(`SetTaobaoUrl: ${e}`)
+        return false
+      }
+    }
   },
 }
 
