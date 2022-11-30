@@ -402,35 +402,35 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
         })
       }
 
-      try {
-        if (customsTemp && customsTemp.length > 0) {
+      // try {
+      //   if (customsTemp && customsTemp.length > 0) {
           
 
-          const appDataDirPath = getAppDataPath()
-          if (!fs.existsSync(appDataDirPath)) {
-            fs.mkdirSync(appDataDirPath)
-          }
+      //     const appDataDirPath = getAppDataPath()
+      //     if (!fs.existsSync(appDataDirPath)) {
+      //       fs.mkdirSync(appDataDirPath)
+      //     }
 
-          if (!fs.existsSync(path.join(appDataDirPath, "tempCustoms"))) {
-            fs.mkdirSync(path.join(appDataDirPath, "tempCustoms"))
-          }
+      //     if (!fs.existsSync(path.join(appDataDirPath, "tempCustoms"))) {
+      //       fs.mkdirSync(path.join(appDataDirPath, "tempCustoms"))
+      //     }
 
-          await page.screenshot({
-            fullPage: true,
-            path: `${path.join(appDataDirPath, "tempCustoms")}/${tableItem.shippingNumber}.jpeg`
-          })
+      //     await page.screenshot({
+      //       fullPage: true,
+      //       path: `${path.join(appDataDirPath, "tempCustoms")}/${tableItem.shippingNumber}.jpeg`
+      //     })
 
-          customsImageBase64 = await imageEncodeToBase64(
-            `${path.join(appDataDirPath, "tempCustoms")}/${tableItem.shippingNumber}.jpeg`
-          )
+      //     customsImageBase64 = await imageEncodeToBase64(
+      //       `${path.join(appDataDirPath, "tempCustoms")}/${tableItem.shippingNumber}.jpeg`
+      //     )
 
-          fs.unlinkSync(
-            `${path.join(appDataDirPath, "tempCustoms")}/${tableItem.shippingNumber}.jpeg`
-          )
-        }
-      } catch (e) {
-        console.log("저장, ", e)
-      }
+      //     fs.unlinkSync(
+      //       `${path.join(appDataDirPath, "tempCustoms")}/${tableItem.shippingNumber}.jpeg`
+      //     )
+      //   }
+      // } catch (e) {
+      //   console.log("저장, ", e)
+      // }
     } catch (e) {
       console.log("무슨 에러? ", e)
     }
@@ -473,35 +473,35 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
         }
       })
 
-      try {
-        if (deliveryTracking && deliveryTracking.length > 0) {
+      // try {
+      //   if (deliveryTracking && deliveryTracking.length > 0) {
           
 
-          const appDataDirPath = getAppDataPath()
-          if (!fs.existsSync(appDataDirPath)) {
-            fs.mkdirSync(appDataDirPath)
-          }
+      //     const appDataDirPath = getAppDataPath()
+      //     if (!fs.existsSync(appDataDirPath)) {
+      //       fs.mkdirSync(appDataDirPath)
+      //     }
 
-          if (!fs.existsSync(path.join(appDataDirPath, "tempDelivery"))) {
-            fs.mkdirSync(path.join(appDataDirPath, "tempDelivery"))
-          }
+      //     if (!fs.existsSync(path.join(appDataDirPath, "tempDelivery"))) {
+      //       fs.mkdirSync(path.join(appDataDirPath, "tempDelivery"))
+      //     }
 
-          await page.screenshot({
-            fullPage: true,
-            path: `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
-          })
+      //     await page.screenshot({
+      //       fullPage: true,
+      //       path: `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
+      //     })
 
-          deliveryImageBase64 = await imageEncodeToBase64(
-            `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
-          )
+      //     deliveryImageBase64 = await imageEncodeToBase64(
+      //       `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
+      //     )
 
-          fs.unlinkSync(
-            `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
-          )
-        }
-      } catch (e) {
-        console.log("저장, ", e)
-      }
+      //     fs.unlinkSync(
+      //       `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
+      //     )
+      //   }
+      // } catch (e) {
+      //   console.log("저장, ", e)
+      // }
     } catch (e) {}
 
     // console.log(
@@ -578,36 +578,36 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
       
     }
 
-    if (customs && Array.isArray(customs) && customs.length > 0) {
-      await DeliveryImage.findOneAndUpdate(
-        {
-          userID: ObjectId(userID),
-          shippingNumber: tableItem.shippingNumber
-        },
-        {
-          $set: {
-            shippingNumber: tableItem.shippingNumber,
-            customsImage: customsImageBase64
-          }
-        },
-        { upsert: true }
-      )
-    }
-    if (deliveryTracking && Array.isArray(deliveryTracking) && deliveryTracking.length > 0) {
-      await DeliveryImage.findOneAndUpdate(
-        {
-          userID: ObjectId(userID),
-          shippingNumber: tableItem.shippingNumber
-        },
-        {
-          $set: {
-            shippingNumber: tableItem.shippingNumber,
-            deliveryImage: deliveryImageBase64
-          }
-        },
-        { upsert: true }
-      )
-    }
+    // if (customs && Array.isArray(customs) && customs.length > 0) {
+    //   await DeliveryImage.findOneAndUpdate(
+    //     {
+    //       userID: ObjectId(userID),
+    //       shippingNumber: tableItem.shippingNumber
+    //     },
+    //     {
+    //       $set: {
+    //         shippingNumber: tableItem.shippingNumber,
+    //         customsImage: customsImageBase64
+    //       }
+    //     },
+    //     { upsert: true }
+    //   )
+    // }
+    // if (deliveryTracking && Array.isArray(deliveryTracking) && deliveryTracking.length > 0) {
+    //   await DeliveryImage.findOneAndUpdate(
+    //     {
+    //       userID: ObjectId(userID),
+    //       shippingNumber: tableItem.shippingNumber
+    //     },
+    //     {
+    //       $set: {
+    //         shippingNumber: tableItem.shippingNumber,
+    //         deliveryImage: deliveryImageBase64
+    //       }
+    //     },
+    //     { upsert: true }
+    //   )
+    // }
 
     const deliveryTemp = await DeliveryInfo.findOne({
       userID: ObjectId(userID),
@@ -672,55 +672,55 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
               }
             })
 
-            if (
-              deliveryTracking &&
-              Array.isArray(deliveryTracking) &&
-              deliveryTracking.length > 0
-            ) {
-              try {
+            // if (
+            //   deliveryTracking &&
+            //   Array.isArray(deliveryTracking) &&
+            //   deliveryTracking.length > 0
+            // ) {
+            //   try {
                 
 
-                const appDataDirPath = getAppDataPath()
-                if (!fs.existsSync(appDataDirPath)) {
-                  fs.mkdirSync(appDataDirPath)
-                }
+            //     const appDataDirPath = getAppDataPath()
+            //     if (!fs.existsSync(appDataDirPath)) {
+            //       fs.mkdirSync(appDataDirPath)
+            //     }
 
-                if (!fs.existsSync(path.join(appDataDirPath, "tempDelivery"))) {
-                  fs.mkdirSync(path.join(appDataDirPath, "tempDelivery"))
-                }
+            //     if (!fs.existsSync(path.join(appDataDirPath, "tempDelivery"))) {
+            //       fs.mkdirSync(path.join(appDataDirPath, "tempDelivery"))
+            //     }
 
-                await page.screenshot({
-                  fullPage: true,
-                  path: `${path.join(appDataDirPath, "tempDelivery")}/${
-                    tableItem.shippingNumber
-                  }.jpeg`
-                })
+            //     await page.screenshot({
+            //       fullPage: true,
+            //       path: `${path.join(appDataDirPath, "tempDelivery")}/${
+            //         tableItem.shippingNumber
+            //       }.jpeg`
+            //     })
 
-                deliveryImageBase64 = await imageEncodeToBase64(
-                  `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
-                )
+            //     deliveryImageBase64 = await imageEncodeToBase64(
+            //       `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
+            //     )
 
-                fs.unlinkSync(
-                  `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
-                )
-              } catch (e) {
-                console.log("저장, ", e)
-              }
+            //     fs.unlinkSync(
+            //       `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
+            //     )
+            //   } catch (e) {
+            //     console.log("저장, ", e)
+            //   }
 
-              await DeliveryImage.findOneAndUpdate(
-                {
-                  userID: ObjectId(userID),
-                  shippingNumber: tableItem.shippingNumber
-                },
-                {
-                  $set: {
-                    shippingNumber: tableItem.shippingNumber,
-                    deliveryImage: deliveryImageBase64
-                  }
-                },
-                { upsert: true }
-              )
-            }
+            //   await DeliveryImage.findOneAndUpdate(
+            //     {
+            //       userID: ObjectId(userID),
+            //       shippingNumber: tableItem.shippingNumber
+            //     },
+            //     {
+            //       $set: {
+            //         shippingNumber: tableItem.shippingNumber,
+            //         deliveryImage: deliveryImageBase64
+            //       }
+            //     },
+            //     { upsert: true }
+            //   )
+            // }
           }
         }
 
