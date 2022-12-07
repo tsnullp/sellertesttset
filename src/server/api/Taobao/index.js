@@ -178,8 +178,8 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
     //TODO:
     let mainImages = []
     const platform = os.platform()
-    console.log("response.data", response.data)
-    if(response.data && response.data.data.video_url && response.data.data.video_url.includes(".mp4")){
+   
+    if(response.data && response.data.data && response.data.data.video_url && response.data.data.video_url.includes(".mp4")){
       try {
         // console.log("여기 타는데", response.data.data.video_url)
         const gifResponse = await axios({
