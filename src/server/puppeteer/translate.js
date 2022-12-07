@@ -281,7 +281,7 @@ const papagoTranslate = async (text, source="zh-CN", target="ko") => {
     clientID: "MC5JthhRd_poRD7ApTjs",
     clientSecret: "F0zxL8yunI"
   },
-
+  //영미
   {
     clientID: "hUH0Bku23NDgXb_iZ0n9",
     clientSecret: "kMqyrlQuX8"
@@ -321,6 +321,47 @@ const papagoTranslate = async (text, source="zh-CN", target="ko") => {
   {
     clientID: "pfuPqrqjwvVpXqn7o941",
     clientSecret: "cH70bBydwZ"
+  },
+  //박서방
+  {
+    clientID: "bol1tRkBtNvQsvgj2DCd",
+    clientSecret: "du6n7oiw10"
+  },
+  {
+    clientID: "tifUkunKbMEOxrmBj3Uj",
+    clientSecret: "HY7ueikVtp"
+  },
+  {
+    clientID: "7aPBCPfsTTjrfr9haF9M",
+    clientSecret: "QAi1BybC3b"
+  },
+  {
+    clientID: "Ge4fOrZTdJxLLROhju43",
+    clientSecret: "eHKqg3GNx7"
+  },
+  {
+    clientID: "HfTkYQLyctkFn_P8aTyv",
+    clientSecret: "gXzyt2mX7d"
+  },
+  {
+    clientID: "OEnyDLh1XMlFdC8E69bc",
+    clientSecret: "wiBZfW0oHM"
+  },
+  {
+    clientID: "q7BBs1NKzl0w9RjNs_3z",
+    clientSecret: "BXO4wEuBlk"
+  },
+  {
+    clientID: "QoAGpEq8beZNmNOIhNiS",
+    clientSecret: "sFvTexcO9_"
+  },
+  {
+    clientID: "xYC31rURJkXBmNvWgFEE",
+    clientSecret: "sonXtYZxD9"
+  },
+  {
+    clientID: "xzpRGHN9eKqUmJYygRxk",
+    clientSecret: "2hDyDERC0i"
   },
  ]
  try {
