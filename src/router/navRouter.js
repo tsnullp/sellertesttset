@@ -29,7 +29,8 @@ import {
   SoEasyPage,
   NaverMainKeywordPage,
   AmazonUploadPage,
-  HealthFoodPage
+  HealthFoodPage,
+  BoardsPage
 } from "components"
 
 const navRouter = () => {
@@ -122,6 +123,9 @@ const navRouter = () => {
         </Route>
         <Route path="/healthFood">
           <HealthFoodPage />
+        </Route>
+        <Route path="/board">
+          <BoardsPage />
         </Route>
       </Switch>
     </Router>

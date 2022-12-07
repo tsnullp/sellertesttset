@@ -3,7 +3,7 @@ const Basic = require("../models/Basic")
 const { ItemSKU, ItemSKUV2, ItemDescriptionV2, ItemDetails } = require("../api/Taobao")
 const { Outbound, ReturnShippingCenter, CategoryPredict, CategoryMeta } = require("../api/Market")
 const { checkStr, AmazonAsin } = require("../../lib/usrFunc")
-const { korTranslate } = require("./translate")
+const { korTranslate, papagoTranslate } = require("./translate")
 
 const start = async ({ url, cnTitle, userID, orginalTitle, detailImages }) => {
   const ObjItem = {
@@ -65,10 +65,10 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailImages }) => {
             // mainImage: Array.isArray(mainImages) && mainImages.length > 0 ? mainImages[0] : null
           })
           if (title) {
-            ObjItem.korTitle = await korTranslate(title.trim(), userID)
+            ObjItem.korTitle = await papagoTranslate(title.trim())
           } else {
             ObjItem.title = cnTitle
-            ObjItem.korTitle = await korTranslate(cnTitle, userID)
+            ObjItem.korTitle = await papagoTranslate(cnTitle)
           }
 
           ObjItem.options = options
@@ -359,9 +359,9 @@ const getOptions = async ({ itemId }) => {
 
     if (prop) {
       for (const pItem of prop) {
-        pItem.korTypeName = await korTranslate(pItem.name.trim())
+        pItem.korTypeName = await papagoTranslate(pItem.name.trim())
         for (const value of pItem.values) {
-          value.korValueName = await korTranslate(value.name.trim())
+          value.korValueName = await papagoTranslate(value.name.trim())
           // if(value.image){
 
           // }
@@ -404,9 +404,6 @@ const getOptions = async ({ itemId }) => {
               quantity = skus[skuId].quantity
             }
           }
-
-          // const korTypeName = await korTranslate(prop[0].name)
-          // const korValueName = await korTranslate(pItem.name)
 
           tempOption.push({
             key: skuId,
@@ -630,14 +627,16 @@ const getOptionsV2 = async ({ userID, itemId }) => {
   let videoUrl = null
   let videoGif = null
   try {
-    console.log("getOptionsV2 시작")
+    console.time(itemId)
     const response = await ItemSKUV2({ userID, item_id: itemId })
 
     if (response.skus) {
-      console.log("getOptionsV2 끝", response.skus.length)
+      console.log(itemId, "getOptionsV2 끝", response.skus.length)   
     } else {
       console.log("getOptionsV2 실패")
     }
+    console.timeEnd(itemId)
+    
     const { title, sku_props, skus, main_imgs, video_url, video_gif } = response
     // console.log("item", item)
     // tempMainImags.push(
@@ -649,25 +648,83 @@ const getOptionsV2 = async ({ userID, itemId }) => {
     tempMainImages = main_imgs
 
     if (sku_props && sku_props.length > 0) {
-      for (const item of sku_props) {
-        item.korTypeName = await korTranslate(item.prop_name.trim(), userID)
-        for (const value of item.values) {
-          value.korValueName = await korTranslate(value.name.trim(), userID)
+      let ii = 0
+      console.time(`${itemId} 번역`)
 
-          if (value.imageUrl) {
-            const imageUrl = value.imageUrl.replace("https:", "").replace("http:", "")
-            tempOptionImages.push({
-              vid: value.vid,
-              name: value.name,
-              korName: value.korValueName,
-              image: imageUrl.includes("http") ? imageUrl : `https:${imageUrl}`,
+      const promiseArray = sku_props.map(item => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            await sleep(ii * 100)
+            item.korTypeName = await papagoTranslate(item.prop_name.trim())
+            // console.log("item.korTypeName", item.korTypeName)
+            tempOptionImages = []
+          
+            const OptionPromiseArray = item.values.map((value, index) => {
+              return new Promise(async (resolve, reject) => {
+                try {
+                  // await sleep(index * 100)
+                  value.korValueName = await papagoTranslate(value.name)
+                  // console.log("value.korValueName", value.name, value.korValueName)
+                  if (value.imageUrl) {
+                    const imageUrl = value.imageUrl.replace("https:", "").replace("http:", "")
+                    value.image = imageUrl.includes("http")
+                      ? imageUrl
+                      : imageUrl
+                      ? `https:${imageUrl}`
+                      : tempMainImages[0]
+                    tempOptionImages.push({
+                      vid: value.vid,
+                      name: value.name,
+                      korName: value.korValueName,
+                      image: imageUrl.includes("http")
+                        ? imageUrl
+                        : imageUrl
+                        ? `https:${imageUrl}`
+                        : tempMainImages[0],
+                    })
+                  } else {
+                    if (ii === 0) {
+                      value.image = tempMainImages && tempMainImages.length > 0 ? tempMainImages[0] : null
+                    }
+                  }
+                  resolve()
+                } catch (e) {
+                  reject(e)
+                }
+              })
             })
-
-            value.image = imageUrl.includes("http") ? imageUrl : `https:${imageUrl}`
+            await Promise.all(OptionPromiseArray)
+            
+            ii++
+            resolve()
+          } catch(e) {
+            reject(e)
           }
-        }
-        // console.log("ITEM__", item)
-      }
+        })
+      })
+
+      await Promise.all(promiseArray)
+      console.timeEnd(`${itemId} 번역`)
+      console.log("sku_props.length", sku_props.length)
+      // for (const item of sku_props) {
+      //   item.korTypeName = await papagoTranslate(item.prop_name.trim(), userID)
+      //   for (const value of item.values) {
+      //     value.korValueName = await papagoTranslate(value.name.trim(), userID)
+
+      //     if (value.imageUrl) {
+      //       const imageUrl = value.imageUrl.replace("https:", "").replace("http:", "")
+      //       tempOptionImages.push({
+      //         vid: value.vid,
+      //         name: value.name,
+      //         korName: value.korValueName,
+      //         image: imageUrl.includes("http") ? imageUrl : `https:${imageUrl}`,
+      //       })
+
+      //       value.image = imageUrl.includes("http") ? imageUrl : `https:${imageUrl}`
+      //     }
+      //   }
+      //   // console.log("ITEM__", item)
+      // }
 
       if (sku_props.length === 1) {
         for (const pItem of sku_props[0].values) {

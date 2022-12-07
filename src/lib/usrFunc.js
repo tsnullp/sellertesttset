@@ -428,6 +428,9 @@ const GetKeywordScore = (a, b) => {
   return (score1 + score2 + score3 + score4) * (100 / categoryCnt)
 }
 
+const shuffle = (array) => {
+  return array.sort(() => Math.random() - 0.5); 
+}
 module.exports = {
   checkStr,
   getAppDataPath,
@@ -454,4 +457,5 @@ module.exports = {
   isNumber,
   getPermutations,
   GetKeywordScore,
+  shuffle
 }

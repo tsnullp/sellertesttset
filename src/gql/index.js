@@ -3985,3 +3985,30 @@ export const SET_TAOBAO_URL = gql`
     SetTaobaoUrl(_id: $_id, url: $url)
   }
 `
+
+export const TAOBAO_SIMILAR_PRODUCTS = gql`
+  mutation GetSimilarProducts($urlString: String){
+    GetSimilarProducts(urlString: $urlString) {
+      title
+      image
+      link
+    }
+  }
+`
+
+export const GET_SIMILAR_PRODUCT_KORTITLE = gql`
+  mutation GetSimilarProductKorTitle($input: [SimilarProductInputType]){
+    GetSimilarProductKorTitle(input: $input) {
+      korTitle
+      title
+      image
+      link
+    }
+  }
+`
+
+export const CAFE24_BOARDS = gql`
+  query Cafe24Boards($userID: ID) {
+    Cafe24Boards(userID: $userID)
+  }
+`

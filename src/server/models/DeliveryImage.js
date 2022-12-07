@@ -6,7 +6,9 @@ const DeliveryImageSchma = mongoose.Schema({
   },
   shippingNumber: String,
   customsImage: Buffer,
-  deliveryImage: Buffer
+  deliveryImage: Buffer,
+  customsImageUrl: String,
+  deliveryImageUrl: String
 })
 
 module.exports = mongoose.model("DeliveryImage", DeliveryImageSchma)

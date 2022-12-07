@@ -23,6 +23,7 @@ import {
   QuestionCircleOutlined,
   GiftOutlined,
   DisconnectOutlined,
+  QuestionOutlined
 } from "@ant-design/icons"
 import { UserContext } from "context/UserContext"
 
@@ -644,6 +645,40 @@ const NavMenu = () => {
     }
   }
 
+  const handleBoardNewWindow = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const BrowserWindow = remote.BrowserWindow
+    const win = new BrowserWindow({
+      width: 1600,
+      height: 1000,
+      frame: true,
+      webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        webSecurity: false,
+      },
+    })
+    win.setAutoHideMenuBar(true)
+    if (isDev) {
+      win.loadURL(`http://localhost:3001#/boardWindow?isDev=${isDev}`)
+    } else {
+      let dirpath = null
+      if (remote.process.platform === "darwin") {
+        dirpath = remote.process.execPath.replace("/MacOS/smartseller", "")
+      } else {
+        dirpath = remote.process.execPath.replace("\\smartseller.exe", "")
+      }
+      const startUrl = url.format({
+        pathname: path.join(decodeURIComponent(dirpath), `resources/app/build/index.html`),
+        hash: `/boardWindow?isDev=${isDev}`,
+        protocol: "file:",
+        slashes: true,
+      })
+      win.loadURL(startUrl)
+    }
+  }
+
   const handleExplainingDataNewWindow = (e) => {
     e.preventDefault()
     e.stopPropagation()
@@ -1031,6 +1066,17 @@ const NavMenu = () => {
               </ItemContainer>
             </Menu.Item>
           )}
+          {/* {(user.grade === "1" || user.id === "603de5004f06203d14d09186") && (
+            <Menu.Item key="200" onClick={() => (window.location.hash = `#/board?isDev=${isDev}`)}>
+              <ItemContainer>
+                <QuestionOutlined style={{ color: "red", fontSize: "20px" }} />
+                <MenuTitle>문의관리</MenuTitle>
+                <NewWindowIcon onClick={handleBoardNewWindow}>
+                  <ExportOutlined style={{ marginRight: "0" }} />
+                </NewWindowIcon>
+              </ItemContainer>
+            </Menu.Item>
+          )} */}
           <Menu.Item
             key="21"
             onClick={() => (window.location.hash = `#/productmanage?isDev=${isDev}`)}

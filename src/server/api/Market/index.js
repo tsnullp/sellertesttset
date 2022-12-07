@@ -330,6 +330,36 @@ exports.Cafe24ListAllOrigin = async ({ mallID, offset }) => {
   }
 }
 
+exports.Cafe24BoardList = async ({ mallID }) => {
+  try {
+    const path = `admin/boards`
+    return await Cafe24API({
+      mallID,
+
+      method: "GET",
+      path,
+    })
+  } catch (e) {
+    console.log("Cafe24ListAllOrigin", e)
+    return null
+  }
+}
+
+exports.Cafe24BoardPosts = async ({ mallID, board_no }) => {
+  try {
+    const path = `admin/boards/${board_no}/articles`
+    return await Cafe24API({
+      mallID,
+
+      method: "GET",
+      path,
+    })
+  } catch (e) {
+    console.log("Cafe24BoardPosts", e)
+    return null
+  }
+}
+
 exports.Cafe24CreateProductsOption = async ({ mallID, product_no, payload }) => {
   try {
     const path = `admin/products/${product_no}/options`

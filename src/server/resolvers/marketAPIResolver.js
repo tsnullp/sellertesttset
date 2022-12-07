@@ -29,6 +29,8 @@ const {
   Cafe24RegisterShipments,
   Cafe24UpdateShipments,
   Cafe24UploadLocalImage,
+  Cafe24BoardList,
+  Cafe24BoardPosts
 } = require("../api/Market")
 const { customs } = require("../api/Unipass")
 const { TrademarkGeneralSearchService } = require("../api/Kipris")
@@ -1193,6 +1195,56 @@ const marketAPIResolver = {
         return []
       }
     },
+    Cafe24Boards: async (parent, {userID}, {req, model: {User, Market}, logger}) => {
+      try {
+
+        const user = userID ? userID : req.user.adminUser
+      //  const user = "5f6040f67f596146ccf2fb3a" 
+        const userModel = await User.findOne(
+          {
+            $match: {
+              userID: user
+            }
+          }
+        )
+        const userGroup = await User.aggregate([
+          {
+            $match: {
+              group: userModel.group
+            }
+          }
+        ])
+
+        for(const item of userGroup){
+          const market = await Market.findOne(
+            {
+              userID: item._id
+            }
+          )
+          const mallID = market.cafe24.mallID
+
+          const response = await Cafe24BoardList({mallID})
+
+          // console.log("response", response.data.boards)
+
+          for(const board of response.data.boards.filter(fItem => fItem.board_type !== 1)){
+            // for(const board of response.data.boards){
+            const articlesResponse = await Cafe24BoardPosts({mallID, board_no: board.board_no})
+            
+            if(articlesResponse.data.articles.length > 0){
+              console.log("board", board.board_type, board.board_no)
+              console.log("articlesResponse", articlesResponse.data.articles)
+            }
+          }
+        }
+
+        
+        return true
+      } catch (e){
+        logger.error(`Cafe24Boards: ${e}`)
+        return []
+      }
+    }
   },
   Mutation: {
     CreateProduct: async (parent, { id, product, options, coupang, cafe24 }, { req, logger }) => {

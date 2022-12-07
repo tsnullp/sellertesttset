@@ -10,7 +10,7 @@ const startBrowser = require("../puppeteer/startBrowser")
 const taobaoLogin = require("../puppeteer/taobaoLogin")
 const addShoppingBag = require("../puppeteer/addShoppingBag")
 const taobaoKeywordPageSearching = require("../puppeteer/taobaoKeywordPageSearching")
-const { googleTranslate, papagoTranslate, kakaoTranslate } = require("../puppeteer/translate")
+const { korTranslate, googleTranslate, papagoTranslate, kakaoTranslate } = require("../puppeteer/translate")
 const { makeTitle, getAppDataPath } = require("../../lib/usrFunc")
 const searchNaverKeyword = require("../puppeteer/searchNaverKeyword")
 const search11stKeyword = require("../puppeteer/search11stKeyword")
@@ -24,7 +24,7 @@ const download = require("image-downloader")
 const FormData = require("form-data")
 const fs = require("fs")
 const path = require("path")
-const { ImageUpload, ImageList, TaobaoImageUpload, ItemSearchByImage } = require("../api/Taobao")
+const { ImageUpload, ImageList, TaobaoImageUpload, ItemSearchByImage, TaobaoSimilarProducts } = require("../api/Taobao")
 const { ProductDetails } = require("../api/Amazon")
 const { iHerbCode, iHerbDetail } = require("../api/iHerb")
 const { NaverKeywordInfo, NaverKeywordRel } = require("../api/Naver")
@@ -42,6 +42,7 @@ const {
   CoupnagSTOP_PRODUCT_SALES_BY_ITEM,
 } = require("../api/Market")
 const _ = require("lodash")
+const url = require("url")
 
 const { getMainKeyword } = require("../puppeteer/keywordSourcing")
 
@@ -939,6 +940,58 @@ const resolvers = {
         return null
       }
     },
+    GetSimilarProducts: async (parent, {urlString} , {req, model: {Cookie}, logger}) => {
+      try {
+
+        const urlObj = url.parse(urlString, true)
+        const itemID = urlObj.query.id
+        console.log("itemID", itemID)
+        const cookies = await Cookie.aggregate([
+          {
+            $match: {
+              name: { $ne: null },
+              name: { $ne: "xman_t" },
+            },
+          },
+          {
+            $sort: {
+              lastUpdate: -1,
+            },
+          },
+        ])
+        const response = await TaobaoSimilarProducts({itemID, cookie: cookies[0].cookie})
+
+        return response
+      } catch (e){
+        logger.error(`GetSimilarProducts: ${e}`)
+        return []
+      }
+    },
+    GetSimilarProductKorTitle: async (parent, {input}, {req, logger}) => {
+      try {
+       //const user = req.user.adminUser
+        // for(const item of input){
+        //   item.korTitle = await papagoTranslate(item.title)
+        //   console.log("korTitle", item.korTitle)
+        // }
+
+        const promiseArray = input.map(item => {
+          return new Promise(async (resolve, reject) => {
+            try {
+              item.korTitle = await papagoTranslate(item.title)
+              resolve()
+            } catch (e) {
+              reject(e)
+            }
+          })
+        })
+        await Promise.all(promiseArray)
+        return input
+      } catch (e){
+        logger.error(`GetSimilarProducts: ${e}`)
+        return input
+      }
+    }
   },
 }
 

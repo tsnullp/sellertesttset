@@ -790,6 +790,19 @@ const Cafe24Info = ({ item, refetch }) => {
           }
           key="coupang"
         >
+
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token1?mallid=tsnullp`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token1?mallid=jym28`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token1?mallid=metatron79`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token1?mallid=jym2228`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token1?mallid=disel39`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token2?mallid=tstwop`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token2?mallid=jym28jym28`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token2?mallid=tsonepoint`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token3?mallid=zitane41`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token3?mallid=jymjym28`}</div>
+          <div>{`https://tsnullp.chickenkiller.com/cafe24/token3?mallid=tsthreepoint`}</div>
+          
           <AttributeDetailNamesContainer>
             <div>
               몰 아이디

@@ -29,6 +29,7 @@ import {
   NaverMainKeywordPage,
   AmazonUploadPage,
   HealthFoodPage,
+  BoardsPage
 } from "components"
 
 const rootRouter = () => {
@@ -122,6 +123,9 @@ const rootRouter = () => {
           </Route>
           <Route path="/healthFoodWindow">
             <HealthFoodPage />
+          </Route>
+          <Route path="/boardWindow">
+            <BoardsPage />
           </Route>
           <Route>
             <BasicTemplates />

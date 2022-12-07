@@ -1,6 +1,7 @@
 const TaobaoAPI = require("./TaobaoAPI")
 const moment = require("moment")
 const axios = require("axios")
+const cheerio = require("cheerio")
 const { imageCheck, getAppDataPath } = require("../../../lib/usrFunc")
 const tesseract = require("node-tesseract-ocr")
 const os = require("os")
@@ -10,6 +11,7 @@ const fs = require("fs")
 const path = require("path")
 const {Cafe24UploadLocalImage} = require("../Market/index")
 const User = require("../../models/User")
+
 //https://inpa.tistory.com/entry/NODE-%F0%9F%93%9A-Sharp-%EB%AA%A8%EB%93%88-%EC%82%AC%EC%9A%A9%EB%B2%95-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EB%A6%AC%EC%82%AC%EC%9D%B4%EC%A7%95-%EC%9B%8C%ED%84%B0%EB%A7%88%ED%81%AC-%EB%84%A3%EA%B8%B0
 
 exports.TaobaoOrderList = async ({ pageNum, referer, cookie }) => {
@@ -449,5 +451,39 @@ exports.ItemSearchByImage = async ({ img, imageKey }) => {
   } catch (e) {
     console.log("ItemSearchByImage", e)
     return null
+  }
+}
+
+exports.TaobaoSimilarProducts = async ({itemID, cookie}) => {
+  try {
+    const path = `https://shoucang.taobao.com/nodejs/itemSimilarRecommend.htm?id=${itemID}&cat=1&last=`
+    const products = []
+    const response = await TaobaoAPI({
+      method: "GET",
+      path,
+      header: {
+        // referer,
+        cookie,
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36",
+      },
+      decoding: false,
+    })
+
+    const $ = cheerio.load(response)
+    $("li").each((i, elem) => {
+      const title = $(elem).attr("title")
+      const image = $(elem).attr("data-img")
+      const link = $(elem).attr("data-link")
+      products.push({
+        title, 
+        image: `https:${image}`, 
+        link: `https:${link}`
+      })
+    })
+
+    return products
+  }catch(e){
+    console.log("error", e)
+    return  null
   }
 }

@@ -33,7 +33,7 @@ const ObjectId = mongoose.Types.ObjectId
 const moment = require("moment")
 const cheerio = require("cheerio")
 const { getKiprisWords } = require("./marketAPIResolver")
-const { korTranslate, engTranslate, kortoEngTranslate } = require("../puppeteer/translate")
+const { papagoTranslate, korTranslate, engTranslate, kortoEngTranslate } = require("../puppeteer/translate")
 const { getCoupangRelatedKeyword } = require("../puppeteer/keywordSourcing")
 const getTaobaoItem = require("../puppeteer/getTaobaoItemNewDetail")
 const getTaobaoItemAPI = require("../puppeteer/getTaobaoItemAPI")
@@ -1028,7 +1028,8 @@ const resolvers = {
     },
     EngTranslate: async (parent, { text }, { logger }) => {
       try {
-        return await engTranslate(text)
+        // return await engTranslate(text)
+        return await papagoTranslate(text, "zh-CN", "en")
       } catch (e) {
         logger.error(`EngTranslate: ${e}`)
         return text
@@ -1036,7 +1037,7 @@ const resolvers = {
     },
     KorToEngTranslate: async (parent, { text }, { logger }) => {
       try {
-        return await kortoEngTranslate(text)
+        return await papagoTranslate(text, "ko", "en")
       } catch (e) {
         logger.error(`EngTranslate: ${e}`)
         return text

@@ -33,7 +33,7 @@
       "icon": "./build/favicon.png"
     },
     "nsis": {
-      "oneClick": true
+      "oneClick": false
     },
     "directories": {
       "buildResources": "public",

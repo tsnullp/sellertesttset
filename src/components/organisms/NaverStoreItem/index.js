@@ -46,7 +46,8 @@ import {
   ProductImageModal,
   SourcingTable,
   ExcelImport,
-  DetailFormModal
+  DetailFormModal,
+  SimilarProductModal
 } from "components"
 import { RandomWords } from "../../../lib/userFunc"
 import { CopyToClipboard } from "react-copy-to-clipboard"
@@ -764,6 +765,10 @@ const NaverItem = ({
   const [isDetailModalVisible, setDetailModalVisible] = useState(false)
   const [html, setHtml] = useState([])
 
+  const [isSimilarVisible, setSImilarVaisble] = useState(false)
+
+  const [subItems, setSubItems] = useState([])
+
   // const {} = useQuery(ISREGISTER, {
   //   variables: {
   //     goodID: good_id
@@ -946,6 +951,32 @@ const NaverItem = ({
   const handleCancelDetail = () => {
     setDetailModalVisible(false)
   }
+
+  const handleSimilarOk = (items) => {
+    setSImilarVaisble(false)
+    setSubItems(items)
+
+  }
+
+  const handleSimilarCancel = () => {
+    setSImilarVaisble(false)
+  }
+
+  const setSubRootTitle = () => {
+
+  }
+  const setSubRootDetailUrl = () => {
+    
+  }
+  const setSubRootKeyword = () => {
+    
+  }
+  const setSubRootClothes = () => {
+    
+  }
+  const setSubRootShoes = () => {
+    
+  }
   return (
     <div>
       <Divider orientation="left">
@@ -986,6 +1017,16 @@ const NaverItem = ({
               }}
             />
           </DownloadContainer>
+          {isSimilarVisible && <SimilarProductModal 
+            isModalVisible={isSimilarVisible}
+            handleOk={handleSimilarOk}
+            handleCancel={handleSimilarCancel}
+            url={selectedUrl}
+            image={image}
+          />}
+          {/* {selectedUrl && <Button type="primary" block danger style={{marginTop: "10px"}}
+            onClick={() => setSImilarVaisble(true)}
+          >유사상품 찾기</Button>} */}
         </div>
         <ItemContent>
           <div>
@@ -1227,6 +1268,30 @@ const NaverItem = ({
           </TaobaoListWarpper>
         </Wrapper>
       )}
+      {subItems.length > 0 && <div style={{marginTop: "25px"}}>
+      {
+        subItems.map((item, i) => {
+          return (
+            <NaverSubItem 
+              key={i} 
+              mode={mode}
+              image={item.image}
+              index={i}
+              setRootTitle={setSubRootTitle}
+              setRootDetailUrl={setSubRootDetailUrl}
+              setRootKeyword={setSubRootKeyword}
+              setRootClothes={setSubRootClothes}
+              setRootShoes={setSubRootShoes}
+              detailUrl={item.link}
+              title={item.korTitle ? item.korTitle : item.title}
+              shippingWeight={shippingWeight}
+              shippingPrice={shippingPrice}
+
+            />
+          )
+        })
+      }
+      </div>}
     </div>
   )
 }
@@ -1596,3 +1661,376 @@ const TitleForm = ({
     </TitleKeywordContainer>
   )
 }
+
+
+const NaverSubItem = ({
+  mode,
+  waitTime,
+  isRegister,
+  type,
+  image,
+  sellerTags = [],
+  displayName = "",
+  shippingWeight,
+  shippingPrice,
+  isDelete,
+  productNo,
+  detail,
+  title,
+  titleArray = [],
+  index,
+  setRootTitle,
+  setRootDetailUrl,
+  setRootKeyword,
+  setRootClothes,
+  setRootShoes,
+  detailUrl,
+  isClothes,
+  isShoes,
+  setShppingPrice,
+  setRootExcept,
+  keyword,
+  detailImages = [],
+  setRootHtml
+}) => {
+  const [hidden, setHidden] = useState(true)
+  const [taobaoList, setTaobaoList] = useState([])
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [modifyTitle, setModifyTitle] = useState(
+    displayName && title ? title.replace(displayName, "").trim() : title
+  )
+  const [keywordTag, setKeywordTag] = useState(keyword)
+  const [clothes, setClothes] = useState(false)
+  const [shoes, setShose] = useState(false)
+  const [selectedUrl, SetSelectedUrl] = useState("")
+  const [selectKeyword, SetSelectKeyword] = useState("")
+
+  const [setExcept] = useMutation(SET_NAVER_EXCEPT)
+  const [isDetailModalVisible, setDetailModalVisible] = useState(false)
+  const [html, setHtml] = useState([])
+
+  const [isSimilarVisible, setSImilarVaisble] = useState(false)
+
+  // const {} = useQuery(ISREGISTER, {
+  //   variables: {
+  //     goodID: good_id
+  //   },
+  //   notifyOnNetworkStatusChange: true,
+  //   onCompleted: data=> {
+
+  //     setRootRegister(index, data.IsRegister)
+  //   }
+  // })
+
+  const titleArrayRef = useRef()
+
+  // useEffect(() => {
+  //   const tempTitle = (displayName && title ? title.replace(displayName, "").trim() : title) || ""
+  //   const tempTitleArr = tempTitle.split(" ").filter((item) => {
+  //     if (item.length === 0) {
+  //       return false
+  //     }
+
+  //     const tempArr = titleArray.filter((fItme) => {
+  //       if (fItme.word === item && fItme.ban.includes(item)) {
+  //         return true
+  //       }
+  //       return false
+  //     })
+  //     if (tempArr.length > 0) {
+  //       return false
+  //     }
+  //     return true
+  //   })
+
+  //   if (tempTitleArr.length > 0) {
+  //     const modify = tempTitleArr.join(" ")
+
+  //     setModifyTitle(modify)
+  //   }
+  // }, [title])
+
+  useEffect(() => {
+    setKeywordTag(sellerTags.join())
+    setRootKeyword(index, sellerTags.join())
+  }, [sellerTags])
+  useEffect(() => {
+    if (mode !== "6") {
+      SetSelectedUrl(detailUrl)
+    }
+  }, [detailUrl])
+
+  useEffect(() => {
+    setClothes(isClothes)
+  }, [isClothes])
+
+  useEffect(() => {
+    setShose(isShoes)
+  }, [isShoes])
+
+  useEffect(() => {
+    setKeywordTag(keyword)
+  }, [keyword])
+
+  useEffect(() => {
+    if (mode === "5" || mode === "6") {
+      setTimeout(() => {
+        setHidden(false)
+      }, waitTime)
+    }
+  }, [])
+
+  const handleChange = (value) => {
+    setTimeout(() => {
+      setShppingPrice(index, value)
+    }, 200)
+  }
+
+  let typeStr = ""
+  switch (type) {
+    case "ranking":
+      typeStr = "최근 판매"
+      break
+    case "salesOrder":
+      typeStr = "누적 판매"
+      break
+    default:
+      typeStr = "리스트"
+  }
+
+  const showModal = () => {
+    setIsModalVisible(true)
+  }
+
+  const handleOk = (selectKeyword) => {
+    setIsModalVisible(false)
+    SetSelectKeyword("")
+    setModifyTitle(`${selectKeyword}`)
+    setRootTitle(index, `${selectKeyword}`)
+  }
+
+  const handleCancel = () => {
+    setIsModalVisible(false)
+    SetSelectKeyword("")
+  }
+
+  const selectItem = ({ url }) => {
+    SetSelectedUrl(url)
+    setRootDetailUrl(index, url)
+  }
+
+  const handleExcept = async (isDelete) => {
+    const response = await setExcept({
+      variables: {
+        productNo,
+        isDelete,
+      },
+    })
+    console.log("response", response)
+    if (response.data.SetNaverExcept) {
+      setRootExcept(index, productNo, isDelete)
+    }
+  }
+
+  const getImageUrl = (image) => {
+    if (image && image.includes("https://shopping-phinf.pstatic.net/")) {
+      return image
+    }
+    return `${image}?type=f232_232`
+  }
+
+
+  return (
+    <SubItemContainer>
+      <ContentContainer>
+        <div>
+          <Image
+            width={232}
+            height={232}
+            src={getImageUrl(image)}
+            preview={{
+              src: image,
+            }}
+          />
+        </div>
+        <ItemContent>
+          <div>
+            <div>
+              <TitleArrayContainer>
+                <Button onClick={() => shell.openExternal(detail)}>상세</Button>
+                <TitleArrayComponent
+                  title={title}
+                  titleArray={titleArray}
+                  SetSelectKeyword={SetSelectKeyword}
+                  showModal={showModal}
+                  ref={titleArrayRef}
+                />
+
+                {(mode === "3" || mode === "4") && productNo && isDelete && (
+                  <DeleteFilled
+                    style={{
+                      fontSize: "36px",
+                      cursor: "pointer",
+                      color: "#FF3377",
+                      marginRight: "20px",
+                    }}
+                    onClick={() => handleExcept(false)}
+                  />
+                )}
+                {(mode === "3" || mode === "4") && !isDelete && productNo && (
+                  <DeleteOutlined
+                    style={{ fontSize: "36px", cursor: "pointer", marginRight: "20px" }}
+                    onClick={() => handleExcept(true)}
+                  />
+                )}
+              </TitleArrayContainer>
+            </div>
+
+            <TitleKeywordContainer>
+              <Input
+                size="large"
+                addonBefore="제목"
+                placeholder="상품 제목을 선택해주세요."
+                allowClear
+                value={modifyTitle}
+                onChange={(e) => {
+                  setModifyTitle(e.target.value)
+                }}
+                onBlur={(e) => {
+                  setRootTitle(index, e.target.value)
+                }}
+                border={false}
+                style={{
+                  border: "3px solid #512da8",
+                }}
+              />
+              {isModalVisible && (
+                <KeywordModal
+                  isModalVisible={isModalVisible}
+                  handleOk={handleOk}
+                  handleCancel={handleCancel}
+                  title={title}
+                  keyword={selectKeyword}
+                  mainImages={[image]}
+                  detailUrl={detail}
+                />
+              )}
+              <Button
+                border={false}
+                style={{
+                  // border: "6px solid #512da8",
+                  background: "#512da8",
+                  color: "white",
+                  height: "46px",
+                }}
+                onClick={showModal}
+              >
+                키워드
+              </Button>
+            </TitleKeywordContainer>
+
+            <Input
+              size="large"
+              addonBefore="주소"
+              placeholder="등록할 상품의 상세주소를 입력해 주세요."
+              allowClear
+              value={selectedUrl}
+              border={false}
+              onChange={(e) => {
+                SetSelectedUrl(e.target.value)
+              }}
+              onBlur={(e) => {
+                setRootDetailUrl(index, e.target.value)
+              }}
+              disabled={isRegister}
+              style={{ border: "3px solid #512da8" }}
+            />
+            <Input
+              style={{ marginTop: "5px" }}
+              addonBefore="태그"
+              placeholder="쿠팡 검색어. 미입력시 상품명으로 대체. 컴마로 구분"
+              allowClear
+              value={keywordTag}
+              onChange={(e) => {
+                // handleKeyword(e.target.value)
+                setKeywordTag(e.target.value)
+              }}
+              onBlur={(e) => {
+                setRootKeyword(index, e.target.value)
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: "10px",
+                fontSize: "14px",
+              }}
+            >
+             
+              <div>
+                
+              <div style={{ display: "flex" }}>
+                <div style={{ display: "flex", marginRight: "20px" }}>
+                  <div>
+                    <Checkbox
+                      style={{ padding: "15px", fontSize: "16px" }}
+                      checked={clothes}
+                      onChange={(e) => {
+                        setClothes(e.target.checked)
+                        setRootClothes(index, e.target.checked)
+                      }}
+                    >
+                      의류
+                    </Checkbox>
+                  </div>
+                  <div>
+                    <Checkbox
+                      style={{ padding: "15px", fontSize: "16px" }}
+                      checked={shoes}
+                      onChange={(e) => {
+                        setShose(e.target.checked)
+                        setRootShoes(index, e.target.checked)
+                      }}
+                    >
+                      신발
+                    </Checkbox>
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{ marginRight: "10px", fontSize: "16px" }}>무게 (배송비)</div>
+                  <ShippingForm
+                    shippingWeight={shippingWeight}
+                    shippingPrice={shippingPrice}
+                    handleChange={handleChange}
+                  />
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", fontSize: "13px" }}>
+            {sellerTags &&
+              Array.isArray(sellerTags) &&
+              sellerTags.map((item, index) => (
+                <div
+                  key={index}
+                  style={{ marginRight: "5px", color: "#c6a700" }}
+                >{`#${item} `}</div>
+              ))}
+          </div>
+        </ItemContent>
+      </ContentContainer>
+
+   
+    </SubItemContainer>
+  )
+}
+
+const SubItemContainer = styled.div`
+  border-left-style: solid;
+  border-left-width: 20px;
+  border-left-color: #FF3377;
+  margin-top: 10px;
+`

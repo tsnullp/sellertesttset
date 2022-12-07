@@ -1820,6 +1820,24 @@ const schema = gql`
     category4: String
   }
 
+  type SimilarProductsType {
+    title: String
+    image: String
+    link: String
+  }
+
+  type SimilarProductsKorType {
+    korTitle: String
+    title: String
+    image: String
+    link: String
+  }
+
+  input SimilarProductInputType {
+    title: String
+    image: String
+    link: String
+  }
 
   type Query {
     "A simple type for getting started!"
@@ -1961,6 +1979,8 @@ const schema = gql`
     GetTaobaoOrder(taobaoOrderNo: [String], userID: ID): [TaobaoOrderType]
 
     GetCategorySales(sort: String):[CategroySalesType]
+
+    Cafe24Boards(userID: ID): Boolean
   }
 
   type Mutation {
@@ -2298,6 +2318,9 @@ const schema = gql`
     SetTaobaoOrder(userID: ID, input: [TaobaoOrderInputType]): Boolean
     SyncDeliveryOrder: Boolean
     SetTaobaoUrl(_id: ID, url: String): Boolean
+
+    GetSimilarProducts(urlString: String): [SimilarProductsType]
+    GetSimilarProductKorTitle(input: [SimilarProductInputType]): [SimilarProductsKorType]
   }
 `
 
