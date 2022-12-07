@@ -2,7 +2,7 @@ const Market = require("../models/Market")
 const Basic = require("../models/Basic")
 const { ItemSKU, ItemSKUV2, ItemDescriptionV2, ItemDetails } = require("../api/Taobao")
 const { Outbound, ReturnShippingCenter, CategoryPredict, CategoryMeta } = require("../api/Market")
-const { checkStr, AmazonAsin } = require("../../lib/usrFunc")
+const { checkStr, AmazonAsin, sleep } = require("../../lib/usrFunc")
 const { korTranslate, papagoTranslate } = require("./translate")
 
 const start = async ({ url, cnTitle, userID, orginalTitle, detailImages }) => {
