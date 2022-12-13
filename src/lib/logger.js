@@ -12,7 +12,7 @@ const timeStampFormat = () => {
 }
 
 const appDataDirPath = getAppDataPath()
-console.log("appDataDirPath", appDataDirPath)
+
 // Create appDataDir if not exist
 if (!fs.existsSync(appDataDirPath)) {
   fs.mkdirSync(appDataDirPath)

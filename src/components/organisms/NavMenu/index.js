@@ -30,12 +30,13 @@ import { UserContext } from "context/UserContext"
 const url = require("url")
 const path = require("path")
 const { SubMenu } = Menu
-const { remote, isDev = true } = window
+const { remote, isDev } = window
 
 const NavMenu = () => {
   const [current, setCurrnet] = useState(1)
   const { user } = useContext(UserContext)
   console.log("isDev--- ", isDev)
+  console.log("remote--- ", remote)
   const handleClick = (e) => {
     setCurrnet(e.key)
   }
@@ -250,10 +251,12 @@ const NavMenu = () => {
       webPreferences: {
         nodeIntegration: true,
         enableRemoteModule: true,
-        webSecurity: false,
+        webSecurity: true,
       },
     })
     win.setAutoHideMenuBar(true)
+
+    console.log("isDevisDevisDev", isDev)
     if (isDev) {
       win.loadURL(`http://localhost:3001#/naverShoppingWindow?isDev=${isDev}&newWindow=true`)
     } else {

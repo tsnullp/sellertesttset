@@ -42,7 +42,7 @@ const coupangDetail = require("../puppeteer/coupangDetail")
 const searchCoupangKeword = require("../puppeteer/searchCoupangKeyword")
 const getNaverShopping = require("../puppeteer/getNaverShopping")
 const getNaverRecommendShopping = require("../puppeteer/getNaverRecommendShopping")
-
+const Brand = require("../models/Brand")
 const smartStoreCategory = require("../../components/organisms/CategoryForm/category")
 const url = require("url")
 const _ = require("lodash")
@@ -10652,6 +10652,8 @@ const getGoodid = (url) => {
 
 const getRelatedKeyword = async (title) => {
   let mainKeywordArray = []
+  let brands = await Brand.find()
+  brands = brands.map(item => item.brand)
   try {
     
     for(const item of title.split(" ").filter(item => item.length > 1)) {
@@ -10682,6 +10684,19 @@ const getRelatedKeyword = async (title) => {
     mainKeywordArray = mainKeywordArray.sort((a, b) =>  (b.monthlyPcQcCnt + b.monthlyMobileQcCnt) - (a.monthlyPcQcCnt + a.monthlyMobileQcCnt))
     mainKeywordArray = _.unionBy(mainKeywordArray, "relKeyword")
     .filter(item => item.monthlyPcQcCnt + item.monthlyPcQcCnt < 10000)
+
+    mainKeywordArray = mainKeywordArray.filter(item => {
+      let contain = false
+      for(const brand of brands){
+        if(item.relKeyword.includes(brand)){
+          contain = true
+          break
+        }
+      }
+      return !contain
+    })
+
+    mainKeywordArray = mainKeywordArray
     .filter((item, index) => index < 20)
     .map(item => item.relKeyword)
     

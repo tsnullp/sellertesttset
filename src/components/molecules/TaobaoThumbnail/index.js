@@ -4,7 +4,7 @@ import { ifProp } from "styled-tools"
 import { Button } from "antd"
 import { TaobaoOutlined, SelectOutlined } from "@ant-design/icons"
 
-const { shell, remote } = window
+const { shell, remote, isDev } = window
 
 const TaobaoThumbnail = ({ costAccounting, price, detail, images, option }) => {
   const [index, setIndex] = useState(0)
@@ -20,13 +20,12 @@ const TaobaoThumbnail = ({ costAccounting, price, detail, images, option }) => {
       webPreferences: {
         nodeIntegration: true
       }
-    })
-    win.loadURL(`http://localhost:3001#/productUploadWindow/${encodeURIComponent(detail)}`)
-    // win.loadURL(
-    //   isDev
-    //     ? "http://localhost:3001#/productUploadWindow"
-    //     : `file://${__dirname}/app.html#/productUploadWindow`
-    // )
+    })    
+    win.loadURL(
+      isDev
+        ? "http://localhost:3001#/productUploadWindow"
+        : `file://${__dirname}/app.html#/productUploadWindow`
+    )
   }
 
   return (

@@ -5,7 +5,7 @@ import { useMutation } from "@apollo/client"
 import { AUTH_GOOGLE, ISLOGIN, ONCE_TAOBAO_LOGIN, AUTO_PRICE_MANAGE } from "gql"
 import { Menu, Dropdown } from "antd"
 
-const { ipcRenderer, isDev  = true } = window
+const { ipcRenderer, isDev} = window
 
 const LoginStatus = () => {
   const { user, action } = useContext(UserContext)
@@ -25,7 +25,7 @@ const LoginStatus = () => {
       })
     
       action.login(response.data.authGoogle)
-      // window.location.reload()
+      window.location.reload()
 
     }
 

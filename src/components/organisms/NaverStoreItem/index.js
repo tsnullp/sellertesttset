@@ -258,6 +258,18 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
     )
   }
 
+  const setSubItems = (index, items) => {
+    
+    setData(
+      data.filter(item => item.isChecked)
+      .map((item, i) => {
+        if (i === index) {
+          item.subItems = items.filter(item => item.link)
+        }
+        return item
+      })
+    )
+  }
   const setRootExcept = (index, productNo, isDelete) => {
     // console.log("index, productNo", index, productNo)
     setData(
@@ -656,6 +668,7 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
                   setShppingPrice={setShppingPrice}
                   setRootExcept={setRootExcept}
                   setRootHtml={setHtml}
+                  setRootSubItems={setSubItems}
                 />
               )
             })}
@@ -747,7 +760,8 @@ const NaverItem = ({
   setRootExcept,
   keyword,
   detailImages = [],
-  setRootHtml
+  setRootHtml,
+  setRootSubItems
 }) => {
   const [hidden, setHidden] = useState(true)
   const [taobaoList, setTaobaoList] = useState([])
@@ -768,6 +782,12 @@ const NaverItem = ({
   const [isSimilarVisible, setSImilarVaisble] = useState(false)
 
   const [subItems, setSubItems] = useState([])
+
+  const [before, setBefore] = useState("")
+  const [word, setWord] = useState("")
+
+  const [isSubKeywordModalVisible, setSubKeywordModalVisible] = useState(false)
+
 
   // const {} = useQuery(ISREGISTER, {
   //   variables: {
@@ -906,6 +926,10 @@ const NaverItem = ({
     setIsModalVisible(true)
   }
 
+  const showSubModal = () => {
+    setSubKeywordModalVisible(true)
+  }
+
   const handleOk = (selectKeyword) => {
     setIsModalVisible(false)
     SetSelectKeyword("")
@@ -954,7 +978,15 @@ const NaverItem = ({
 
   const handleSimilarOk = (items) => {
     setSImilarVaisble(false)
-    setSubItems(items)
+    setSubItems(items.map(item => {
+      return {
+        ...item,
+        isClothes: false,
+        isShoes: false,
+        keyword: "",
+        shippingWeight: shippingPrice[0].title,
+      }
+    }))
 
   }
 
@@ -962,21 +994,107 @@ const NaverItem = ({
     setSImilarVaisble(false)
   }
 
-  const setSubRootTitle = () => {
+  const setSubRootTitle = (index, title) => {
+    setSubItems(subItems.map((item, i) => {
+      if(i == index) {
+        item.korTitle = title
+      }
+      return item
+    }))
+  }
+  const setSubRootDetailUrl = (index, url) => {
+    setSubItems(subItems.map((item, i) => {
+      if(i == index) {
+        item.link = url
+      }
+      return item
+    }))
+  }
+  const setSubRootKeyword = (subIndex, keyword) => {
+    const temp = subItems.map((item, i) => {
+      if(i == subIndex) {
+        item.keyword = keyword
+      }
+      return item
+    })
+    setSubItems(temp)
+    setRootSubItems(index, temp)
+  }
+  const setSubRootClothes = (subIndex, isClothes) => {
+    const temp = subItems.map((item, i) => {
+      if(i == subIndex) {
+        item.isClothes = isClothes
+      }
+      return item
+    })
+    setSubItems(temp)
+    setRootSubItems(index, temp)
+  }
+  const setSubRootShoes = (subIndex, isShoes) => {
+    const temp = subItems.map((item, i) => {
+      if(i == subIndex) {
+        item.isShoes = isShoes
+      }
+      return item
+    })
+    setSubItems(temp)
+    setRootSubItems(index, temp)
+  }
+  const setSubRootShippingPrice = (subIndex, shippingPrice) => {
+    console.log("subIndex, shippingPrice", subIndex, shippingPrice)
+    const temp = subItems.map((item, i) => {
+      if(i == subIndex) {
+        item.shippingWeight = shippingPrice
+      }
+      return item
+    })
+    setSubItems(temp)
+    setRootSubItems(index, temp)
+  }
+
+  const setRandomTitle = (words) => {
+    console.log("words.length", words.length)
+    if (subItems.length > words.length) {
+      message.error("조합할 키워드 갯수가 부족합니다.")
+      return
+    }
+    setSubItems(
+      subItems.map((item) => {
+        let randNum = Math.floor(Math.random() * (words.length - 0 + 1)) + 0
+        const titles = subItems.map((item) => item.title)
+        while (titles.includes(words[randNum])) {
+          randNum = Math.floor(Math.random() * (words.length - 0 + 1)) + 0
+        }
+        item.korTitle = `${before} ${words[randNum]}`
+
+        // item.title = `${title} ${item.title}`
+        // console.log("item.title", item.title)
+        return item
+      })
+    )
+  }
+  
+  const setBeforeTitle = (title) => {
+    setSubItems(
+      subItems
+      .map((item) => {
+        item.korTitle = `${title} ${item.korTitle}`
+        return item
+      })
+    )
+  }
+
+  const handleSubOk = (selectKeyword) => {
+    setSubKeywordModalVisible(false)
+    console.log("selectKeyword", selectKeyword)
+    setWord(`${word} ${selectKeyword.split(" ").join(", ")}`)
 
   }
-  const setSubRootDetailUrl = () => {
-    
+
+  const handleSubCancel = () => {
+    setSubKeywordModalVisible(false)
   }
-  const setSubRootKeyword = () => {
-    
-  }
-  const setSubRootClothes = () => {
-    
-  }
-  const setSubRootShoes = () => {
-    
-  }
+
   return (
     <div>
       <Divider orientation="left">
@@ -1024,9 +1142,9 @@ const NaverItem = ({
             url={selectedUrl}
             image={image}
           />}
-          {/* {selectedUrl && <Button type="primary" block danger style={{marginTop: "10px"}}
+          {selectedUrl && <Button type="primary" block danger style={{marginTop: "10px"}}
             onClick={() => setSImilarVaisble(true)}
-          >유사상품 찾기</Button>} */}
+          >유사상품 찾기</Button>}
         </div>
         <ItemContent>
           <div>
@@ -1198,7 +1316,7 @@ const NaverItem = ({
               </div>
             </div>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", fontSize: "13px" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", fontSize: "13px", marginTop: "5px"  }}>
             {sellerTags &&
               Array.isArray(sellerTags) &&
               sellerTags.map((item, index) => (
@@ -1269,6 +1387,71 @@ const NaverItem = ({
         </Wrapper>
       )}
       {subItems.length > 0 && <div style={{marginTop: "25px"}}>
+        <SubTitleCombainContainer>
+        <Input
+          style={{ marginLeft: "5px", width: "280px" }}
+          addonBefore={"접두어"}
+          value={before}
+          onChange={(e) => setBefore(e.target.value)}
+        />
+        <Button
+          style={{ marginLeft: "5px" }}
+          onClick={() => {
+            console.log("before", before)
+            setBeforeTitle(before)
+          }}
+        >
+          추가
+        </Button>
+
+        <Input
+          style={{ marginLeft: "5px" }}
+          addonBefore={"상품명 조합"}
+          placeholder={"컴마(,)로 구분"}
+          value={word}
+          onChange={(e) => setWord(e.target.value)}
+        />
+        <Button
+          style={{ marginLeft: "5px" }}
+          onClick={() => {
+            const words = RandomWords(
+              word
+                .trim()
+                .split(",")
+                .map((item) => item.trim())
+            )
+            setRandomTitle(words)
+          }}
+        >
+          조합
+        </Button>
+
+        {isSubKeywordModalVisible && (
+          <KeywordModal
+            isModalVisible={isSubKeywordModalVisible}
+            handleOk={handleSubOk}
+            handleCancel={handleSubCancel}
+            title={title}
+            // keyword={selectKeyword}
+            // mainImages={[image]}
+            // detailUrl={detail}
+          />
+        )}
+        <Button
+          border={false}
+          // size="small"
+          style={{
+            // border: "6px solid #512da8",
+            background: "#512da8",
+            color: "white",
+            marginLeft: "5px"
+          }}
+          onClick={showSubModal}
+        >
+          키워드
+        </Button>
+        
+        </SubTitleCombainContainer>
       {
         subItems.map((item, i) => {
           return (
@@ -1282,11 +1465,11 @@ const NaverItem = ({
               setRootKeyword={setSubRootKeyword}
               setRootClothes={setSubRootClothes}
               setRootShoes={setSubRootShoes}
+              setRootShippingPrice={setSubRootShippingPrice}
               detailUrl={item.link}
               title={item.korTitle ? item.korTitle : item.title}
-              shippingWeight={shippingWeight}
               shippingPrice={shippingPrice}
-
+              shippingWeight={item.shippingWeight}
             />
           )
         })
@@ -1684,17 +1867,18 @@ const NaverSubItem = ({
   setRootKeyword,
   setRootClothes,
   setRootShoes,
+  setRootShippingPrice,
   detailUrl,
   isClothes,
   isShoes,
   setShppingPrice,
   setRootExcept,
   keyword,
+
   detailImages = [],
   setRootHtml
 }) => {
   const [hidden, setHidden] = useState(true)
-  const [taobaoList, setTaobaoList] = useState([])
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [modifyTitle, setModifyTitle] = useState(
     displayName && title ? title.replace(displayName, "").trim() : title
@@ -1704,12 +1888,6 @@ const NaverSubItem = ({
   const [shoes, setShose] = useState(false)
   const [selectedUrl, SetSelectedUrl] = useState("")
   const [selectKeyword, SetSelectKeyword] = useState("")
-
-  const [setExcept] = useMutation(SET_NAVER_EXCEPT)
-  const [isDetailModalVisible, setDetailModalVisible] = useState(false)
-  const [html, setHtml] = useState([])
-
-  const [isSimilarVisible, setSImilarVaisble] = useState(false)
 
   // const {} = useQuery(ISREGISTER, {
   //   variables: {
@@ -1751,9 +1929,9 @@ const NaverSubItem = ({
   // }, [title])
 
   useEffect(() => {
-    setKeywordTag(sellerTags.join())
-    setRootKeyword(index, sellerTags.join())
-  }, [sellerTags])
+    setModifyTitle(title)
+  }, [title])
+
   useEffect(() => {
     if (mode !== "6") {
       SetSelectedUrl(detailUrl)
@@ -1782,21 +1960,11 @@ const NaverSubItem = ({
 
   const handleChange = (value) => {
     setTimeout(() => {
-      setShppingPrice(index, value)
+      setRootShippingPrice(index, value)
     }, 200)
+    
   }
 
-  let typeStr = ""
-  switch (type) {
-    case "ranking":
-      typeStr = "최근 판매"
-      break
-    case "salesOrder":
-      typeStr = "누적 판매"
-      break
-    default:
-      typeStr = "리스트"
-  }
 
   const showModal = () => {
     setIsModalVisible(true)
@@ -1814,24 +1982,7 @@ const NaverSubItem = ({
     SetSelectKeyword("")
   }
 
-  const selectItem = ({ url }) => {
-    SetSelectedUrl(url)
-    setRootDetailUrl(index, url)
-  }
-
-  const handleExcept = async (isDelete) => {
-    const response = await setExcept({
-      variables: {
-        productNo,
-        isDelete,
-      },
-    })
-    console.log("response", response)
-    if (response.data.SetNaverExcept) {
-      setRootExcept(index, productNo, isDelete)
-    }
-  }
-
+ 
   const getImageUrl = (image) => {
     if (image && image.includes("https://shopping-phinf.pstatic.net/")) {
       return image
@@ -1842,7 +1993,7 @@ const NaverSubItem = ({
 
   return (
     <SubItemContainer>
-      <ContentContainer>
+      <SubContentContainer>
         <div>
           <Image
             width={232}
@@ -1855,37 +2006,6 @@ const NaverSubItem = ({
         </div>
         <ItemContent>
           <div>
-            <div>
-              <TitleArrayContainer>
-                <Button onClick={() => shell.openExternal(detail)}>상세</Button>
-                <TitleArrayComponent
-                  title={title}
-                  titleArray={titleArray}
-                  SetSelectKeyword={SetSelectKeyword}
-                  showModal={showModal}
-                  ref={titleArrayRef}
-                />
-
-                {(mode === "3" || mode === "4") && productNo && isDelete && (
-                  <DeleteFilled
-                    style={{
-                      fontSize: "36px",
-                      cursor: "pointer",
-                      color: "#FF3377",
-                      marginRight: "20px",
-                    }}
-                    onClick={() => handleExcept(false)}
-                  />
-                )}
-                {(mode === "3" || mode === "4") && !isDelete && productNo && (
-                  <DeleteOutlined
-                    style={{ fontSize: "36px", cursor: "pointer", marginRight: "20px" }}
-                    onClick={() => handleExcept(true)}
-                  />
-                )}
-              </TitleArrayContainer>
-            </div>
-
             <TitleKeywordContainer>
               <Input
                 size="large"
@@ -1962,7 +2082,7 @@ const NaverSubItem = ({
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
+                justifyContent: "flex-end",
                 alignItems: "center",
                 marginTop: "10px",
                 fontSize: "14px",
@@ -1971,57 +2091,48 @@ const NaverSubItem = ({
              
               <div>
                 
-              <div style={{ display: "flex" }}>
-                <div style={{ display: "flex", marginRight: "20px" }}>
-                  <div>
-                    <Checkbox
-                      style={{ padding: "15px", fontSize: "16px" }}
-                      checked={clothes}
-                      onChange={(e) => {
-                        setClothes(e.target.checked)
-                        setRootClothes(index, e.target.checked)
-                      }}
-                    >
-                      의류
-                    </Checkbox>
+                <div style={{ display: "flex" }}>
+                  <div style={{ display: "flex", marginRight: "20px" }}>
+                    <div>
+                      <Checkbox
+                        style={{ padding: "15px", fontSize: "16px" }}
+                        checked={clothes}
+                        onChange={(e) => {
+                          setClothes(e.target.checked)
+                          setRootClothes(index, e.target.checked)
+                        }}
+                      >
+                        의류
+                      </Checkbox>
+                    </div>
+                    <div>
+                      <Checkbox
+                        style={{ padding: "15px", fontSize: "16px" }}
+                        checked={shoes}
+                        onChange={(e) => {
+                          setShose(e.target.checked)
+                          setRootShoes(index, e.target.checked)
+                        }}
+                      >
+                        신발
+                      </Checkbox>
+                    </div>
                   </div>
-                  <div>
-                    <Checkbox
-                      style={{ padding: "15px", fontSize: "16px" }}
-                      checked={shoes}
-                      onChange={(e) => {
-                        setShose(e.target.checked)
-                        setRootShoes(index, e.target.checked)
-                      }}
-                    >
-                      신발
-                    </Checkbox>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ marginRight: "10px", fontSize: "16px" }}>무게 (배송비)</div>
+                    <ShippingForm
+                      shippingWeight={shippingWeight}
+                      shippingPrice={shippingPrice}
+                      handleChange={handleChange}
+                    />
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{ marginRight: "10px", fontSize: "16px" }}>무게 (배송비)</div>
-                  <ShippingForm
-                    shippingWeight={shippingWeight}
-                    shippingPrice={shippingPrice}
-                    handleChange={handleChange}
-                  />
-                </div>
-              </div>
               </div>
             </div>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", fontSize: "13px" }}>
-            {sellerTags &&
-              Array.isArray(sellerTags) &&
-              sellerTags.map((item, index) => (
-                <div
-                  key={index}
-                  style={{ marginRight: "5px", color: "#c6a700" }}
-                >{`#${item} `}</div>
-              ))}
-          </div>
+          
         </ItemContent>
-      </ContentContainer>
+      </SubContentContainer>
 
    
     </SubItemContainer>
@@ -2033,4 +2144,44 @@ const SubItemContainer = styled.div`
   border-left-width: 20px;
   border-left-color: #FF3377;
   margin-top: 10px;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+
+  border-top-style: dashed;
+  border-top-width: 1px;
+  border-top-color: #FF3377;
+  border-bottom-style: dashed;
+  border-bottom-width: 1px;
+  border-bottom-color: #FF3377;
+
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #FF3377;
+
+  padding-top: 10px;
+  
+
+`
+
+const SubContentContainer = styled.div`
+  display: flex;
+  
+  margin-right: 20px;
+  & > :nth-child(1) {
+    margin-right: 20px;
+  }
+  & > :last-child {
+    width: 100%;
+  }
+
+  ${ifProp(
+    "isRegister",
+    css`
+      background: rgba(255, 0, 0, 0.2);
+    `
+  )};
+`
+
+const SubTitleCombainContainer = styled.div`
+  display: flex;
 `

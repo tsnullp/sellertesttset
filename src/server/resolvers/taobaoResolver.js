@@ -960,8 +960,13 @@ const resolvers = {
           },
         ])
         const response = await TaobaoSimilarProducts({itemID, cookie: cookies[0].cookie})
-
-        return response
+       
+        return response.filter(item => {
+          if(item && item.link && !item.link.includes("undefined")){
+            return true
+          }
+          return false
+        })
       } catch (e){
         logger.error(`GetSimilarProducts: ${e}`)
         return []

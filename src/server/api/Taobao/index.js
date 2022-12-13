@@ -271,6 +271,7 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
             
           }
         } catch (e) {
+          console.log("error", e)
           value.imageUrl = null
         }
         

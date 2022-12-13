@@ -287,33 +287,68 @@ const NaverShoppingPage = () => {
     setUploading(true)
     const val = childRef.current.showAlert()
     console.log("val", val)
-    setSearchUrl("")
+    
 
-    const response = await uploadNaverItem({
-      variables: {
-        input: val.map((item) => {
-          return {
-            productNo: item.productNo.toString(),
-            title: item.title,
-            detail: item.detail,
-            detailUrl: item.detailUrl,
-            shippingWeight: item.shippingWeight,
-            isClothes: item.isClothes,
-            isShoes: item.isShoes,
-            sellerTags:
-              item.sellerTags && Array.isArray(item.sellerTags) && item.sellerTags.length > 0
-                ? item.sellerTags
-                : item.keyword
-                ? item.keyword
+    setSearchUrl("")
+    const input = []
+    for(const item of val) {
+
+      input.push({
+        productNo: item.productNo.toString(),
+        title: item.title,
+        detail: item.detail,
+        detailUrl: item.detailUrl,
+        shippingWeight: item.shippingWeight,
+        isClothes: item.isClothes,
+        isShoes: item.isShoes,
+        sellerTags:
+          item.sellerTags && Array.isArray(item.sellerTags) && item.sellerTags.length > 0
+            ? item.sellerTags
+            : item.keyword
+            ? item.keyword
+                .split(",")
+                .filter((item) => item.trim().length > 0)
+                .map((item) => item.trim())
+            : [],
+        isNaver: val.type !== "coupang" ? true : false,
+        html: item.html && item.html.length > 0 ? item.html : null,
+        detailImages: item.detailImages ? item.detailImages : []
+      })
+     
+      if(item.subItems && Array.isArray(item.subItems) && item.subItems.length > 0) {
+    
+        for(const subItem of item.subItems){
+   
+          input.push({
+            productNo: null,
+            title: subItem.korTitle,
+            detail: null,
+            detailUrl: subItem.link,
+            shippingWeight: subItem.shippingWeight,
+            isClothes: subItem.isClothes,
+            isShoes: subItem.isShoes,
+            sellerTags: 
+              subItem.sellerTags && Array.isArray(subItem.sellerTags) && subItem.sellerTags.length > 0
+                ? subItem.sellerTags
+                : subItem.keyword
+                ? subItem.keyword
                     .split(",")
                     .filter((item) => item.trim().length > 0)
                     .map((item) => item.trim())
                 : [],
-            isNaver: val.type !== "coupang" ? true : false,
-            html: item.html.length > 0 ? item.html : null,
-            detailImages: item.detailImages ? item.detailImages : []
-          }
-        }),
+            isNaver: false,
+            html: null,
+            detailImages: []
+          })
+        }
+      }
+    }
+
+    setUploading(false)
+
+    const response = await uploadNaverItem({
+      variables: {
+        input,
       },
     })
     if (response.data.UploadItemNaverList) {

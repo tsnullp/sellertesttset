@@ -16,7 +16,7 @@ import path from "path"
 import "moment/locale/ko"
 moment.locale("ko")
 
-const { shell, remote } = window.require("electron")
+const { shell, remote, isDev } = window.require("electron")
 
 const { RangePicker } = DatePicker
 const { Search } = Input

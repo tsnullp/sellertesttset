@@ -363,6 +363,90 @@ const papagoTranslate = async (text, source="zh-CN", target="ko") => {
     clientID: "xzpRGHN9eKqUmJYygRxk",
     clientSecret: "2hDyDERC0i"
   },
+  //수빈
+  {
+    clientID: "4tKZsuQh3AD23m437vJ8",
+    clientSecret: "gesesU3NnD"
+  },
+  {
+    clientID: "UGdYFZxTTtUlWmzecZYS",
+    clientSecret: "i7W46pHR6e"
+  },
+  {
+    clientID: "5jkLl6Ybq6BDDZPQACzq",
+    clientSecret: "b1AyOhHJBT"
+  },
+  {
+    clientID: "THkwPFJ_8hCEyEn9VETL",
+    clientSecret: "zSJP0Vrhpz"
+  },
+  {
+    clientID: "1Ty0UVr9MxDhTKcDERoe",
+    clientSecret: "B1kpYD7bK3"
+  },
+  {
+    clientID: "85t6kYyznHMUd2VAJbt_",
+    clientSecret: "3Ts52TpPs1"
+  },
+  {
+    clientID: "yXhiWV2QSFHWATNK6dzf",
+    clientSecret: "d61k1_MkD0"
+  },
+  {
+    clientID: "DI0Smx3Y7mQuvAg4sLyb",
+    clientSecret: "CSNBlgEdzJ"
+  },
+  {
+    clientID: "jbvpmA34SweJfRTSaPTb",
+    clientSecret: "RgSVgLgLTr"
+  },
+  {
+    clientID: "dtNstu5Xa6rRu23vw2cd",
+    clientSecret: "vcSUp3yX2b"
+  },
+
+  // 준환
+  {
+    clientID: "OgyDA9px7517XjQNkn2D",
+    clientSecret: "sUFkUQ83F8"
+  },
+  {
+    clientID: "sB8A5HzoF_UpR0vEYIkv",
+    clientSecret: "zi3NCkc5XB"
+  },
+  {
+    clientID: "8G187nnokeJEv7E8yZQl",
+    clientSecret: "jIPdg919NY"
+  },
+  {
+    clientID: "yXABM1NRHehO59iLZi1y",
+    clientSecret: "MszthLBC57"
+  },
+  {
+    clientID: "sX8SyrXZ6Wg4_ODUhdbT",
+    clientSecret: "eqdbuIgjfp"
+  },
+  {
+    clientID: "HPxmzF3MIpaBrAQ7X404",
+    clientSecret: "vCEf0KZgl6"
+  },
+  {
+    clientID: "7mSE02NexV9GHXMOA8lS",
+    clientSecret: "Y7nz5WJ5Xr"
+  },
+  {
+    clientID: "5Kw8y246dETCddJZC7Jq",
+    clientSecret: "jmnsjYI4oq"
+  },
+  {
+    clientID: "r3dc_WOlRxT8MIzT6wjg",
+    clientSecret: "GNYgfRxzT9"
+  },
+  {
+    clientID: "lgrKfRLlx5fkAZdp2ZXT",
+    clientSecret: "mjvgwuwD4N"
+  },
+
  ]
  try {
   clients = shuffle(clients)
