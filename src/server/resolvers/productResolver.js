@@ -4617,6 +4617,7 @@ const resolvers = {
               {
                 userID: req.user && req.user.adminUser ? req.user.adminUser : null,
                 productNo: _productNo,
+                title: _title,
               },
               {
                 $set: {
@@ -5199,6 +5200,7 @@ const resolvers = {
               {
                 userID: req.user && req.user.adminUser ? req.user.adminUser : null,
                 productNo: _productNo,
+                title: _title,
               },
               {
                 $set: {
@@ -10651,6 +10653,7 @@ const getGoodid = (url) => {
 
 
 const getRelatedKeyword = async (title) => {
+  return title.split(" ")
   let mainKeywordArray = []
   let brands = await Brand.find()
   brands = brands.map(item => item.brand)

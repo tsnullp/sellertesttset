@@ -987,6 +987,7 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
 
       // }
     } else {
+ 
       for (const item of skus.filter((item) => Number(item.stock) > 0)) {
         tempOption.push({
           key: item.skuid,

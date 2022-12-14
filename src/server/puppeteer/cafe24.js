@@ -131,6 +131,15 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
       { waituntil: "networkidle0" }
     )
 
+
+    try {
+      if (await page.$(".btnClose.imghostClose")) {
+        await page.click(".btnClose.imghostClose")
+       
+      }
+    } catch {}
+
+
     const title = await page.$eval("#wrap > .section > .mBox.typeBorder", (elem) =>
       elem.innerText.split("/")[0].trim()
     )

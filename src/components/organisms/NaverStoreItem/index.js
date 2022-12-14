@@ -20,6 +20,7 @@ import {
   BackTop,
   Spin,
   message,
+  Collapse
 } from "antd"
 import {
   DownloadOutlined,
@@ -49,11 +50,13 @@ import {
   DetailFormModal,
   SimilarProductModal
 } from "components"
-import { RandomWords } from "../../../lib/userFunc"
+import { RandomWords, AmazonAsin } from "../../../lib/userFunc"
 import { CopyToClipboard } from "react-copy-to-clipboard"
+
 import SimpleBar from "simplebar-react"
 import "simplebar/dist/simplebar.min.css"
 
+const { Panel } = Collapse;
 const { Option } = Select
 const { shell } = window.require("electron")
 
@@ -154,6 +157,22 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
           console.log("response", response)
           if (response.data.OptimizationProductName) {
             item.title = response.data.OptimizationProductName
+          }
+        }
+        
+        if(item.subItems && item.subItems.length > 0){
+          for(const subItem of item.subItems) {
+            if (subItem.korTitle && subItem.korTitle.length > 0) {
+              const response = await optimizationProductName({
+                variables: {
+                  title: subItem.korTitle,
+                },
+              })
+              console.log("responseSUB", response)
+              if (response.data.OptimizationProductName) {
+                subItem.korTitle = response.data.OptimizationProductName
+              }
+            }
           }
         }
       }
@@ -327,6 +346,7 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
           isClothes: false,
           isShoes: false,
           shippingWeight: shippingPrice[0].title,
+          subItems: item.subItems ? item.subItems : []
         }
       })
     )
@@ -978,16 +998,18 @@ const NaverItem = ({
 
   const handleSimilarOk = (items) => {
     setSImilarVaisble(false)
-    setSubItems(items.map(item => {
+    const temp = items.map(item => {
       return {
         ...item,
+        productNo: AmazonAsin(item.link),
         isClothes: false,
         isShoes: false,
-        keyword: "",
-        shippingWeight: shippingPrice[0].title,
+        keyword: keywordTag,
+        shippingWeight: shippingWeight ? shippingWeight : shippingPrice[0].title,
       }
-    }))
-
+    })
+    setSubItems(temp)
+    setRootSubItems(index, temp)
   }
 
   const handleSimilarCancel = () => {
@@ -1387,93 +1409,100 @@ const NaverItem = ({
         </Wrapper>
       )}
       {subItems.length > 0 && <div style={{marginTop: "25px"}}>
-        <SubTitleCombainContainer>
-        <Input
-          style={{ marginLeft: "5px", width: "280px" }}
-          addonBefore={"접두어"}
-          value={before}
-          onChange={(e) => setBefore(e.target.value)}
-        />
-        <Button
-          style={{ marginLeft: "5px" }}
-          onClick={() => {
-            console.log("before", before)
-            setBeforeTitle(before)
-          }}
-        >
-          추가
-        </Button>
-
-        <Input
-          style={{ marginLeft: "5px" }}
-          addonBefore={"상품명 조합"}
-          placeholder={"컴마(,)로 구분"}
-          value={word}
-          onChange={(e) => setWord(e.target.value)}
-        />
-        <Button
-          style={{ marginLeft: "5px" }}
-          onClick={() => {
-            const words = RandomWords(
-              word
-                .trim()
-                .split(",")
-                .map((item) => item.trim())
-            )
-            setRandomTitle(words)
-          }}
-        >
-          조합
-        </Button>
-
-        {isSubKeywordModalVisible && (
-          <KeywordModal
-            isModalVisible={isSubKeywordModalVisible}
-            handleOk={handleSubOk}
-            handleCancel={handleSubCancel}
-            title={title}
-            // keyword={selectKeyword}
-            // mainImages={[image]}
-            // detailUrl={detail}
-          />
-        )}
-        <Button
-          border={false}
-          // size="small"
-          style={{
-            // border: "6px solid #512da8",
-            background: "#512da8",
-            color: "white",
-            marginLeft: "5px"
-          }}
-          onClick={showSubModal}
-        >
-          키워드
-        </Button>
         
-        </SubTitleCombainContainer>
-      {
-        subItems.map((item, i) => {
-          return (
-            <NaverSubItem 
-              key={i} 
-              mode={mode}
-              image={item.image}
-              index={i}
-              setRootTitle={setSubRootTitle}
-              setRootDetailUrl={setSubRootDetailUrl}
-              setRootKeyword={setSubRootKeyword}
-              setRootClothes={setSubRootClothes}
-              setRootShoes={setSubRootShoes}
-              setRootShippingPrice={setSubRootShippingPrice}
-              detailUrl={item.link}
-              title={item.korTitle ? item.korTitle : item.title}
-              shippingPrice={shippingPrice}
-              shippingWeight={item.shippingWeight}
+        <Collapse defaultActiveKey={productNo}>
+          <Panel header={`[유사 상품] ${modifyTitle} - (${subItems.filter(item => item.link).length}개)`} key={productNo}>
+
+          <SubTitleCombainContainer>
+            <Input
+              style={{ marginLeft: "5px", width: "280px" }}
+              addonBefore={"접두어"}
+              value={before}
+              onChange={(e) => setBefore(e.target.value)}
             />
-          )
-        })
-      }
+            <Button
+              style={{ marginLeft: "5px" }}
+              onClick={() => {
+                console.log("before", before)
+                setBeforeTitle(before)
+              }}
+            >
+              추가
+            </Button>
+
+            <Input
+              style={{ marginLeft: "5px" }}
+              addonBefore={"상품명 조합"}
+              placeholder={"컴마(,)로 구분"}
+              value={word}
+              onChange={(e) => setWord(e.target.value)}
+            />
+            <Button
+              style={{ marginLeft: "5px" }}
+              onClick={() => {
+                const words = RandomWords(
+                  word
+                    .trim()
+                    .split(",")
+                    .map((item) => item.trim())
+                )
+                setRandomTitle(words)
+              }}
+            >
+              조합
+            </Button>
+
+            {isSubKeywordModalVisible && (
+              <KeywordModal
+                isModalVisible={isSubKeywordModalVisible}
+                handleOk={handleSubOk}
+                handleCancel={handleSubCancel}
+                title={title}
+                // keyword={selectKeyword}
+                // mainImages={[image]}
+                // detailUrl={detail}
+              />
+            )}
+            <Button
+              border={false}
+              // size="small"
+              style={{
+                // border: "6px solid #512da8",
+                background: "#512da8",
+                color: "white",
+                marginLeft: "5px"
+              }}
+              onClick={showSubModal}
+            >
+              키워드
+            </Button>
+            
+            </SubTitleCombainContainer>
+          {
+            subItems.map((item, i) => {
+              return (
+                <NaverSubItem 
+                  {...item}
+                  key={i} 
+                  mode={mode}
+                  image={item.image}
+                  index={i}
+                  setRootTitle={setSubRootTitle}
+                  setRootDetailUrl={setSubRootDetailUrl}
+                  setRootKeyword={setSubRootKeyword}
+                  setRootClothes={setSubRootClothes}
+                  setRootShoes={setSubRootShoes}
+                  setRootShippingPrice={setSubRootShippingPrice}
+                  detailUrl={item.link}
+                  title={item.korTitle ? item.korTitle : item.title}
+                  shippingPrice={shippingPrice}
+                  shippingWeight={item.shippingWeight}
+                />
+              )
+            })
+          }
+          </Panel>
+      </Collapse>
       </div>}
     </div>
   )
@@ -1888,7 +1917,8 @@ const NaverSubItem = ({
   const [shoes, setShose] = useState(false)
   const [selectedUrl, SetSelectedUrl] = useState("")
   const [selectKeyword, SetSelectKeyword] = useState("")
-
+  const [optimizationProductName] = useMutation(OPTIMIZATION_PRODUCT_NAME)
+  const [optimizationLoading, setOptimizationLoading] = useState(false)
   // const {} = useQuery(ISREGISTER, {
   //   variables: {
   //     goodID: good_id
@@ -1990,6 +2020,25 @@ const NaverSubItem = ({
     return `${image}?type=f232_232`
   }
 
+  const handleOptimization = async () => {
+    try {
+      setOptimizationLoading(true)
+      const response = await optimizationProductName({
+        variables: {
+          title: modifyTitle,
+        },
+      })
+      console.log("response", response)
+      if (response.data.OptimizationProductName) {
+        setModifyTitle(response.data.OptimizationProductName)
+        setRootTitle(index, response.data.OptimizationProductName)
+      }
+    } catch (e) {
+    } finally {
+      setOptimizationLoading(false)
+    }
+  }
+
 
   return (
     <SubItemContainer>
@@ -2029,10 +2078,10 @@ const NaverSubItem = ({
                   isModalVisible={isModalVisible}
                   handleOk={handleOk}
                   handleCancel={handleCancel}
-                  title={title}
-                  keyword={selectKeyword}
-                  mainImages={[image]}
-                  detailUrl={detail}
+                  title={modifyTitle}
+                  // keyword={selectKeyword}
+                  // mainImages={[image]}
+                  // detailUrl={detail}
                 />
               )}
               <Button
@@ -2046,6 +2095,11 @@ const NaverSubItem = ({
                 onClick={showModal}
               >
                 키워드
+              </Button>
+              <Button size="large" loading={optimizationLoading} onClick={handleOptimization}
+                style={{marginLeft: "5px", height: "46px",}}
+              >
+                최적화
               </Button>
             </TitleKeywordContainer>
 

@@ -320,7 +320,7 @@ const NaverShoppingPage = () => {
         for(const subItem of item.subItems){
    
           input.push({
-            productNo: null,
+            productNo: subItem.productNo.toString(),
             title: subItem.korTitle,
             detail: null,
             detailUrl: subItem.link,
@@ -344,7 +344,7 @@ const NaverShoppingPage = () => {
       }
     }
 
-    setUploading(false)
+    console.log("input -- ", input)
 
     const response = await uploadNaverItem({
       variables: {
