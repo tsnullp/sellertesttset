@@ -15,35 +15,31 @@ const LoginStatus = () => {
   const [autoPrice] = useMutation(AUTO_PRICE_MANAGE)
 
   useEffect(() => {
-    const userConfirm = async token => {
-      const response = await authGoogle({
-        variables: {
-          input: {
-            accessToken: token
+    try {
+      const userConfirm = async token => {
+        const response = await authGoogle({
+          variables: {
+            input: {
+              accessToken: token
+            }
           }
-        }
-      })
-    
-      action.login(response.data.authGoogle)
-      try {
-        window.location.reload()
-      } catch (e){
-        console.log("window.location", e)
-        try {
-          document.location.reload()
-        } catch (e) {
-          console.log("document.location", e)
-        }
-      }
+        })
       
-
+        action.login(response.data.authGoogle)
+        window.location.reload()
+        
+  
+      }
+  
+      if (ipcRenderer) {
+        ipcRenderer.on("googlelogin-reply", (event, arg) => {
+          userConfirm(arg.access_token)
+        })
+      }
+    } catch(e) {
+      console.log("ee-", e)
     }
-
-    if (ipcRenderer) {
-      ipcRenderer.on("googlelogin-reply", (event, arg) => {
-        userConfirm(arg.access_token)
-      })
-    }
+    
 
     // const onceLogin = async () => {
     //   await taobaoLogin()
@@ -77,21 +73,8 @@ const LoginStatus = () => {
     <Menu>
       <Menu.Item
       onClick={() => {
-        console.log("11")
         action.logout()
-        try {
-          console.log("22")
-          window.location.reload()
-          console.log("33")
-        } catch (e){
-          console.log("window.location", e)
-          try {
-            console.log("44")
-            document.location.reload()
-          } catch (e) {
-            console.log("document.location", e)
-          }
-        }
+        window.location.reload()
       }}
       >
         <div >로그아웃</div>
