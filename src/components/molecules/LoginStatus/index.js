@@ -77,12 +77,16 @@ const LoginStatus = () => {
     <Menu>
       <Menu.Item
       onClick={() => {
+        console.log("11")
         action.logout()
         try {
+          console.log("22")
           window.location.reload()
+          console.log("33")
         } catch (e){
           console.log("window.location", e)
           try {
+            console.log("44")
             document.location.reload()
           } catch (e) {
             console.log("document.location", e)
