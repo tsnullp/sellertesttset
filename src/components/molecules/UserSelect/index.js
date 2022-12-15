@@ -1,12 +1,25 @@
-import React from "react"
+import React, {useState, useEffect, useContext} from "react"
+import { UserContext } from "context/UserContext"
 import { Select } from "antd"
 const { Option, OptGroup } = Select
 
 const UserSelect = ({ isRoot = false, handleSelectChange, userID }) => {
-
+  const { user } = useContext(UserContext)
+  const [localUserID, setLocalUserID] = useState(userID)
+  console.log("localUserID--", localUserID)
+  useEffect(() => {
+    if(!userID) {
+      if(user) {
+        setLocalUserID(user._id)
+      }
+    } else {
+      setLocalUserID(userID)
+    }
+    
+  }, user)
   const getUserOption = () => {
 
-    switch(userID) {
+    switch(localUserID) {
       case "5f0d5ff36fc75ec20d54c40b":
       case "625f9ca226d0840a73e2dbb8":
       case "5f1947bd682563be2d22f008":
@@ -105,7 +118,7 @@ const UserSelect = ({ isRoot = false, handleSelectChange, userID }) => {
       size="middle"
       status="warning"
       onChange={handleSelectChange}
-      defaultValue={userID}
+      defaultValue={localUserID ? localUserID : (user ? user._id : null)}
     >
       {getUserOption()}
     </Select>

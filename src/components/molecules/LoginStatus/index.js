@@ -26,7 +26,7 @@ const LoginStatus = () => {
         })
       
         action.login(response.data.authGoogle)
-        window.location.reload()
+        // window.location.reload()
         
   
       }
@@ -74,7 +74,7 @@ const LoginStatus = () => {
       <Menu.Item
       onClick={() => {
         action.logout()
-        window.location.reload()
+        // window.location.reload()
       }}
       >
         <div >로그아웃</div>
