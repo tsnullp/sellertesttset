@@ -25,7 +25,17 @@ const LoginStatus = () => {
       })
     
       action.login(response.data.authGoogle)
-      window.location.reload()
+      try {
+        window.location.reload()
+      } catch (e){
+        console.log("window.location", e)
+        try {
+          document.location.reload()
+        } catch (e) {
+          console.log("document.location", e)
+        }
+      }
+      
 
     }
 
@@ -68,7 +78,16 @@ const LoginStatus = () => {
       <Menu.Item
       onClick={() => {
         action.logout()
-        window.location.reload()
+        try {
+          window.location.reload()
+        } catch (e){
+          console.log("window.location", e)
+          try {
+            document.location.reload()
+          } catch (e) {
+            console.log("document.location", e)
+          }
+        }
       }}
       >
         <div >로그아웃</div>

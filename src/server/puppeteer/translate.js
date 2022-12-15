@@ -452,28 +452,33 @@ const papagoTranslate = async (text, source="zh-CN", target="ko") => {
   clients = shuffle(clients)
 
   for(const client of clients) {
-    const response = await axios({
-      url: "https://openapi.naver.com/v1/papago/n2mt",
-      method: "POST",
-      data: {
-        source,
-        target,
-        text
-      },
-      headers: {
-        "X-Naver-Client-Id": client.clientID,
-        "X-Naver-Client-Secret": client.clientSecret
+    try {
+      const response = await axios({
+        url: "https://openapi.naver.com/v1/papago/n2mt",
+        method: "POST",
+        data: {
+          source,
+          target,
+          text
+        },
+        headers: {
+          "X-Naver-Client-Id": client.clientID,
+          "X-Naver-Client-Secret": client.clientSecret
+        }
+      })
+      // console.log("response,", response.data.message.result)
+      if(response && response.data.message.result){
+        console.log("파파고 -- ", response.data.message.result.translatedText)
+        return response.data.message.result.translatedText
       }
-    })
-    // console.log("response,", response.data.message.result)
-    if(response && response.data.message.result){
-      // console.log("response.message.result.translatedText", response.data.message.result.translatedText)
-      return response.data.message.result.translatedText
+    } catch(e){
+      // console.log("papago-->", e.data)
     }
+    
   }
 
  } catch(e) {
-   console.log("errir-->", e)
+   console.log("파파고 실패 -->", e)
    return text
  }
 }
