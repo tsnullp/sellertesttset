@@ -201,6 +201,7 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
       
     // }
 
+    console.log("response", response.data)
 
     for(const item of response.data.data.main_imgs){
       let mainObj = {}
