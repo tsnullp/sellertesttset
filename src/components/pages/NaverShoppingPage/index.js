@@ -317,7 +317,7 @@ const NaverShoppingPage = () => {
      
       if(item.subItems && Array.isArray(item.subItems) && item.subItems.length > 0) {
     
-        for(const subItem of item.subItems.filter(fItem => fItem.detailUrl && fItem.detailUrl.length > 0)){
+        for(const subItem of item.subItems.filter(fItem => fItem.link && fItem.link.length > 0)){
    
           input.push({
             productNo: subItem.productNo.toString(),
