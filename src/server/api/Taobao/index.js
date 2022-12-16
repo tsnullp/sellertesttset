@@ -202,13 +202,14 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
     // }
 
     console.log("response", response.data)
+    
 
     for(const item of response.data.data.main_imgs){
       let mainObj = {}
       try {
         await imageCheck(item)
+        mainObj.image = item
         if(platform === "darwin" ) {
-          mainObj.image = item
           const text = await tesseract.recognize(item, {
             lang: "chi_tra",
             oem: 1,
@@ -262,6 +263,7 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
                 const bitmap = fs.readFileSync(path.join(appDataDirPath, "temp", "resize.jpg"))
                 const base64 = new Buffer(bitmap).toString("base64")
                 const imageUrlResponse = await Cafe24UploadLocalImage({base64Image: `base64,${base64}`})
+                console.log("imageUrlResponse", imageUrlResponse)
                 if(imageUrlResponse){
                   value.imageUrl = imageUrlResponse
                 }
