@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"
 import { TitleHighlightForm } from "components"
-import { Modal, Input, Tag, Spin, Button } from "antd"
+import { Modal, Input, Tag, Spin, Button, Tooltip } from "antd"
 import {
   SEARCH_COUPANG_RELATED_KEYWORD,
   SEARCH_COUPANG_AUTO_KEYWORD,
@@ -9,6 +9,8 @@ import {
   SEARCH_NAVER_TAG_KEYWORD,
   OPTIMIZATION_PRODUCT_NAME,
   GET_NAVER_CATALOG_KEYWORD,
+  GET_COMBINE_TITLE
+
 } from "../../../gql"
 import { useQuery, useMutation } from "@apollo/client"
 import styled from "styled-components"
@@ -41,14 +43,17 @@ const KeywordModal = ({
   const [searchNaverProductKeyword] = useMutation(SEARCH_NAVER_PRODUCT_KEYWORD)
   const [searchNaverTagKeyword] = useMutation(SEARCH_NAVER_TAG_KEYWORD)
   const [optimizationProductName] = useMutation(OPTIMIZATION_PRODUCT_NAME)
+  const [getCombineTitle] = useMutation(GET_COMBINE_TITLE)
 
   const [loading, setLoading] = useState(false)
   const [optimizationLoading, setOptimizationLoading] = useState(false)
+  const [combineLoading, setCombineLoading] = useState(false)
   const [coupangRelatedKeyword, setCoupangRelatedKeyword] = useState([])
   const [coupangAutoKeyword, setCoupangAutoKeyword] = useState([])
   const [naverRelatedKeyword, setNaverRelatedKeyword] = useState([])
   const [naverPorductKeyword, setNaverProductdKeyword] = useState([])
   const [naverTagKeyword, setNaverTagKeyword] = useState([])
+  const [combineKeyword, SetCombineKeyword] = useState([])
 
   const [selectedKeywords, SetKeyword] = useState([])
 
@@ -202,6 +207,25 @@ const KeywordModal = ({
     }
   }
 
+  const handleCombineTitle = async () => {
+    try {
+      setCombineLoading(true)
+      const response = await getCombineTitle({
+        variables: {
+          title: selectedKeywords
+        }
+      })
+      if (response.data.GetCombineTitleKeyword) {
+        SetCombineKeyword(response.data.GetCombineTitleKeyword)
+      }
+    } catch(e){
+      
+    } finally {
+      setCombineLoading(false)
+    }
+    
+  }
+
   return (
     <Modal
       width={1600}
@@ -266,8 +290,38 @@ const KeywordModal = ({
             <Button loading={optimizationLoading} onClick={handleOptimization}>
               최적화
             </Button>
+            <Button loading={combineLoading} onClick={handleCombineTitle}>상품명 조회수</Button>
           </InputContainer>
+          
           <KeywordResultContainer>
+            <SearchKeywordContainer>
+                <SearchKeywordTitle>상품명 조합 키워드</SearchKeywordTitle>
+                <SearchKeywordContent>
+                  <KeywordLabelContainer>
+                    {combineLoading && (
+                      <SpinContainer>
+                        <div>
+                          <Spin />
+                        </div>
+                      </SpinContainer>
+                    )}
+                    {!combineLoading &&
+                      combineKeyword
+                        .filter((item) => item.keyword.trim().length > 0)
+                        .map((item, i) => {
+                          return (
+                            <Tooltip  key={i}  title={`${item.count.toLocaleString("ko")}`}>
+                              <KeywordLabel onClick={() => handleKeyword(item.keyword)}>
+                                {item.keyword.trim()}
+                              </KeywordLabel>
+                            </Tooltip>
+                          )
+                        })}
+                  </KeywordLabelContainer>
+                </SearchKeywordContent>
+              </SearchKeywordContainer>
+              
+            
             {detailUrl && detailUrl.includes("https://cr.shopping.naver.com/adcr.nhn") && (
               <SearchKeywordContainer>
                 <SearchKeywordTitle>카달로그 추천 키워드</SearchKeywordTitle>

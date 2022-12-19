@@ -1838,7 +1838,10 @@ const schema = gql`
     image: String
     link: String
   }
-
+  type CombineTitleType {
+    keyword: String
+    count: Int
+  }
   type Query {
     "A simple type for getting started!"
     hello: String
@@ -2321,6 +2324,8 @@ const schema = gql`
 
     GetSimilarProducts(urlString: String): [SimilarProductsType]
     GetSimilarProductKorTitle(input: [SimilarProductInputType]): [SimilarProductsKorType]
+
+    GetCombineTitleKeyword(title: String): [CombineTitleType]
   }
 `
 

@@ -6,11 +6,13 @@ const {
   searchSomeTrendOnly,
   searchCategoryKeyword,
 } = require("../puppeteer/keyword")
-const { sleep } = require("../../lib/usrFunc")
+const { sleep, isNumber,  getCombineTileKeyword, DimensionArray} = require("../../lib/usrFunc")
 const startBrowser = require("../puppeteer/startBrowser")
 const smartStoreCategory = require("../../components/organisms/CategoryForm/category")
 const _ = require("lodash"
 )
+const { NaverKeywordRel } = require("../api/Naver")
+
 const resolvers = {
   Query: {
     RelatedKeywordsOnly: async (parent, { keywords }, { logger }) => {
@@ -307,6 +309,63 @@ const resolvers = {
         return false
       }
     },
+    GetCombineTitleKeyword: async(parent, {title}, {logger}) => {
+      let combineArr = []
+      let mainKeywordArray = []
+      const korean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/
+      const exceptWord = ["당일방송", "정품", "국내AS", "가", "그", "있는"]
+      try {
+        for(const item of title.split(" ")) {
+          const productNameArr = title.split(" ")
+          .filter(
+            (fItem) =>
+              fItem.length > 0 &&
+              !isNumber(fItem) &&
+              korean.test(fItem) &&
+              !exceptWord.includes(fItem)
+          )
+          const combineTemp = getCombineTileKeyword(item, productNameArr)
+          combineArr.push(...combineTemp)
+        }
+
+        combineArr = _.uniq(combineArr)
+        console.log("combaineArr", combineArr)
+
+        for (const items of DimensionArray(combineArr, 5) ){
+          const response = await NaverKeywordRel({ keyword: items.join(",") })
+          for (const item of items) {
+            if (response && response.keywordList) {
+              const keywordObj = _.find(response.keywordList, { relKeyword: item.replace(/ /gi, "") })
+              if (keywordObj) {
+                mainKeywordArray.push({
+                  ...keywordObj,
+                  monthlyPcQcCnt: Number(keywordObj.monthlyPcQcCnt.toString().replace("< ", "")),
+                  monthlyMobileQcCnt: Number(
+                    keywordObj.monthlyMobileQcCnt.toString().replace("< ", "")
+                  ),
+                })
+              }
+            }
+          }
+          await sleep(200)
+        }
+        mainKeywordArray = mainKeywordArray.sort((a, b) =>  (b.monthlyPcQcCnt + b.monthlyMobileQcCnt) - (a.monthlyPcQcCnt + a.monthlyMobileQcCnt))
+        mainKeywordArray = _.unionBy(mainKeywordArray, "relKeyword")
+        .filter(item => item.monthlyPcQcCnt + item.monthlyPcQcCnt > 100)
+        .map(item => {
+          return {
+            keyword: item.relKeyword,
+            count: item.monthlyPcQcCnt + item.monthlyMobileQcCnt
+          }
+        })
+        console.log("mainKeywordArray", mainKeywordArray)
+        console.log("mainKeywordArray", mainKeywordArray.length)
+        return mainKeywordArray
+      } catch(e) {
+        logger.error(`SetFavoriteKeyword: ${e}`)
+        return mainKeywordArray
+      }
+    }
    
   },
 }

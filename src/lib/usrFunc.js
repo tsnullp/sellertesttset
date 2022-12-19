@@ -431,6 +431,20 @@ const GetKeywordScore = (a, b) => {
 const shuffle = (array) => {
   return array.sort(() => Math.random() - 0.5); 
 }
+
+const getCombineTileKeyword = (keyword, arr) => {
+  let array = []
+  for (const item of arr) {
+    if(keyword === item){
+      array.push(keyword)
+    } else {
+      array.push(`${keyword} ${item}`)
+      array.push(`${item} ${keyword}`)
+    }
+  }
+  return array
+}
+
 module.exports = {
   checkStr,
   getAppDataPath,
@@ -457,5 +471,6 @@ module.exports = {
   isNumber,
   getPermutations,
   GetKeywordScore,
-  shuffle
+  shuffle,
+  getCombineTileKeyword
 }

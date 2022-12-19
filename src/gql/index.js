@@ -4012,3 +4012,14 @@ export const CAFE24_BOARDS = gql`
     Cafe24Boards(userID: $userID)
   }
 `
+
+export const GET_COMBINE_TITLE = gql`
+  mutation GetCombineTitleKeyword($title: String) {
+    GetCombineTitleKeyword(title: $title) {
+      keyword
+      count
+    }
+  }
+`
+
+  
