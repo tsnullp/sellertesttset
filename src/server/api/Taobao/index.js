@@ -250,7 +250,7 @@ exports.ItemSKUV2 = async ({ userID, item_id }) => {
           if(value.imageUrl) {
             const imageCheckValue = await imageCheck(value.imageUrl)
           
-            if(imageCheckValue && imageCheckValue.width < 400) {
+            if(imageCheckValue && (imageCheckValue.width < 400 || imageCheckValue.height < 400)) {
               console.log("imageCheckValue", imageCheckValue)
               try {
                 const imageRespone = await axios({

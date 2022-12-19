@@ -857,6 +857,7 @@ const Cafe24Info = ({ item, refetch }) => {
 
           <ButtonContainer>
           <Button
+              disabled
               danger
               htmlType="button"
               loading={naverLoading}
@@ -875,6 +876,7 @@ const Cafe24Info = ({ item, refetch }) => {
               ⓵ 네이버쇼핑, 소이지 상품 카페24로 등록
             </Button>
             <Button
+              disabled
               danger
               htmlType="button"
               loading={syncLoading}
