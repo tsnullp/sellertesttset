@@ -24,6 +24,7 @@ const { Search } = Input
 const KeywordModal = ({
   isModalVisible,
   handleOk,
+  handleMainKeywrodOk,
   handleCancel,
   title,
   keyword,
@@ -56,6 +57,7 @@ const KeywordModal = ({
   const [combineKeyword, SetCombineKeyword] = useState([])
 
   const [selectedKeywords, SetKeyword] = useState([])
+  const [mainKeyword, setMainKeyword] = useState("")
 
   const handelSearch = async (value) => {
     if (value.length === 0) return
@@ -185,8 +187,20 @@ const KeywordModal = ({
     }
   }
 
+  const handleMainKeyword = (value) => {
+    if(mainKeyword && mainKeyword.length > 0){
+      setMainKeyword(`${mainKeyword} ${value}`)
+    } else {
+      setMainKeyword(value)
+    }
+    
+  }
   const InputChange = (e) => {
     SetKeyword(e.target.value)
+  }
+
+  const mainKeywordChange = (e) => {
+    setMainKeyword(e.target.value)
   }
 
   const handleOptimization = async () => {
@@ -251,7 +265,14 @@ const KeywordModal = ({
         </OriginalTitleContainer>
       }
       visible={isModalVisible}
-      onOk={() => handleOk(selectedKeywords)}
+      onOk={() => {
+        if(typeof handleOk === "function") {
+          handleOk(selectedKeywords)
+        }
+        if(typeof handleMainKeywrodOk === "function") {
+          handleMainKeywrodOk(mainKeyword)
+        }
+      }}
       onCancel={handleCancel}
       maskClosable={false}
       zIndex={1000}
@@ -284,13 +305,24 @@ const KeywordModal = ({
               />
             </div>
           </SearchContainer>
-          <TitleHighlightForm text={selectedKeywords} />
+          
+          <TitleHighlightForm text={`${mainKeyword} ${selectedKeywords}`} />
           <InputContainer>
-            <Input allowClear={true} value={selectedKeywords} onChange={InputChange} />
+          <Input 
+            addonBefore={"접두어"}
+            allowClear={true}
+            value={mainKeyword}
+            onChange={mainKeywordChange}
+          />
+            <Input 
+            addonBefore={"상품명"}
+            allowClear={true} value={selectedKeywords} onChange={InputChange} />
             <Button loading={optimizationLoading} onClick={handleOptimization}>
               최적화
             </Button>
-            <Button loading={combineLoading} onClick={handleCombineTitle}>상품명 조회수</Button>
+            <Button loading={combineLoading} onClick={handleCombineTitle}
+            style={{marginLeft: "5px"}}
+            >상품명 조합 키워드</Button>
           </InputContainer>
           
           <KeywordResultContainer>
@@ -311,7 +343,7 @@ const KeywordModal = ({
                         .map((item, i) => {
                           return (
                             <Tooltip  key={i}  title={`${item.count.toLocaleString("ko")}`}>
-                              <KeywordLabel onClick={() => handleKeyword(item.keyword)}>
+                              <KeywordLabel onClick={() => handleMainKeyword(item.keyword)}>
                                 {item.keyword.trim()}
                               </KeywordLabel>
                             </Tooltip>
@@ -714,9 +746,13 @@ const SpinContainer = styled.div`
 const InputContainer = styled.div`
   display: flex;
   & > :nth-child(1) {
-    width: 100%;
+    width: 30%;
   }
   & > :nth-child(2) {
+    margin-left: 10px;
+    width: 70%;
+  }
+  & > :nth-child(3) {
     margin-left: 10px;
     min-width: 80px;
     max-width: 80px;

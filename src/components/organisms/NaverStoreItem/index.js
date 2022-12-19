@@ -1113,6 +1113,11 @@ const NaverItem = ({
 
   }
 
+  const handleSubMainKeywordOk = (mainKeywrod) => {
+    setSubKeywordModalVisible(false)
+    setBefore(mainKeywrod)
+  }
+
   const handleSubCancel = () => {
     setSubKeywordModalVisible(false)
   }
@@ -1456,6 +1461,7 @@ const NaverItem = ({
               <KeywordModal
                 isModalVisible={isSubKeywordModalVisible}
                 handleOk={handleSubOk}
+                handleMainKeywrodOk={handleSubMainKeywordOk}
                 handleCancel={handleSubCancel}
                 title={title}
                 // keyword={selectKeyword}
