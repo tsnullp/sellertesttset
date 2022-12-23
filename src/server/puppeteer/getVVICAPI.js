@@ -347,7 +347,7 @@ const start = async ({url, title, userID}) => {
                   price: item.discount_price + 2,
                   productPrice: item.discount_price + 2,
                   salePrice: item.discount_price + 2,
-                  stock: soldOut ? 0 : 100,
+                  stock: soldOut ? 0 : ( item.sku_state === 5 ? 0 : 100),
                   image,
                   disabled: soldOut ? true : false,
                   active: soldOut ? false : true,
