@@ -53,7 +53,7 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
         const shippingWeightInfo = [...taobaoApi.shippingWeightInfo]
         setItem({
           ...taobaoApi,
-          clothes: url.includes("vvic.com") ? true : false,
+          clothes: false,
           html: tempHtml,
           shippingWeightInfo: shippingWeightInfo.sort((a, b) => a.title - b.title),
           options: taobaoApi.options.map((item) => {
