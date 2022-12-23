@@ -1291,6 +1291,7 @@ const schema = gql`
     exchange: String
     marginInfo: [MaginInfoType]
     shippingWeightInfo: [MaginInfoType]
+    keyword: [String]
   }
 
   input InputAttributes1 {

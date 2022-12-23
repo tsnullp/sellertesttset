@@ -224,6 +224,17 @@ const AmazonUploadPage = () => {
           },
           ...uploadData,
         ])
+      } else if (value.includes("vvic.com")) {
+        marketType = 6
+        setUploadData([
+          {
+            asin,
+            url: value,
+            isSuspense: suspense.length > 0 ? true : false,
+            marketType,
+          },
+          ...uploadData,
+        ])
       }
 
       if (e) {
@@ -416,6 +427,7 @@ const AmazonUploadPage = () => {
               )
             case 4:
             case 5:
+            case 6:
               return (
                 <TaobaoCollectionItem
                   key={item.good_id}
@@ -467,6 +479,7 @@ const AmazonUploadPage = () => {
               )
             case 4:
             case 5:
+            case 6:
               return (
                 <TaobaoUploadItem
                   key={item.asin}

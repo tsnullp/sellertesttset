@@ -8102,7 +8102,10 @@ const resolvers = {
           // console.log("ObjItem", ObjItem)
           for (const detail of input) {
            
+
+            
             try {
+
               let isUSA = false
               let isSingle = false
               let isShippingPrirce = false

@@ -245,7 +245,7 @@ exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
     const response = await axios({
       ...options,
     })
-    console.log("responseData", response.data)
+ 
     if(response && response.data.status === true) {
       return response.data.data
     }
@@ -311,6 +311,31 @@ exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
   } catch (e) {
     // console.log("Cafe24UploadLocalImage", e)
     console.log("ImgbbUploadLocalImage--", e.message)
+    
+  }
+}
+
+exports.Cafe24UploadLocalImages = async ({ base64Images }) => {
+  try {
+    const params = new url.URLSearchParams({ base64strs: base64Images.replace(/base64,/gi, "") })
+    const options = {
+      method: "POST",
+      url: `https://tsnullp.chickenkiller.com/upload-multi`,
+      data: params.toString(),
+    }
+    const response = await axios({
+      ...options,
+    })
+ 
+    if(response && response.data.status === true) {
+      return response.data.data.map(item => {
+        return item.replace("https", "http")
+      })
+    }
+    return null
+  } catch (e) {
+    // console.log("Cafe24UploadLocalImage", e)
+    console.log("ImgbbUploadLocalImages--", e.message)
     
   }
 }

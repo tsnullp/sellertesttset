@@ -53,6 +53,7 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
         const shippingWeightInfo = [...taobaoApi.shippingWeightInfo]
         setItem({
           ...taobaoApi,
+          clothes: url.includes("vvic.com") ? true : false,
           html: tempHtml,
           shippingWeightInfo: shippingWeightInfo.sort((a, b) => a.title - b.title),
           options: taobaoApi.options.map((item) => {
@@ -288,7 +289,7 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
               src={
                 url.includes("taobao")
                   ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
-                  : "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png"
+                  : (url.includes("tmail") ? "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png" : "https://src.vvic.com/favicon.ico")
               }
               width="16px"
               style={{ marginRight: "5px" }}
@@ -318,8 +319,9 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
           <img
             src={
               url.includes("taobao")
-                ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
-                : "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png"
+              ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
+              :(url.includes("tmail") ? "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png" : "https://src.vvic.com/favicon.ico")
+              
             }
             width="16px"
             style={{ marginRight: "5px" }}
@@ -358,8 +360,9 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
           <img
             src={
               url.includes("taobao")
-                ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
-                : "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png"
+              ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
+              : (url.includes("tmail") ? "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png" : "https://src.vvic.com/favicon.ico")
+              
             }
             width="16px"
             style={{ marginRight: "5px" }}
@@ -418,8 +421,9 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
           <img
             src={
               url.includes("taobao")
-                ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
-                : "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png"
+              ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
+              : (url.includes("tmail") ? "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png" : "https://src.vvic.com/favicon.ico")
+              
             }
             width="16px"
             style={{ marginRight: "5px" }}
@@ -458,8 +462,9 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
           <img
             src={
               url.includes("taobao")
-                ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
-                : "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png"
+              ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
+              : (url.includes("tmail") ? "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png" : "https://src.vvic.com/favicon.ico")
+              
             }
             width="16px"
             style={{ marginRight: "5px" }}
@@ -516,8 +521,9 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
           <img
             src={
               url.includes("taobao")
-                ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
-                : "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png"
+              ? "https://img.alicdn.com/tfs/TB1VlKFRpXXXXcNapXXXXXXXXXX-16-16.png"
+              : (url.includes("tmail") ? "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png" : "https://src.vvic.com/favicon.ico")
+              
             }
             width="16px"
             style={{ marginRight: "5px" }}

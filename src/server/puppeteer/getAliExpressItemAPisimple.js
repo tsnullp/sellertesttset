@@ -4,7 +4,7 @@ const Brand = require("../models/Brand")
 const cheerio = require("cheerio")
 const { GetAliProduct, GetDetailHtml } = require("../api/AliExpress")
 const { regExp_test } = require("../../lib/usrFunc")
-const { korTranslate } = require("./translate")
+const { papagoTranslate } = require("./translate")
 const { getMainKeyword } = require("../puppeteer/keywordSourcing")
 const _ = require("lodash")
 
@@ -81,7 +81,7 @@ const start = async ({ url, title, userID }) => {
           console.log("ObjItem.mainKeyword", ObjItem.mainKeyword)
           ObjItem.keyword = []
           if (pageModule && pageModule.keywords && pageModule.keywords.length > 0) {
-            const keywords = await korTranslate(pageModule.keywords.trim())
+            const keywords = await papagoTranslate(pageModule.keywords.trim())
             ObjItem.keyword = keywords.split(",").map((item) => {
               return regExp_test(item).trim()
             })
@@ -97,7 +97,8 @@ const start = async ({ url, title, userID }) => {
           if (
             userID.toString() === "5f0d5ff36fc75ec20d54c40b" ||
             userID.toString() === "5f1947bd682563be2d22f008" ||
-            userID.toString() === "625f9ca226d0840a73e2dbb8"
+            userID.toString() === "625f9ca226d0840a73e2dbb8" ||
+            userID.toString() === "62bd48f391d7fb85bcc54693"
           ) {
             banList = await Brand.find(
               {
@@ -106,6 +107,7 @@ const start = async ({ url, title, userID }) => {
                     "5f0d5ff36fc75ec20d54c40b",
                     "5f1947bd682563be2d22f008",
                     "625f9ca226d0840a73e2dbb8",
+                    "62bd48f391d7fb85bcc54693"
                   ],
                 },
               },

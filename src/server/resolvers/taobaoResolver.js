@@ -5,12 +5,13 @@ const findTaobaoDetailAPI = require("../puppeteer/getTaobaoItemAPI")
 const getTaobaoItemNewDetail = require("../puppeteer/getTaobaoItemNewDetail")
 const findTaobaoDetailAPIsimple = require("../puppeteer/getTaobaoItemAPIsimple")
 const findAmazonDetailAPIsimple = require("../puppeteer/getAmazonItemAPIsimple")
+const findVVIDAPIsimple = require("../puppeteer/getVVICAPI")
 const findTaobaoDetail = require("../puppeteer/getTaobaoItemNew")
 const startBrowser = require("../puppeteer/startBrowser")
 const taobaoLogin = require("../puppeteer/taobaoLogin")
 const addShoppingBag = require("../puppeteer/addShoppingBag")
 const taobaoKeywordPageSearching = require("../puppeteer/taobaoKeywordPageSearching")
-const { korTranslate, googleTranslate, papagoTranslate, kakaoTranslate } = require("../puppeteer/translate")
+const {  papagoTranslate,  } = require("../puppeteer/translate")
 const { makeTitle, getAppDataPath } = require("../../lib/usrFunc")
 const searchNaverKeyword = require("../puppeteer/searchNaverKeyword")
 const search11stKeyword = require("../puppeteer/search11stKeyword")
@@ -507,6 +508,13 @@ const resolvers = {
             url,
             userID: req.user.adminUser,
           })
+        } else if(url.includes("vvic.com")) {
+          detailItem = await findVVIDAPIsimple({
+            title,
+            url,
+            userID: req.user.adminUser,
+          })
+          // console.log("detailItem", detailItem)
         } else {
           detailItem = await findTaobaoDetailAPIsimple({
             orginalTitle: title,
@@ -516,15 +524,16 @@ const resolvers = {
         }
 
         // console.log("detailItem", detailItem)
-        let titleArray = []
-        const keywordResponse = await searchKeywordCategory({ keyword: detailItem.korTitle })
-        if (keywordResponse.intersectionTerms) {
-          titleArray.push(...keywordResponse.intersectionTerms.map((mItem) => regExp_test(mItem)))
-        }
-        if (keywordResponse.terms) {
-          titleArray.push(...keywordResponse.terms.map((mItem) => regExp_test(mItem)))
-        }
-        detailItem.korTitle = titleArray.join(" ")
+        
+        // let titleArray = []
+        // const keywordResponse = await searchKeywordCategory({ keyword: detailItem.korTitle })
+        // if (keywordResponse.intersectionTerms) {
+        //   titleArray.push(...keywordResponse.intersectionTerms.map((mItem) => regExp_test(mItem)))
+        // }
+        // if (keywordResponse.terms) {
+        //   titleArray.push(...keywordResponse.terms.map((mItem) => regExp_test(mItem)))
+        // }
+        // detailItem.korTitle = titleArray.join(" ")
 
         return detailItem
       } catch (e) {
@@ -919,6 +928,13 @@ const resolvers = {
             url,
             userID: req.user.adminUser,
           })
+        } else if(url.includes("vvic.com")) {
+          detailItem = await findVVIDAPIsimple({
+            title,
+            url,
+            userID: req.user.adminUser,
+          })
+          // console.log("detailItem", detailItem)
         } else {
           // detailItem = await getTaobaoItemNewDetail({
           //   orginalTitle: title,

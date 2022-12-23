@@ -467,8 +467,7 @@ const papagoTranslate = async (text, source="zh-CN", target="ko") => {
         }
       })
       // console.log("response,", response.data.message.result)
-      if(response && response.data.message.result){
-        console.log("파파고 -- ", response.data.message.result.translatedText)
+      if(response && response.data.message.result){      
         return response.data.message.result.translatedText
       }
     } catch(e){

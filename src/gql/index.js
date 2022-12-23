@@ -2813,6 +2813,7 @@ export const GET_TAOBAO_DETAIL_QUERY_API = gql`
         title
         price
       }
+      keyword
     }
   }
 `

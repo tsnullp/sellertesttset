@@ -316,6 +316,11 @@ export const AmazonAsin = (addr) => {
     } else if (addr.includes("tmall.com")) {
       const q1 = url.parse(addr, true)
       return q1.query.id
+    } else if (addr.includes("vvic.com")) {
+      const tmepUrl = addr.split("?")[0]
+      const q1 = url.parse(tmepUrl, true)
+      const temp1 = q1.pathname.split("/")[q1.pathname.split("/").length - 1]
+      return temp1
     }
 
     return null

@@ -134,7 +134,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron-build": "electron-builder",
-    "start": "export PORT=3001 && concurrently \"cross-env BROWSER=none NODE_OPTIONS=\"--max-old-space-size=8192\" npm run react-start\" \"wait-on http://127.0.0.1:3001 && APP_DEV=true electron . \"",
+    "start": "DANGEROUSLY_DISABLE_HOST_CHECK=true export PORT=3001 && concurrently \"cross-env BROWSER=none NODE_OPTIONS=\"--max-old-space-size=8192\" npm run react-start\" \"wait-on http://127.0.0.1:3001 && APP_DEV=true electron . \"",
     "startwin": "set PORT=3001 && concurrently \"cross-env BROWSER=none NODE_OPTIONS=\"--max-old-space-size=8192\" npm run react-start\" \"wait-on http://127.0.0.1:3001 && electron . \"",
     "build": "npm run react-build && electron-builder",
     "build:win64": "NODE_OPTIONS=\"--max-old-space-size=8192\" npm run react-build &&  electron-builder --win --x64 --publish always",

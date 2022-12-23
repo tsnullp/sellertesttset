@@ -24,8 +24,8 @@ const OptionModal = ({
   isModalVisible,
   handleOk,
   handleCancel,
-  option,
-  prop,
+  option = [],
+  prop = [],
   exchange,
   marginInfo,
   shippingWeightInfo,
@@ -138,6 +138,7 @@ const OptionModal = ({
   const handleImageOK = (index, subIndex, image) => {
     const temp = props
     temp[index].values[subIndex].image = image
+    console.log("temp", temp)
     setProps([...temp])
   }
 
@@ -308,7 +309,7 @@ const OptionModal = ({
                         <MainImageWrapper>
                           <OptionImage
                             src={
-                              value.image && value.image.includes("https")
+                              value.image && value.image.includes("http")
                                 ? value.image
                                 : `https:${value.image}`
                             }
@@ -339,7 +340,7 @@ const OptionModal = ({
                               style={{ cursor: "pointer", textAlign: "center" }}
                               onClick={() => {
                                 setMainImage(
-                                  value.image && value.image.includes("https")
+                                  value.image && value.image.includes("http")
                                     ? value.image
                                     : `https:${value.image}`
                                 )
