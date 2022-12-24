@@ -2464,6 +2464,8 @@ export const LIST_ALL_ORDER = gql`
         deliveryCompanyName
         shipping_code
       }
+      createdAt
+      orderCount
     }
   }
 `

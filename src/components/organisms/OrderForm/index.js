@@ -115,7 +115,7 @@ const OrderForm = ({ orderState }) => {
   }
 
   const handleTaobaoOrderNumber = (i, j, taobaoOrder) => {
-    console.log("taobaoOrderNumber", i, j, taobaoOrder)
+    
     const temp = itemData.map((item, index) => {
       if (index === i) {
         const tempItem = item.items.map((item, index) => {
@@ -159,9 +159,10 @@ const OrderForm = ({ orderState }) => {
     })
     setItemData(temp)
   }
-  const getMarketIcon = ({ market_id, market_order_info, order_date, delivery_id, orderSeq }) => {
+  const getMarketIcon = ({ market_id, market_order_info, order_date, delivery_id, orderSeq, createdAt, orderCount }) => {
+   
     const date = moment(order_date).format("YYYY-MM-DD (HH:mm)")
-
+    const regDate = `${moment(Number(createdAt)).format("YYYY-MM-DD")} (${orderCount.toLocaleString("ko")}건)`
     switch (market_id) {
       case "shopn":
         return (
@@ -195,6 +196,12 @@ const OrderForm = ({ orderState }) => {
                 <div>{delivery_id}</div>
               </IconDateContainer>
             )}
+            <CreatedAtLabel>
+              <CalendarOutlined
+                style={{ fontSize: "16px", marginRight: "5px", color: "#B9B9B9" }}
+              />
+              {regDate}
+            </CreatedAtLabel>
           </>
         )
       case "gmarket":
@@ -229,6 +236,12 @@ const OrderForm = ({ orderState }) => {
                 <div>{delivery_id}</div>
               </IconDateContainer>
             )}
+            <CreatedAtLabel>
+              <CalendarOutlined
+                style={{ fontSize: "16px", marginRight: "5px", color: "#B9B9B9" }}
+              />
+              {regDate}
+            </CreatedAtLabel>
           </>
         )
       case "auction":
@@ -260,6 +273,14 @@ const OrderForm = ({ orderState }) => {
                 <div>{delivery_id}</div>
               </IconDateContainer>
             )}
+
+            <CreatedAtLabel>
+              <CalendarOutlined
+                style={{ fontSize: "16px", marginRight: "5px", color: "#B9B9B9" }}
+              />
+              {regDate}
+            </CreatedAtLabel>
+
           </>
         )
       case "coupang":
@@ -291,6 +312,12 @@ const OrderForm = ({ orderState }) => {
                 <div>{delivery_id}</div>
               </IconDateContainer>
             )}
+            <CreatedAtLabel>
+              <CalendarOutlined
+                style={{ fontSize: "16px", marginRight: "5px", color: "#B9B9B9" }}
+              />
+              {regDate}
+            </CreatedAtLabel>
           </>
         )
       case "timon":
@@ -322,6 +349,12 @@ const OrderForm = ({ orderState }) => {
                 <div>{delivery_id}</div>
               </IconDateContainer>
             )}
+            <CreatedAtLabel>
+              <CalendarOutlined
+                style={{ fontSize: "16px", marginRight: "5px", color: "#B9B9B9" }}
+              />
+              {regDate}
+            </CreatedAtLabel>
           </>
         )
       case "inpark":
@@ -356,6 +389,12 @@ const OrderForm = ({ orderState }) => {
                 <div>{delivery_id}</div>
               </IconDateContainer>
             )}
+            <CreatedAtLabel>
+              <CalendarOutlined
+                style={{ fontSize: "16px", marginRight: "5px", color: "#B9B9B9" }}
+              />
+              {regDate}
+            </CreatedAtLabel>
           </>
         )
       case "wemake":
@@ -391,6 +430,12 @@ const OrderForm = ({ orderState }) => {
                 <div>{delivery_id}</div>
               </IconDateContainer>
             )}
+            <CreatedAtLabel>
+              <CalendarOutlined
+                style={{ fontSize: "16px", marginRight: "5px", color: "#B9B9B9" }}
+              />
+              {regDate}
+            </CreatedAtLabel>
           </>
         )
       default:
@@ -759,6 +804,16 @@ const MarketOrderLabel = styled.div`
 
   color: #a1a1a1;
 `
+
+const CreatedAtLabel = styled.div`
+  margin-top: 20px;
+  margin-left: 18x;
+  display: inline-block;
+  font-size: 14px;
+
+  color: #a1a1a1;
+`
+
 const ProductForm = ({ row, index, item, handleTaobaoOrderNumber, handleTabaeCategroyChange }) => {
   const [getTaobao] = useMutation(GET_TAOBAOITEM)
   const [taobaoOrder, setTaobaoOrder] = useState(null)

@@ -87,4 +87,8 @@ const MarketOrderSchema = mongoose.Schema({
   deliveryOrderId: String // 배대지 주문번호
 })
 
+MarketOrderSchema.index({
+  "orderItems.title": "text"
+})
+
 module.exports = mongoose.model("MarketOrder", MarketOrderSchema)

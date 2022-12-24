@@ -1106,6 +1106,8 @@ const schema = gql`
     items: [OrderItemsType]
     valid_number: ValidNumberType
     shipping: ShippingInfoType
+    createdAt: String
+    orderCount: Int
   }
 
   type SalesClendarType {

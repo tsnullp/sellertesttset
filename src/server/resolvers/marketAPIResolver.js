@@ -704,6 +704,16 @@ const marketAPIResolver = {
                     }
                     //cafe24: { variant_code: 'P0000QMP000R' }
                     // console.log("product.options", product.options)
+                    item.createdAt = product.createdAt
+                   
+                    const orderCount = await MarketOrder.find({
+                      userID: ObjectId(user),
+                      saleType: 1,
+                      $text: {
+                        $search: productName.trim(),
+                      }
+                    })
+                    item.orderCount = orderCount.length
                   }
                 }
 
