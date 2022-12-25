@@ -162,7 +162,11 @@ const OrderForm = ({ orderState }) => {
   const getMarketIcon = ({ market_id, market_order_info, order_date, delivery_id, orderSeq, createdAt, orderCount }) => {
    
     const date = moment(order_date).format("YYYY-MM-DD (HH:mm)")
-    const regDate = `${moment(Number(createdAt)).format("YYYY-MM-DD")} (${orderCount.toLocaleString("ko")}건)`
+    let regDate = ""
+    if(createdAt){
+      regDate = `${moment(Number(createdAt)).format("YYYY-MM-DD")} (${orderCount.toLocaleString("ko")}건)`
+    }
+    
     switch (market_id) {
       case "shopn":
         return (
