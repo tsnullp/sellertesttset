@@ -626,7 +626,7 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
               loading={optimizationLoading}
               onClick={handleOptimization}
             >
-              상품명 중복 제거
+              상품명 최적화
             </Button>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "5px" }}>
