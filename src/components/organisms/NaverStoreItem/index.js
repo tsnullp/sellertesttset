@@ -2239,17 +2239,21 @@ const NaverSubItem = ({
 
   const handleOptimization = async () => {
     try {
-      setOptimizationLoading(true)
-      const response = await optimizationProductName({
-        variables: {
-          title: modifyTitle,
-        },
-      })
-      console.log("response", response)
-      if (response.data.OptimizationProductName) {
-        setModifyTitle(response.data.OptimizationProductName)
-        setRootTitle(index, response.data.OptimizationProductName)
-      }
+      let tempArr = modifyTitle.split(" ")
+      tempArr = tempArr.filter((v, i) => tempArr.indexOf(v) === i)
+      setModifyTitle(tempArr.join(" "))
+      setRootTitle(tempArr.join(" "))
+      // setOptimizationLoading(true)
+      // const response = await optimizationProductName({
+      //   variables: {
+      //     title: modifyTitle,
+      //   },
+      // })
+      // console.log("response", response)
+      // if (response.data.OptimizationProductName) {
+      //   setModifyTitle(response.data.OptimizationProductName)
+      //   setRootTitle(index, response.data.OptimizationProductName)
+      // }
     } catch (e) {
     } finally {
       setOptimizationLoading(false)
@@ -2316,7 +2320,7 @@ const NaverSubItem = ({
               <Button size="large" loading={optimizationLoading} onClick={handleOptimization}
                 style={{marginLeft: "5px", height: "46px",}}
               >
-                최적화
+                중복제거
               </Button>
             </TitleKeywordContainer>
 
