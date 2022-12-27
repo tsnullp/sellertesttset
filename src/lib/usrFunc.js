@@ -194,7 +194,7 @@ function makeTitle(array) {
   return title
 }
 
-function ranking(array) {
+function ranking(array, count=3) {
   if (!Array.isArray(array)) {
     return []
   }
@@ -215,7 +215,7 @@ function ranking(array) {
   })
   const sortArray = arrayValue.sort((a, b) => b.count - a.count)
 
-  return sortArray.filter((item) => item.count >= 3)
+  return sortArray.filter((item) => item.count >= count)
 }
 
 const imageEncodeToBase64 = (file) => {

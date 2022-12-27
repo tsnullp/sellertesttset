@@ -2994,6 +2994,39 @@ export const GET_NAVER_FAVORITE_ITEM_LIST = gql`
     }
   }
 `
+
+export const GET_SALED_ITEM_LIST = gql`
+  mutation GetSaledItemList {
+    GetSaledItemList {
+      type
+      productNo
+      displayName
+      detailUrl
+      name
+      categoryId
+      category1
+      category2
+      category3
+      category4
+      image
+      sellerTags
+      reviewCount
+      zzim
+      purchaseCnt
+      recentSaleCount
+      isFavorite
+      isDelete
+      weightPrice
+      titleArray {
+        word
+        brand
+        ban
+        kipris
+      }
+    }
+  }
+`
+
 export const GET_NAVER_JANPAN_FAVORITE_ITEM_LIST = gql`
   mutation GetNaverJanpanFavoriteItemList {
     GetNaverJanpanFavoriteItemList {

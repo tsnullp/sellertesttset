@@ -954,6 +954,7 @@ const schema = gql`
     isRegister: Boolean
     isFavorite: Boolean
     isDelete: Boolean
+    weightPrice: Int
   }
 
   type AddPriceType {
@@ -2241,6 +2242,7 @@ const schema = gql`
     ): NaverSourcingItemResponse
     SetNaverItemFavorite(productNo: String, isFavorite: Boolean): Boolean
     GetNaverFavoriteItemList: [NaverShoppingItemType]
+    GetSaledItemList: [NaverShoppingItemType]
     GetNaverJanpanFavoriteItemList: [NaverShoppingItemType]
     SetNaverFavoriteItemDelete: Boolean
     QualityCheck(

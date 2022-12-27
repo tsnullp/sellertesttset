@@ -9343,6 +9343,136 @@ const resolvers = {
         return []
       }
     },
+    GetSaledItemList: async (
+      parent,
+      {},
+      {
+        req,
+        model: { MarketOrder, DeliveryInfo, TaobaoOrder, NaverFavoriteItem, NaverSaveItemFavorite, CoupangWinner, Product, Brand },
+        logger,
+      }
+    ) => {
+      try {
+
+        const user =ObjectId(req.user.adminUser)
+
+        const allItems = await MarketOrder.aggregate([
+          {
+            $match: {
+              userID: user,
+              saleType: 1,
+            }
+          }
+        ])
+
+        let orderItems = []
+        allItems.forEach(item => {
+          for(const orderItem of item.orderItems){
+            orderItems.push(orderItem.title)
+          }
+        })
+
+        // console.log("orderItems", orderItems)
+        
+        let productItems = []
+
+        const promiseArr = orderItems.map(item => {
+          return new Promise(async (resolve, reject) => {
+            try {
+              let productName = ``
+              const nameArray = item
+                  .split(" ")
+                  .filter((item) => item.trim().length > 0)
+    
+              for (const item of nameArray) {
+                productName += ` "${item}"`
+              }
+              const product = await Product.findOne({
+                userID: ObjectId(user),
+                $text: {
+                  $search: productName.trim(),
+                },
+              }, 
+              {
+                _id: 1,
+                "product.korTitle" : 1,
+                "product.url" : 1,
+                "product.mainImages" : 1,
+                "product.options": 1,
+                "product.keyword": 1,
+                "product.weightPrice": 1,
+                "basic.content": 1,
+                "basic.url": 1,
+                "basic.good_id": 1,
+              })
+              if(product && (product.basic.url.includes("taobao.com") || product.basic.url.includes("tmail.com"))){
+                let image = null
+                if(product.product.mainImages && Array.isArray(product.product.mainImages) && product.product.mainImages.length > 0){
+                  image = product.product.mainImages[0]
+                }
+                if(!image) {
+                  if(product.product.options && Array.isArray(product.product.options) && product.product.options.length > 0) {
+                    image = product.product.options[0]
+                  }
+                }
+                if(!image) {
+                  if(product.basic.content && Array.isArray(product.basic.content) && product.basic.content.length > 0) {
+                    image = product.basic.content[0]
+                  }
+                }
+                productItems.push( {
+                  _id: product._id.toString(),
+                  detailUrl: product.basic.url,
+                  name: product.product.korTitle,
+                  image,
+                  productNo: product.basic.good_id,
+                  sellerTags: product.product.keyword,
+                  weightPrice: product.product.weightPrice
+
+                })
+              }
+              resolve()
+            } catch(e){
+              reject(e)
+            }
+          })
+
+        
+        })
+        await Promise.all(promiseArr)
+        console.log("productItems", productItems.length)
+        const rankingArr = ranking(productItems.map(item => item._id), 0)
+        // console.log("rankingArr", rankingArr)
+        const productList = []
+        for(const item of rankingArr){
+          const product = _.find(productItems, {_id: item.name})
+          if(product){
+            productList.push({
+              name: product.name,
+              detailUrl: product.detailUrl,
+              image: product.image,
+              productNo: product.productNo,
+              sellerTags: product.sellerTags,
+              purchaseCnt: item.count,
+              isRegister: true,
+              titleArray: [],
+              reviewCount: 0,
+              zzim: 0,
+              recentSaleCount: 0,
+              weightPrice: product.weightPrice
+            })
+          }
+          
+        }
+        
+        return productList
+
+        
+      } catch (e) {
+        logger.error(`GetNaverFavoriteItemList: ${e}`)
+        return []
+      }
+    },
     SetNaverFavoriteItemDelete: async (
       prent, 
       {},

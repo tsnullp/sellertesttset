@@ -95,14 +95,25 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
     showAlert() {
       setBefore("")
       setWord("")
-      return data.filter(
-        (item) =>
-          item.isChecked &&
-          item.detailUrl &&
-          item.detailUrl.length > 0 &&
-          item.title &&
-          item.title.length > 0
-      )
+      if(mode === "7") {
+        // 나의 팔린 아이템
+        return data.map(item => {
+          return {
+            ...item,
+            saled: true
+          }
+        })
+      } else {
+        return data.filter(
+          (item) =>
+            item.isChecked &&
+            item.detailUrl &&
+            item.detailUrl.length > 0 &&
+            item.title &&
+            item.title.length > 0
+        )
+      }
+      
     },
     scrollTop() {
       let list = document.getElementById("listcontainer")
@@ -336,7 +347,7 @@ const NaverStoreItem = forwardRef(({ loading, list, shippingPrice, mode }, ref) 
           title: item.name,
           detail: item && item.detailUrl ? item.detailUrl : "",
           detailUrl:
-            mode === "5"
+            mode === "5" || mode === "7"
               ? item && item.detailUrl
                 ? item.detailUrl
                 : ""
@@ -729,6 +740,7 @@ const SpinContainer = styled.div`
 `
 
 const ListContainer = styled.div`
+  margin-top: 10px;
   /* min-height: calc(100vh - 150px);
   ${ifProp(
     "newWindow",
@@ -753,6 +765,7 @@ const NaverItem = ({
   displayName = "",
   shippingWeight,
   shippingPrice,
+  weightPrice, // 등록된 상품 무게 가격
   productId,
   vendorName,
   isDelete,
@@ -930,6 +943,17 @@ const NaverItem = ({
     return str
   }
 
+  const getTotalPurchaseLable = (purchaseCnt) => {
+    return (
+      <PurchaseContainer>
+        <PurchaseItemColor>
+          <PurchaseCount>{`${purchaseCnt.toLocaleString("ko")}`}</PurchaseCount>
+          <PurchaseTitle>총 판매 건수</PurchaseTitle>
+        </PurchaseItemColor>
+      </PurchaseContainer>
+    )
+  }
+
   let typeStr = ""
   switch (type) {
     case "ranking":
@@ -984,6 +1008,9 @@ const NaverItem = ({
     if (image && image.includes("https://shopping-phinf.pstatic.net/")) {
       return image
     }
+    if (image && image.includes("img.alicdn.com")) {
+      return `${image}_200x200.jpg`
+    }
     return `${image}?type=f232_232`
   }
 
@@ -997,15 +1024,31 @@ const NaverItem = ({
   }
 
   const handleSimilarOk = (items) => {
+    const getShippingWeight = (price) => {
+      const temp = shippingPrice.filter((item) => item.price === price)
+      if (temp.length > 0) {
+        return temp[0].title
+      } else {
+        return shippingPrice[0].title
+      }
+    }
+
     setSImilarVaisble(false)
     const temp = items.map(item => {
+
+      let shippingWeightValue = null
+      if(mode === "7") {
+        shippingWeightValue = getShippingWeight(weightPrice)
+      } else {
+        shippingWeightValue = shippingWeight ? shippingWeight : shippingPrice[0].title
+      }
       return {
         ...item,
         productNo: AmazonAsin(item.link),
         isClothes: false,
         isShoes: false,
         keyword: keywordTag,
-        shippingWeight: shippingWeight ? shippingWeight : shippingPrice[0].title,
+        shippingWeight: shippingWeightValue,
       }
     })
     setSubItems(temp)
@@ -1122,396 +1165,564 @@ const NaverItem = ({
     setSubKeywordModalVisible(false)
   }
 
-  return (
-    <div>
-      <Divider orientation="left">
-        {mode === "5" || mode === "6" ? null : isRegister ? `${typeStr} - 등록됨` : typeStr}
-        {mode === "5" || mode === "6" ? null : ` - ${displayName}`}
-      </Divider>
-      <ContentContainer isRegister={isRegister}>
-        <div>
-          <Image
-            width={232}
-            height={232}
-            src={getImageUrl(image)}
-            preview={{
-              src: image,
-            }}
-          />
-          <DownloadContainer>
-            <CopyToClipboard text={image} onCopy={() => message.success("복사하였습니다.")}>
-              {/* <a href={image} download> */}
+  const getShippingDefaultValue = (price) => {
+    const temp = shippingPrice.filter((item) => item.price === price)
+    if (temp.length > 0) {
+      return `${temp[0].title}Kg (${temp[0].price.toLocaleString("ko")}원)`
+    } else {
+      return `${shippingPrice[0].title}Kg (${shippingPrice[0].price.toLocaleString("ko")}원)`
+    }
+  }
 
-              <Tooltip title="이미지주소를 클립보드에 저장">
-                <Button icon={<CopyOutlined />} block>
-                  복사
-                </Button>
-              </Tooltip>
-              {/* </a> */}
-            </CopyToClipboard>
-            <TaobaoImageSearchButton
-              image={`${image}?type=f200`}
-              title={title}
-              selectItem={selectItem}
-              searchClick={(list) => {
-               
-                setTaobaoList(list)
-                if (titleArrayRef) {
-                  titleArrayRef.current.getKiprisSearch()
-                }
-              }}
+
+  if(mode === "7"){
+    return (
+      <div>
+        <ContentContainer isRegister={isRegister}>
+          <div style={{width: "232px"}}>
+            <Image
+              width={232}
+              height={232}
+              src={getImageUrl(image)}
+             
             />
-          </DownloadContainer>
-          {isSimilarVisible && <SimilarProductModal 
-            isModalVisible={isSimilarVisible}
-            handleOk={handleSimilarOk}
-            handleCancel={handleSimilarCancel}
-            url={selectedUrl}
-            image={image}
-          />}
-          {selectedUrl && <Button type="primary" block danger style={{marginTop: "10px"}}
-            onClick={() => setSImilarVaisble(true)}
-          >유사상품 찾기</Button>}
-        </div>
-        <ItemContent>
-          <div>
+            {isSimilarVisible && <SimilarProductModal 
+              isModalVisible={isSimilarVisible}
+              handleOk={handleSimilarOk}
+              handleCancel={handleSimilarCancel}
+              url={selectedUrl}
+              image={image}
+            />}
+            {selectedUrl && (selectedUrl.includes("taobao") || selectedUrl.includes("tmaill")) && <Button blcok type="primary" block danger style={{marginTop: "10px"}}
+              onClick={() => setSImilarVaisble(true)}
+            >유사상품 찾기</Button>}
+          </div>
+          <ItemContent>
             <div>
-              <TitleArrayContainer>
-                <Button onClick={() => shell.openExternal(detail)}>상세</Button>
-                <TitleArrayComponent
-                  title={title}
-                  titleArray={titleArray}
-                  SetSelectKeyword={SetSelectKeyword}
-                  showModal={showModal}
-                  ref={titleArrayRef}
-                />
-
-                {(mode === "3" || mode === "4") && productNo && isDelete && (
-                  <DeleteFilled
-                    style={{
-                      fontSize: "36px",
-                      cursor: "pointer",
-                      color: "#FF3377",
-                      marginRight: "20px",
-                    }}
-                    onClick={() => handleExcept(false)}
-                  />
-                )}
-                {(mode === "3" || mode === "4") && !isDelete && productNo && (
-                  <DeleteOutlined
-                    style={{ fontSize: "36px", cursor: "pointer", marginRight: "20px" }}
-                    onClick={() => handleExcept(true)}
-                  />
-                )}
-              </TitleArrayContainer>
-            </div>
-
-            <TitleKeywordContainer>
+              <div style={{fontSize: "16px", marginBottom: "10px"}}>
+                {title}
+              </div>
               <Input
-                size="large"
-                addonBefore="제목"
-                placeholder="상품 제목을 선택해주세요."
-                allowClear
-                value={modifyTitle}
-                onChange={(e) => {
-                  setModifyTitle(e.target.value)
-                }}
-                onBlur={(e) => {
-                  setRootTitle(index, e.target.value)
-                }}
-                border={false}
-                style={{
-                  border: "3px solid #512da8",
-                }}
+                  size="large"
+                  addonBefore={<div 
+                    style={{cursor: "pointer"}}
+                    onClick={() => {
+                    if(selectedUrl && selectedUrl.includes("taobao") || selectedUrl.includes("tmaill")){
+                      shell.openExternal(selectedUrl)
+                    }
+                  }}>주소</div>}
+                  placeholder="등록할 상품의 상세주소를 입력해 주세요."
+                  allowClear
+                  value={selectedUrl}
+                  border={false}
+                  onChange={(e) => {
+                    SetSelectedUrl(e.target.value)
+                  }}
+                  disabled={isRegister}
+                  style={{ border: "3px solid #512da8", marginBottom: "10px" }}
+                />
+              <div style={{fontSize: "16px", marginBottom: "10px"}}
+              >{keywordTag}</div>
+              <div style={{ minWidth: "100px" }}>
+                {getTotalPurchaseLable(purchaseCnt)}
+              </div>
+            </div>
+            <div style={{fontSize: "18px", marginBottom: "10px", textAlign: "right"}}>
+              {getShippingDefaultValue(weightPrice)}
+            </div>
+          </ItemContent>
+
+        </ContentContainer>
+        {subItems.length > 0 && <div style={{marginTop: "25px"}}>
+          
+          <Collapse defaultActiveKey={productNo}>
+            <Panel header={`[유사 상품] ${modifyTitle} - (${subItems.filter(item => item.link).length}개)`} key={productNo}>
+  
+            <SubTitleCombainContainer>
+              <Input
+                style={{ marginLeft: "5px", width: "280px" }}
+                addonBefore={"접두어"}
+                value={before}
+                onChange={(e) => setBefore(e.target.value)}
               />
-              {isModalVisible && (
+              <Button
+                style={{ marginLeft: "5px" }}
+                onClick={() => {
+                  console.log("before", before)
+                  setBeforeTitle(before)
+                }}
+              >
+                추가
+              </Button>
+  
+              <Input
+                style={{ marginLeft: "5px" }}
+                addonBefore={"상품명 조합"}
+                placeholder={"컴마(,)로 구분"}
+                value={word}
+                onChange={(e) => setWord(e.target.value)}
+              />
+              <Button
+                style={{ marginLeft: "5px" }}
+                onClick={() => {
+                  const words = RandomWords(
+                    word
+                      .trim()
+                      .split(",")
+                      .map((item) => item.trim())
+                  )
+                  setRandomTitle(words)
+                }}
+              >
+                조합
+              </Button>
+  
+              {isSubKeywordModalVisible && (
                 <KeywordModal
-                  isModalVisible={isModalVisible}
-                  handleOk={handleOk}
-                  handleCancel={handleCancel}
+                  isModalVisible={isSubKeywordModalVisible}
+                  handleOk={handleSubOk}
+                  handleMainKeywrodOk={handleSubMainKeywordOk}
+                  handleCancel={handleSubCancel}
                   title={title}
-                  keyword={selectKeyword}
-                  mainImages={[image]}
-                  detailUrl={detail}
+                  // keyword={selectKeyword}
+                  // mainImages={[image]}
+                  // detailUrl={detail}
                 />
               )}
               <Button
                 border={false}
+                // size="small"
                 style={{
                   // border: "6px solid #512da8",
                   background: "#512da8",
                   color: "white",
-                  height: "46px",
+                  marginLeft: "5px"
                 }}
-                onClick={showModal}
+                onClick={showSubModal}
               >
                 키워드
               </Button>
-            </TitleKeywordContainer>
-
-            <Input
-              size="large"
-              addonBefore="주소"
-              placeholder="등록할 상품의 상세주소를 입력해 주세요."
-              allowClear
-              value={selectedUrl}
-              border={false}
-              onChange={(e) => {
-                SetSelectedUrl(e.target.value)
-              }}
-              onBlur={(e) => {
-                setRootDetailUrl(index, e.target.value)
-              }}
-              disabled={isRegister}
-              style={{ border: "3px solid #512da8" }}
-            />
-            <Input
-              style={{ marginTop: "5px" }}
-              addonBefore="태그"
-              placeholder="쿠팡 검색어. 미입력시 상품명으로 대체. 컴마로 구분"
-              allowClear
-              value={keywordTag}
-              onChange={(e) => {
-                // handleKeyword(e.target.value)
-                setKeywordTag(e.target.value)
-              }}
-              onBlur={(e) => {
-                setRootKeyword(index, e.target.value)
-              }}
-            />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop: "10px",
-                fontSize: "14px",
-              }}
-            >
-              <div style={{ minWidth: "100px" }}>
-                {mode !== "5"
-                  ? getPurchaseLable({ reviewCount, zzim, purchaseCnt, recentSaleCount })
-                  : null}
-              </div>
-              <div>
-                <div style={{display: "flex", justifyContent: "flex-end", marginBottom: "10px"}}>
-                  <Button onClick={() => setDetailModalVisible(true)}>상세페이지</Button>
-                    {isDetailModalVisible && <DetailFormModal
-                      isModalVisible={isDetailModalVisible}
-                      handleOk={handleOkDetail}
-                      handleCancel={handleCancelDetail}
-                      content={detailImages}
-                      html={html}
-                    />}
-                </div>
-              <div style={{ display: "flex" }}>
-                <div style={{ display: "flex", marginRight: "20px" }}>
-                  <div>
-                    <Checkbox
-                      style={{ padding: "15px", fontSize: "16px" }}
-                      checked={clothes}
-                      onChange={(e) => {
-                        setClothes(e.target.checked)
-                        setRootClothes(index, e.target.checked)
-                      }}
-                    >
-                      의류
-                    </Checkbox>
-                  </div>
-                  <div>
-                    <Checkbox
-                      style={{ padding: "15px", fontSize: "16px" }}
-                      checked={shoes}
-                      onChange={(e) => {
-                        setShose(e.target.checked)
-                        setRootShoes(index, e.target.checked)
-                      }}
-                    >
-                      신발
-                    </Checkbox>
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{ marginRight: "10px", fontSize: "16px" }}>무게 (배송비)</div>
-                  <ShippingForm
-                    shippingWeight={shippingWeight}
+              
+              </SubTitleCombainContainer>
+            {
+              subItems.map((item, i) => {
+                return (
+                  <NaverSubItem 
+                    {...item}
+                    key={i} 
+                    mode={mode}
+                    image={item.image}
+                    index={i}
+                    setRootTitle={setSubRootTitle}
+                    setRootDetailUrl={setSubRootDetailUrl}
+                    setRootKeyword={setSubRootKeyword}
+                    setRootClothes={setSubRootClothes}
+                    setRootShoes={setSubRootShoes}
+                    setRootShippingPrice={setSubRootShippingPrice}
+                    detailUrl={item.link}
+                    title={item.korTitle ? item.korTitle : item.title}
                     shippingPrice={shippingPrice}
-                    handleChange={handleChange}
+                    shippingWeight={item.shippingWeight}
                   />
+                )
+              })
+            }
+            </Panel>
+        </Collapse>
+        </div>}
+     
+      </div>
+    )
+  } else {
+    return (
+      <div>
+        
+        <ContentContainer isRegister={isRegister}>
+          <div>
+            <Image
+              width={232}
+              height={232}
+              src={getImageUrl(image)}
+              preview={{
+                src: image,
+              }}
+            />
+            <DownloadContainer>
+              <CopyToClipboard text={image} onCopy={() => message.success("복사하였습니다.")}>
+                {/* <a href={image} download> */}
+  
+                <Tooltip title="이미지주소를 클립보드에 저장">
+                  <Button icon={<CopyOutlined />} block>
+                    복사
+                  </Button>
+                </Tooltip>
+                {/* </a> */}
+              </CopyToClipboard>
+              <TaobaoImageSearchButton
+                image={`${image}?type=f200`}
+                title={title}
+                selectItem={selectItem}
+                searchClick={(list) => {
+                 
+                  setTaobaoList(list)
+                  if (titleArrayRef) {
+                    titleArrayRef.current.getKiprisSearch()
+                  }
+                }}
+              />
+            </DownloadContainer>
+            {isSimilarVisible && <SimilarProductModal 
+              isModalVisible={isSimilarVisible}
+              handleOk={handleSimilarOk}
+              handleCancel={handleSimilarCancel}
+              url={selectedUrl}
+              image={image}
+            />}
+            {selectedUrl && (selectedUrl.includes("taobao") || selectedUrl.includes("tmaill")) && <Button type="primary" block danger style={{marginTop: "10px"}}
+              onClick={() => setSImilarVaisble(true)}
+            >유사상품 찾기</Button>}
+          </div>
+          <ItemContent>
+            <div>
+              <div>
+                <TitleArrayContainer>
+                  <Button onClick={() => shell.openExternal(detail)}>상세</Button>
+                  <TitleArrayComponent
+                    title={title}
+                    titleArray={titleArray}
+                    SetSelectKeyword={SetSelectKeyword}
+                    showModal={showModal}
+                    ref={titleArrayRef}
+                  />
+  
+                  {(mode === "3" || mode === "4") && productNo && isDelete && (
+                    <DeleteFilled
+                      style={{
+                        fontSize: "36px",
+                        cursor: "pointer",
+                        color: "#FF3377",
+                        marginRight: "20px",
+                      }}
+                      onClick={() => handleExcept(false)}
+                    />
+                  )}
+                  {(mode === "3" || mode === "4") && !isDelete && productNo && (
+                    <DeleteOutlined
+                      style={{ fontSize: "36px", cursor: "pointer", marginRight: "20px" }}
+                      onClick={() => handleExcept(true)}
+                    />
+                  )}
+                </TitleArrayContainer>
+              </div>
+  
+              <TitleKeywordContainer>
+                <Input
+                  size="large"
+                  addonBefore="제목"
+                  placeholder="상품 제목을 선택해주세요."
+                  allowClear
+                  value={modifyTitle}
+                  onChange={(e) => {
+                    setModifyTitle(e.target.value)
+                  }}
+                  onBlur={(e) => {
+                    setRootTitle(index, e.target.value)
+                  }}
+                  border={false}
+                  style={{
+                    border: "3px solid #512da8",
+                  }}
+                />
+                {isModalVisible && (
+                  <KeywordModal
+                    isModalVisible={isModalVisible}
+                    handleOk={handleOk}
+                    handleCancel={handleCancel}
+                    title={title}
+                    keyword={selectKeyword}
+                    mainImages={[image]}
+                    detailUrl={detail}
+                  />
+                )}
+                <Button
+                  border={false}
+                  style={{
+                    // border: "6px solid #512da8",
+                    background: "#512da8",
+                    color: "white",
+                    height: "46px",
+                  }}
+                  onClick={showModal}
+                >
+                  키워드
+                </Button>
+              </TitleKeywordContainer>
+  
+              <Input
+                size="large"
+                addonBefore="주소"
+                placeholder="등록할 상품의 상세주소를 입력해 주세요."
+                allowClear
+                value={selectedUrl}
+                border={false}
+                onChange={(e) => {
+                  SetSelectedUrl(e.target.value)
+                }}
+                onBlur={(e) => {
+                  setRootDetailUrl(index, e.target.value)
+                }}
+                disabled={isRegister}
+                style={{ border: "3px solid #512da8" }}
+              />
+              <Input
+                style={{ marginTop: "5px" }}
+                addonBefore="태그"
+                placeholder="쿠팡 검색어. 미입력시 상품명으로 대체. 컴마로 구분"
+                allowClear
+                value={keywordTag}
+                onChange={(e) => {
+                  // handleKeyword(e.target.value)
+                  setKeywordTag(e.target.value)
+                }}
+                onBlur={(e) => {
+                  setRootKeyword(index, e.target.value)
+                }}
+              />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: "10px",
+                  fontSize: "14px",
+                }}
+              >
+                <div style={{ minWidth: "100px" }}>
+                  {mode !== "5"
+                    ? getPurchaseLable({ reviewCount, zzim, purchaseCnt, recentSaleCount })
+                    : null}
                 </div>
-              </div>
-              </div>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", fontSize: "13px", marginTop: "5px"  }}>
-            {sellerTags &&
-              Array.isArray(sellerTags) &&
-              sellerTags.map((item, index) => (
-                <div
-                  key={index}
-                  style={{ marginRight: "5px", color: "#c6a700" }}
-                >{`#${item} `}</div>
-              ))}
-          </div>
-        </ItemContent>
-      </ContentContainer>
-
-      {taobaoList && taobaoList.length > 0 && (
-        <Wrapper>
-          <CloseButtonContainer>
-            <Button shape="circle" icon={<CloseOutlined />} onClick={() => setTaobaoList([])} />
-          </CloseButtonContainer>
-          <TaobaoListWarpper>
-            <TaobaoImageContainer>
-              {taobaoList.map((item, index) => (
-                <ItemContainer key={item.num_iid}>
-                  <div>
-                    <Tooltip title="선택">
-                      <ItemImageContainer
-                        onClick={() => {
-                          selectItem({ url: item.auctionURL })
-                          setTaobaoList([])
+                <div>
+                  <div style={{display: "flex", justifyContent: "flex-end", marginBottom: "10px"}}>
+                    <Button onClick={() => setDetailModalVisible(true)}>상세페이지</Button>
+                      {isDetailModalVisible && <DetailFormModal
+                        isModalVisible={isDetailModalVisible}
+                        handleOk={handleOkDetail}
+                        handleCancel={handleCancelDetail}
+                        content={detailImages}
+                        html={html}
+                      />}
+                  </div>
+                <div style={{ display: "flex" }}>
+                  <div style={{ display: "flex", marginRight: "20px" }}>
+                    <div>
+                      <Checkbox
+                        style={{ padding: "15px", fontSize: "16px" }}
+                        checked={clothes}
+                        onChange={(e) => {
+                          setClothes(e.target.checked)
+                          setRootClothes(index, e.target.checked)
                         }}
                       >
-                        <ItemImage src={item.pic_path} alt={item.title} />
-                      </ItemImageContainer>
-                    </Tooltip>
-                    {index < 6 && <TitleComponent item={item} />}
-                    {index >= 6 && <TitleComponent item={item} />}
-                  </div>
-                  <PriceSalesContainer>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      {item.iconList === "tmall" && (
-                        <img
-                          src="https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png"
-                          style={{ marginRight: "5px", width: "16px", height: "16px" }}
-                        />
-                      )}
-                      <Tooltip title={`${Number(item.price * 175).toLocaleString("ko")}원`}>
-                        <PriceLabel>{`¥${item.price}`}</PriceLabel>
-                      </Tooltip>
+                        의류
+                      </Checkbox>
                     </div>
-                    <Tooltip
-                      title={
-                        <div>
-                          <div>{`최근 판매: ${Number(item.sold).toLocaleString("ko")}`}</div>
-                          <div>{` 총 판매: ${Number(item.totalSold).toLocaleString("ko")}`}</div>
-                          <div>{`리뷰: ${Number(item.commentCount).toLocaleString("ko")}`}</div>
-                        </div>
-                      }
-                    >
-                      <SalesLabel>{`${Number(item.sold).toLocaleString("ko")}/${Number(
-                        item.totalSold
-                      ).toLocaleString("ko")}(${Number(item.commentCount).toLocaleString(
-                        "ko"
-                      )})`}</SalesLabel>
-                    </Tooltip>
-                  </PriceSalesContainer>
-                </ItemContainer>
-              ))}
-            </TaobaoImageContainer>
-          </TaobaoListWarpper>
-        </Wrapper>
-      )}
-      {subItems.length > 0 && <div style={{marginTop: "25px"}}>
-        
-        <Collapse defaultActiveKey={productNo}>
-          <Panel header={`[유사 상품] ${modifyTitle} - (${subItems.filter(item => item.link).length}개)`} key={productNo}>
-
-          <SubTitleCombainContainer>
-            <Input
-              style={{ marginLeft: "5px", width: "280px" }}
-              addonBefore={"접두어"}
-              value={before}
-              onChange={(e) => setBefore(e.target.value)}
-            />
-            <Button
-              style={{ marginLeft: "5px" }}
-              onClick={() => {
-                console.log("before", before)
-                setBeforeTitle(before)
-              }}
-            >
-              추가
-            </Button>
-
-            <Input
-              style={{ marginLeft: "5px" }}
-              addonBefore={"상품명 조합"}
-              placeholder={"컴마(,)로 구분"}
-              value={word}
-              onChange={(e) => setWord(e.target.value)}
-            />
-            <Button
-              style={{ marginLeft: "5px" }}
-              onClick={() => {
-                const words = RandomWords(
-                  word
-                    .trim()
-                    .split(",")
-                    .map((item) => item.trim())
-                )
-                setRandomTitle(words)
-              }}
-            >
-              조합
-            </Button>
-
-            {isSubKeywordModalVisible && (
-              <KeywordModal
-                isModalVisible={isSubKeywordModalVisible}
-                handleOk={handleSubOk}
-                handleMainKeywrodOk={handleSubMainKeywordOk}
-                handleCancel={handleSubCancel}
-                title={title}
-                // keyword={selectKeyword}
-                // mainImages={[image]}
-                // detailUrl={detail}
+                    <div>
+                      <Checkbox
+                        style={{ padding: "15px", fontSize: "16px" }}
+                        checked={shoes}
+                        onChange={(e) => {
+                          setShose(e.target.checked)
+                          setRootShoes(index, e.target.checked)
+                        }}
+                      >
+                        신발
+                      </Checkbox>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ marginRight: "10px", fontSize: "16px" }}>무게 (배송비)</div>
+                    <ShippingForm
+                      shippingWeight={shippingWeight}
+                      shippingPrice={shippingPrice}
+                      handleChange={handleChange}
+                    />
+                  </div>
+                </div>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", fontSize: "13px", marginTop: "5px"  }}>
+              {sellerTags &&
+                Array.isArray(sellerTags) &&
+                sellerTags.map((item, index) => (
+                  <div
+                    key={index}
+                    style={{ marginRight: "5px", color: "#c6a700" }}
+                  >{`#${item} `}</div>
+                ))}
+            </div>
+          </ItemContent>
+        </ContentContainer>
+  
+        {taobaoList && taobaoList.length > 0 && (
+          <Wrapper>
+            <CloseButtonContainer>
+              <Button shape="circle" icon={<CloseOutlined />} onClick={() => setTaobaoList([])} />
+            </CloseButtonContainer>
+            <TaobaoListWarpper>
+              <TaobaoImageContainer>
+                {taobaoList.map((item, index) => (
+                  <ItemContainer key={item.num_iid}>
+                    <div>
+                      <Tooltip title="선택">
+                        <ItemImageContainer
+                          onClick={() => {
+                            selectItem({ url: item.auctionURL })
+                            setTaobaoList([])
+                          }}
+                        >
+                          <ItemImage src={item.pic_path} alt={item.title} />
+                        </ItemImageContainer>
+                      </Tooltip>
+                      {index < 6 && <TitleComponent item={item} />}
+                      {index >= 6 && <TitleComponent item={item} />}
+                    </div>
+                    <PriceSalesContainer>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        {item.iconList === "tmall" && (
+                          <img
+                            src="https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png"
+                            style={{ marginRight: "5px", width: "16px", height: "16px" }}
+                          />
+                        )}
+                        <Tooltip title={`${Number(item.price * 175).toLocaleString("ko")}원`}>
+                          <PriceLabel>{`¥${item.price}`}</PriceLabel>
+                        </Tooltip>
+                      </div>
+                      <Tooltip
+                        title={
+                          <div>
+                            <div>{`최근 판매: ${Number(item.sold).toLocaleString("ko")}`}</div>
+                            <div>{` 총 판매: ${Number(item.totalSold).toLocaleString("ko")}`}</div>
+                            <div>{`리뷰: ${Number(item.commentCount).toLocaleString("ko")}`}</div>
+                          </div>
+                        }
+                      >
+                        <SalesLabel>{`${Number(item.sold).toLocaleString("ko")}/${Number(
+                          item.totalSold
+                        ).toLocaleString("ko")}(${Number(item.commentCount).toLocaleString(
+                          "ko"
+                        )})`}</SalesLabel>
+                      </Tooltip>
+                    </PriceSalesContainer>
+                  </ItemContainer>
+                ))}
+              </TaobaoImageContainer>
+            </TaobaoListWarpper>
+          </Wrapper>
+        )}
+        {subItems.length > 0 && <div style={{marginTop: "25px"}}>
+          
+          <Collapse defaultActiveKey={productNo}>
+            <Panel header={`[유사 상품] ${modifyTitle} - (${subItems.filter(item => item.link).length}개)`} key={productNo}>
+  
+            <SubTitleCombainContainer>
+              <Input
+                style={{ marginLeft: "5px", width: "280px" }}
+                addonBefore={"접두어"}
+                value={before}
+                onChange={(e) => setBefore(e.target.value)}
               />
-            )}
-            <Button
-              border={false}
-              // size="small"
-              style={{
-                // border: "6px solid #512da8",
-                background: "#512da8",
-                color: "white",
-                marginLeft: "5px"
-              }}
-              onClick={showSubModal}
-            >
-              키워드
-            </Button>
-            
-            </SubTitleCombainContainer>
-          {
-            subItems.map((item, i) => {
-              return (
-                <NaverSubItem 
-                  {...item}
-                  key={i} 
-                  mode={mode}
-                  image={item.image}
-                  index={i}
-                  setRootTitle={setSubRootTitle}
-                  setRootDetailUrl={setSubRootDetailUrl}
-                  setRootKeyword={setSubRootKeyword}
-                  setRootClothes={setSubRootClothes}
-                  setRootShoes={setSubRootShoes}
-                  setRootShippingPrice={setSubRootShippingPrice}
-                  detailUrl={item.link}
-                  title={item.korTitle ? item.korTitle : item.title}
-                  shippingPrice={shippingPrice}
-                  shippingWeight={item.shippingWeight}
+              <Button
+                style={{ marginLeft: "5px" }}
+                onClick={() => {
+                  console.log("before", before)
+                  setBeforeTitle(before)
+                }}
+              >
+                추가
+              </Button>
+  
+              <Input
+                style={{ marginLeft: "5px" }}
+                addonBefore={"상품명 조합"}
+                placeholder={"컴마(,)로 구분"}
+                value={word}
+                onChange={(e) => setWord(e.target.value)}
+              />
+              <Button
+                style={{ marginLeft: "5px" }}
+                onClick={() => {
+                  const words = RandomWords(
+                    word
+                      .trim()
+                      .split(",")
+                      .map((item) => item.trim())
+                  )
+                  setRandomTitle(words)
+                }}
+              >
+                조합
+              </Button>
+  
+              {isSubKeywordModalVisible && (
+                <KeywordModal
+                  isModalVisible={isSubKeywordModalVisible}
+                  handleOk={handleSubOk}
+                  handleMainKeywrodOk={handleSubMainKeywordOk}
+                  handleCancel={handleSubCancel}
+                  title={title}
+                  // keyword={selectKeyword}
+                  // mainImages={[image]}
+                  // detailUrl={detail}
                 />
-              )
-            })
-          }
-          </Panel>
-      </Collapse>
-      </div>}
-    </div>
-  )
+              )}
+              <Button
+                border={false}
+                // size="small"
+                style={{
+                  // border: "6px solid #512da8",
+                  background: "#512da8",
+                  color: "white",
+                  marginLeft: "5px"
+                }}
+                onClick={showSubModal}
+              >
+                키워드
+              </Button>
+              
+              </SubTitleCombainContainer>
+            {
+              subItems.map((item, i) => {
+                return (
+                  <NaverSubItem 
+                    {...item}
+                    key={i} 
+                    mode={mode}
+                    image={item.image}
+                    index={i}
+                    setRootTitle={setSubRootTitle}
+                    setRootDetailUrl={setSubRootDetailUrl}
+                    setRootKeyword={setSubRootKeyword}
+                    setRootClothes={setSubRootClothes}
+                    setRootShoes={setSubRootShoes}
+                    setRootShippingPrice={setSubRootShippingPrice}
+                    detailUrl={item.link}
+                    title={item.korTitle ? item.korTitle : item.title}
+                    shippingPrice={shippingPrice}
+                    shippingWeight={item.shippingWeight}
+                  />
+                )
+              })
+            }
+            </Panel>
+        </Collapse>
+        </div>}
+      </div>
+    )
+  }
+  
 }
 
 const ShippingForm = ({ shippingWeight, shippingPrice, handleChange }) => {

@@ -15,6 +15,7 @@ import {
   GET_NAVER_KEYWORD_ITEM_LIST,
   GET_NAVER_RECOMMEND_ITEM_LIST,
   GET_NAVER_FAVORITE_ITEM_LIST,
+  GET_SALED_ITEM_LIST,
   GET_NAVER_FAVORITE_RECOMMEND_ITEM_LIST,
   GET_NAVER_MALL_LIST,
   SET_NAVER_FAVORITE,
@@ -53,6 +54,7 @@ const NaverShoppingPage = () => {
   const [getCoupangStore] = useMutation(GET_COUPANGE_STORE_ITEM_LIST)
   const [getNaverRecommend] = useMutation(GET_NAVER_RECOMMEND_ITEM_LIST)
   const [getNaverFavoriteList] = useMutation(GET_NAVER_FAVORITE_ITEM_LIST)
+  const [getSaledItemList] = useMutation(GET_SALED_ITEM_LIST)
   const [getNaverFavoriteRecommend] = useMutation(GET_NAVER_FAVORITE_RECOMMEND_ITEM_LIST)
   const [uploadNaverItem] = useMutation(UPLOAD_ITEM_NAVER_LIST)
   const [getShippingPrice] = useMutation(GET_SHIPPINGPRICE)
@@ -266,6 +268,27 @@ const NaverShoppingPage = () => {
     }, 500)
   }
 
+  const handleSaledList = async () => {
+    setMode("7")
+    setRecommend(true)
+    setList([])
+    setLoading(true)
+    setSearchUrl(null)
+
+    const response = await getSaledItemList()
+    console.log("response.data.GetSaledItemList", response.data.GetSaledItemList)
+    setList(response.data.GetSaledItemList || [])
+    
+    setLoading(false)
+    setTimeout(() => {
+      // window.scrollTo(0, 0)
+      if (childRef && childRef.current) {
+        childRef.current.scrollTop()
+      }
+    }, 500)
+  }
+
+
   const handleFavoriteRecommend = async () => {
     setRecommend(true)
     setList([])
@@ -292,28 +315,30 @@ const NaverShoppingPage = () => {
     setSearchUrl("")
     const input = []
     for(const item of val) {
-
-      input.push({
-        productNo: item.productNo.toString(),
-        title: item.title,
-        detail: item.detail,
-        detailUrl: item.detailUrl,
-        shippingWeight: item.shippingWeight,
-        isClothes: item.isClothes,
-        isShoes: item.isShoes,
-        sellerTags:
-          item.sellerTags && Array.isArray(item.sellerTags) && item.sellerTags.length > 0
-            ? item.sellerTags
-            : item.keyword
-            ? item.keyword
-                .split(",")
-                .filter((item) => item.trim().length > 0)
-                .map((item) => item.trim())
-            : [],
-        isNaver: val.type !== "coupang" ? true : false,
-        html: item.html && item.html.length > 0 ? item.html : null,
-        detailImages: item.detailImages ? item.detailImages : []
-      })
+      if(!item.saled) {
+        input.push({
+          productNo: item.productNo.toString(),
+          title: item.title,
+          detail: item.detail,
+          detailUrl: item.detailUrl,
+          shippingWeight: item.shippingWeight,
+          isClothes: item.isClothes,
+          isShoes: item.isShoes,
+          sellerTags:
+            item.sellerTags && Array.isArray(item.sellerTags) && item.sellerTags.length > 0
+              ? item.sellerTags
+              : item.keyword
+              ? item.keyword
+                  .split(",")
+                  .filter((item) => item.trim().length > 0)
+                  .map((item) => item.trim())
+              : [],
+          isNaver: val.type !== "coupang" ? true : false,
+          html: item.html && item.html.length > 0 ? item.html : null,
+          detailImages: item.detailImages ? item.detailImages : []
+        })
+      }
+    
      
       if(item.subItems && Array.isArray(item.subItems) && item.subItems.length > 0) {
     
@@ -345,7 +370,7 @@ const NaverShoppingPage = () => {
     }
 
     console.log("input -- ", input)
-
+    
     const response = await uploadNaverItem({
       variables: {
         input,
@@ -475,6 +500,7 @@ const NaverShoppingPage = () => {
               // icon={<RedoOutlined />}
               type="primary"
               style={{
+                fontWeight: "700",
                 // background: "#ffff6b",
                 borderBottomWidth: "3px",
                 // borderBottomColor: "#fdd835",
@@ -517,6 +543,7 @@ const NaverShoppingPage = () => {
                 // icon={<RedoOutlined />}
                 type="primary" danger
                 style={{
+                  fontWeight: "700",
                   // background: "#ffff6b",
                   borderBottomWidth: "3px",
                   // borderBottomColor: "#fdd835",
@@ -531,6 +558,27 @@ const NaverShoppingPage = () => {
                 올릴상품 삭제
               </Button>
             </Popconfirm>
+            <Button
+              block={true}
+              loading={loading}
+              // icon={<RedoOutlined />}
+              style={{
+                background: "#512da8",
+                color: "white",
+                fontWeight: "700",
+                // borderBottomWidth: "3px",
+                // // borderBottomColor: "#fdd835",
+                // borderBottomStyle: "solid",
+                // borderRightWidth: "3px",
+                // // borderRightColor: "#fdd835",
+                // borderRightStyle: "solid",
+                marginTop: "2px",
+                marginBottom: "2px"
+              }}
+              onClick={handleSaledList}
+            >
+              나의 팔린 상품
+            </Button>
             
           </div>
           <MallList marketClick={marketClick} handleFavoriteChange={handleFavoriteChange} />
