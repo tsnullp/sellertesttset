@@ -2,6 +2,7 @@ const startBrowser = require("./startBrowser")
 const DeliveryInfo = require("../models/DeliveryInfo")
 const DeliveryImage = require("../models/DeliveryImage")
 const MarketOrder = require("../models/MarketOrder")
+const User = require("../models/User")
 const Market = require("../models/Market")
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId
@@ -14,26 +15,12 @@ const { Cafe24ListOrders, Cafe24RegisterShipments, Cafe24UpdateShipments } = req
 const _ = require("lodash")
 
 let listDataArr = []
-let market = null
-let cafe24OrderResponse = null
+
 const start = async ({  userID, loginID, password }) => {
   const browser = await startBrowser()
   const page = await browser.newPage()
   await page.setJavaScriptEnabled(true)
   try {
-
-    market = await Market.findOne(
-      {
-        userID
-      }
-    )
-    const endDate = moment().format("YYYY-MM-DD")
-    
-    const startDate = moment().subtract(2, "month").format("YYYY-MM-DD")
-    cafe24OrderResponse = await Cafe24ListOrders({mallID : market.cafe24.mallID,
-      orderState: "상품준비",
-      startDate, endDate
-    })
 
   
     // console.log("response------------", response)
@@ -332,10 +319,7 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
       }
     } catch (e) {}
 
-    const temp = await DeliveryInfo.findOne({
-      userID: ObjectId(userID),
-      orderNo: 주문번호
-    })
+    
 
     await page.goto(
       `https://tabae.co.kr/Library/Html/DlvrShKr_S.asp?IVC_NO=${tableItem.shippingNumber}`,
@@ -517,196 +501,114 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
     //     }
     //   })
     // )
-    const deliveySave = await DeliveryInfo.findOneAndUpdate(
-      {
-        userID: ObjectId(userID),
-        orderNo: 주문번호
-      },
-      {
-        $set: {
-          userID: ObjectId(userID),
-          orderSeq: tableItem.id,
-          orderNo: 주문번호,
-          상태,
-          수취인주소: 수취인주소.addr,
-          수취인우편번호: 수취인주소.postNumber,
-          수취인이름: 수취인이름,
-          수취인연락처,
-          개인통관부호,
-          orderItems: orderItems.map((item, i) => {
-            return {
-              taobaoTrackingNo: item.trackingNo.replace("Tracking# 등록", ""),
-              taobaoOrderNo:
-                temp && temp.orderItems[i] && temp.orderItems[i].taobaoOrderNo.length > 0
-                  ? temp.orderItems[i].taobaoOrderNo
-                  : item.orderNo,
-              오픈마켓주문번호:
-                temp && temp.orderItems[i] && temp.orderItems[i].오픈마켓주문번호.length > 0
-                  ? temp.orderItems[i].오픈마켓주문번호
-                  : item.오픈마켓주문번호
-            }
-          }),
-          무게: Number(무게),
-          배송비용: Number(배송비용),
-          shippingNumber: tableItem.shippingNumber,
-          customs,
-          deliveryTracking,
-          isDelete: 상태 === "포장요청오류" ? true : false
-        }
-      },
-      { upsert: true, new:true }
-    )
-    
-    if(tableItem.shippingNumber.indexOf(9) === 0 && deliveySave.orderItems){
-      console.log("경동택배", 주문번호, tableItem.shippingNumber)
-      for(const item of deliveySave.orderItems){
-        console.log("item.오픈마켓주문번호", item.오픈마켓주문번호)
-        await MarketOrder.findOneAndUpdate(
-          {
-            userID: ObjectId(userID),
-            orderId: item.오픈마켓주문번호
-          },
-          {
-            $set: {
-              invoiceNumber: tableItem.shippingNumber,
-              deliveryCompanyName: "경동택배"
-            }
-          },
-          { upsert: true }
-        )
-      }
-      
-    }
 
-    // if (customs && Array.isArray(customs) && customs.length > 0) {
-    //   await DeliveryImage.findOneAndUpdate(
-    //     {
-    //       userID: ObjectId(userID),
-    //       shippingNumber: tableItem.shippingNumber
-    //     },
-    //     {
-    //       $set: {
-    //         shippingNumber: tableItem.shippingNumber,
-    //         customsImage: customsImageBase64
-    //       }
-    //     },
-    //     { upsert: true }
-    //   )
-    // }
-    // if (deliveryTracking && Array.isArray(deliveryTracking) && deliveryTracking.length > 0) {
-    //   await DeliveryImage.findOneAndUpdate(
-    //     {
-    //       userID: ObjectId(userID),
-    //       shippingNumber: tableItem.shippingNumber
-    //     },
-    //     {
-    //       $set: {
-    //         shippingNumber: tableItem.shippingNumber,
-    //         deliveryImage: deliveryImageBase64
-    //       }
-    //     },
-    //     { upsert: true }
-    //   )
-    // }
 
-    const deliveryTemp = await DeliveryInfo.findOne({
-      userID: ObjectId(userID),
-      orderNo: 주문번호
+    const userGroup = await User.findOne({
+      _id: ObjectId(userID)
     })
 
-    
-    if (deliveryTemp && deliveryTemp.orderItems) {
-      try {
+    if(userGroup && userGroup.group){
+      const userGroups = await User.find({
+        group: userGroup.group
+      })
 
-        const tempOrderItmes = _.uniqBy(
-          deliveryTemp.orderItems, "오픈마켓주문번호"
-        )
-        
-        
-        
+      const startDate = moment().subtract(2, "month").format("YYYY-MM-DD")
+      const endDate = moment().format("YYYY-MM-DD")
 
-        for (const orderItem of deliveryTemp.orderItems) {
-
-          
-
-          const marketOrder = await MarketOrder.findOne({
-            userID: ObjectId(userID),
-            orderId: orderItem.오픈마켓주문번호
-          })
-
-          if (marketOrder && marketOrder.deliveryCompanyName === "경동택배") {
-            await page.goto(
-              `https://kdexp.com/basicNewDelivery.kd?barcode=${marketOrder.invoiceNumber}`,
+      const promiseArr = userGroups.map(user => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const market = await Market.findOne(
               {
-                waituntil: "networkidle0"
+                userID: ObjectId(user._id)
               }
+            )             
+            const cafe24OrderResponse = await Cafe24ListOrders({mallID : market.cafe24.mallID,
+              orderState: "상품준비",
+              startDate, endDate
+            })
+            
+            const temp = await DeliveryInfo.findOne({
+              userID: ObjectId(user._id),
+              orderNo: 주문번호
+            })
+            const deliveySave = await DeliveryInfo.findOneAndUpdate(
+              {
+                userID: ObjectId(user._id),
+                orderNo: 주문번호
+              },
+              {
+                $set: {
+                  userID: ObjectId(user._id),
+                  orderSeq: tableItem.id,
+                  orderNo: 주문번호,
+                  상태,
+                  수취인주소: 수취인주소.addr,
+                  수취인우편번호: 수취인주소.postNumber,
+                  수취인이름: 수취인이름,
+                  수취인연락처,
+                  개인통관부호,
+                  orderItems: orderItems.map((item, i) => {
+                    return {
+                      taobaoTrackingNo: item.trackingNo.replace("Tracking# 등록", ""),
+                      taobaoOrderNo:
+                        temp && temp.orderItems[i] && temp.orderItems[i].taobaoOrderNo.length > 0
+                          ? temp.orderItems[i].taobaoOrderNo
+                          : item.orderNo,
+                      오픈마켓주문번호:
+                        temp && temp.orderItems[i] && temp.orderItems[i].오픈마켓주문번호.length > 0
+                          ? temp.orderItems[i].오픈마켓주문번호
+                          : item.오픈마켓주문번호
+                    }
+                  }),
+                  무게: Number(무게),
+                  배송비용: Number(배송비용),
+                  shippingNumber: tableItem.shippingNumber,
+                  customs,
+                  deliveryTracking,
+                  isDelete: 상태 === "포장요청오류" ? true : false
+                }
+              },
+              { upsert: true, new:true }
             )
-
-            const deliveryTrackingTemp = await page.$$eval("#result4 > tbody > tr", element => {
-              return element
-                .filter((item, i) => i > 0)
-                .map(ele => {
-                  return {
-                    stage: ele.querySelector("td:nth-child(4)").textContent.trim(),
-                    processing: ele
-                      .querySelector("td:nth-child(1)")
-                      .textContent.replace(":00.0", "")
-                      .trim(),
-                    status: ele.querySelector("td:nth-child(3)").textContent.trim(),
-                    store: ele.querySelector("td:nth-child(2)").textContent.trim()
-                  }
-                })
-            })
-
-            deliveryTracking = deliveryTrackingTemp.map(item => {
-              return {
-                stage: item.stage,
-                processingDate: moment(item.processing, "YYYY-MM-DD HH:mm")
-                  .format("YYYYMMDD HHmm")
-                  .split(" ")[0],
-                processingTime: moment(item.processing, "YYYY-MM-DD HH:mm")
-                  .format("YYYYMMDD HHmm")
-                  .split(" ")[1],
-                status: item.status,
-                store: item.store
+            
+            if(tableItem.shippingNumber.indexOf(9) === 0 && deliveySave.orderItems){
+              console.log("경동택배", 주문번호, tableItem.shippingNumber)
+              for(const item of deliveySave.orderItems){
+                console.log("item.오픈마켓주문번호", item.오픈마켓주문번호)
+                await MarketOrder.findOneAndUpdate(
+                  {
+                    userID: ObjectId(user._id),
+                    orderId: item.오픈마켓주문번호
+                  },
+                  {
+                    $set: {
+                      invoiceNumber: tableItem.shippingNumber,
+                      deliveryCompanyName: "경동택배"
+                    }
+                  },
+                  { upsert: true }
+                )
               }
-            })
-
-            // if (
-            //   deliveryTracking &&
-            //   Array.isArray(deliveryTracking) &&
-            //   deliveryTracking.length > 0
-            // ) {
-            //   try {
-                
-
-            //     const appDataDirPath = getAppDataPath()
-            //     if (!fs.existsSync(appDataDirPath)) {
-            //       fs.mkdirSync(appDataDirPath)
-            //     }
-
-            //     if (!fs.existsSync(path.join(appDataDirPath, "tempDelivery"))) {
-            //       fs.mkdirSync(path.join(appDataDirPath, "tempDelivery"))
-            //     }
-
-            //     await page.screenshot({
-            //       fullPage: true,
-            //       path: `${path.join(appDataDirPath, "tempDelivery")}/${
-            //         tableItem.shippingNumber
-            //       }.jpeg`
-            //     })
-
-            //     deliveryImageBase64 = await imageEncodeToBase64(
-            //       `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
-            //     )
-
-            //     fs.unlinkSync(
-            //       `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
-            //     )
-            //   } catch (e) {
-            //     console.log("저장, ", e)
-            //   }
-
+              
+            }
+        
+            // if (customs && Array.isArray(customs) && customs.length > 0) {
+            //   await DeliveryImage.findOneAndUpdate(
+            //     {
+            //       userID: ObjectId(userID),
+            //       shippingNumber: tableItem.shippingNumber
+            //     },
+            //     {
+            //       $set: {
+            //         shippingNumber: tableItem.shippingNumber,
+            //         customsImage: customsImageBase64
+            //       }
+            //     },
+            //     { upsert: true }
+            //   )
+            // }
+            // if (deliveryTracking && Array.isArray(deliveryTracking) && deliveryTracking.length > 0) {
             //   await DeliveryImage.findOneAndUpdate(
             //     {
             //       userID: ObjectId(userID),
@@ -721,59 +623,186 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
             //     { upsert: true }
             //   )
             // }
-          }
-        }
-
-        for (const orderItem of tempOrderItmes) {
-
-          if(orderItem.오픈마켓명 && orderItem.오픈마켓명 === "wemake"){
-            continue
-          }
-          // console.log("cafe24OrderResponse", cafe24OrderResponse)
-          const tempCafe24Order = cafe24OrderResponse.filter(fItem => fItem.market_order_info === orderItem.오픈마켓주문번호)
-          
-          if(tempCafe24Order.length > 0){
-            const marketOrder = await MarketOrder.findOne({
-              userID: ObjectId(userID),
-              orderId: orderItem.오픈마켓주문번호,
+        
+            const deliveryTemp = await DeliveryInfo.findOne({
+              userID: ObjectId(user._id),
+              orderNo: 주문번호
             })
+        
             
-            if(!deliveryTemp.isDelete){
-              for(const item of tempCafe24Order){
-                try {
-                  const response = await Cafe24RegisterShipments({
-                    mallID: market.cafe24.mallID,
-                    order_id: item.order_id,
-                    tracking_no: tableItem.shippingNumber,
-                    shipping_company_code: marketOrder && marketOrder.deliveryCompanyName === "경동택배" ? "0039" : "0006",
-                    order_item_code: item.items.map(item => item.order_item_code),
-                    shipping_code: item.receivers[0].shipping_code
-                  })
-                  console.log("resonse-->", response)
-                  
-                  await sleep(500)
-                  const response1 = await Cafe24UpdateShipments({
-                    mallID: market.cafe24.mallID,
-                    input: [{
-                      shipping_code: item.receivers[0].shipping_code,
-                      order_id: item.order_id
-                    }]
-                  })
-                  console.log("resonse1-->", response1)
-                  await sleep(500)
-                } catch (e) {
-                  console.log("에러", e)
-                }
+            if (deliveryTemp && deliveryTemp.orderItems) {
+              try {
+        
+                const tempOrderItmes = _.uniqBy(
+                  deliveryTemp.orderItems, "오픈마켓주문번호"
+                )
                 
-              }
+                
+                
+        
+                for (const orderItem of deliveryTemp.orderItems) {
+        
+                  
+        
+                  const marketOrder = await MarketOrder.findOne({
+                    userID: ObjectId(user._id),
+                    orderId: orderItem.오픈마켓주문번호
+                  })
+        
+                  if (marketOrder && marketOrder.deliveryCompanyName === "경동택배") {
+                    await page.goto(
+                      `https://kdexp.com/basicNewDelivery.kd?barcode=${marketOrder.invoiceNumber}`,
+                      {
+                        waituntil: "networkidle0"
+                      }
+                    )
+        
+                    const deliveryTrackingTemp = await page.$$eval("#result4 > tbody > tr", element => {
+                      return element
+                        .filter((item, i) => i > 0)
+                        .map(ele => {
+                          return {
+                            stage: ele.querySelector("td:nth-child(4)").textContent.trim(),
+                            processing: ele
+                              .querySelector("td:nth-child(1)")
+                              .textContent.replace(":00.0", "")
+                              .trim(),
+                            status: ele.querySelector("td:nth-child(3)").textContent.trim(),
+                            store: ele.querySelector("td:nth-child(2)").textContent.trim()
+                          }
+                        })
+                    })
+        
+                    deliveryTracking = deliveryTrackingTemp.map(item => {
+                      return {
+                        stage: item.stage,
+                        processingDate: moment(item.processing, "YYYY-MM-DD HH:mm")
+                          .format("YYYYMMDD HHmm")
+                          .split(" ")[0],
+                        processingTime: moment(item.processing, "YYYY-MM-DD HH:mm")
+                          .format("YYYYMMDD HHmm")
+                          .split(" ")[1],
+                        status: item.status,
+                        store: item.store
+                      }
+                    })
+        
+                    // if (
+                    //   deliveryTracking &&
+                    //   Array.isArray(deliveryTracking) &&
+                    //   deliveryTracking.length > 0
+                    // ) {
+                    //   try {
+                        
+        
+                    //     const appDataDirPath = getAppDataPath()
+                    //     if (!fs.existsSync(appDataDirPath)) {
+                    //       fs.mkdirSync(appDataDirPath)
+                    //     }
+        
+                    //     if (!fs.existsSync(path.join(appDataDirPath, "tempDelivery"))) {
+                    //       fs.mkdirSync(path.join(appDataDirPath, "tempDelivery"))
+                    //     }
+        
+                    //     await page.screenshot({
+                    //       fullPage: true,
+                    //       path: `${path.join(appDataDirPath, "tempDelivery")}/${
+                    //         tableItem.shippingNumber
+                    //       }.jpeg`
+                    //     })
+        
+                    //     deliveryImageBase64 = await imageEncodeToBase64(
+                    //       `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
+                    //     )
+        
+                    //     fs.unlinkSync(
+                    //       `${path.join(appDataDirPath, "tempDelivery")}/${tableItem.shippingNumber}.jpeg`
+                    //     )
+                    //   } catch (e) {
+                    //     console.log("저장, ", e)
+                    //   }
+        
+                    //   await DeliveryImage.findOneAndUpdate(
+                    //     {
+                    //       userID: ObjectId(userID),
+                    //       shippingNumber: tableItem.shippingNumber
+                    //     },
+                    //     {
+                    //       $set: {
+                    //         shippingNumber: tableItem.shippingNumber,
+                    //         deliveryImage: deliveryImageBase64
+                    //       }
+                    //     },
+                    //     { upsert: true }
+                    //   )
+                    // }
+                  }
+                }
+        
+                for (const orderItem of tempOrderItmes) {
+        
+                  if(orderItem.오픈마켓명 && orderItem.오픈마켓명 === "wemake"){
+                    continue
+                  }
+                  // console.log("cafe24OrderResponse", cafe24OrderResponse)
+                  const tempCafe24Order = cafe24OrderResponse.filter(fItem => fItem.market_order_info === orderItem.오픈마켓주문번호)
+                  
+                  if(tempCafe24Order.length > 0){
+                    const marketOrder = await MarketOrder.findOne({
+                      userID: ObjectId(user._id),
+                      orderId: orderItem.오픈마켓주문번호,
+                    })
+                    
+                    if(!deliveryTemp.isDelete){
+                      for(const item of tempCafe24Order){
+                        try {
+                          const response = await Cafe24RegisterShipments({
+                            mallID: market.cafe24.mallID,
+                            order_id: item.order_id,
+                            tracking_no: tableItem.shippingNumber,
+                            shipping_company_code: marketOrder && marketOrder.deliveryCompanyName === "경동택배" ? "0039" : "0006",
+                            order_item_code: item.items.map(item => item.order_item_code),
+                            shipping_code: item.receivers[0].shipping_code
+                          })
+                          console.log("resonse-->", response)
+                          
+                          await sleep(500)
+                          const response1 = await Cafe24UpdateShipments({
+                            mallID: market.cafe24.mallID,
+                            input: [{
+                              shipping_code: item.receivers[0].shipping_code,
+                              order_id: item.order_id
+                            }]
+                          })
+                          console.log("resonse1-->", response1)
+                          await sleep(500)
+                        } catch (e) {
+                          console.log("에러", e)
+                        }
+                        
+                      }
+                    }
+                    
+                  }
+                  
+                }
+        
+              } catch (e) {}
             }
-            
-          }
-          
-        }
 
-      } catch (e) {}
+            resolve()
+          } catch(e){
+            reject(e)
+          }
+        })
+      })
+
+      await Promise.all(promiseArr)
     }
+
+
+    
+
   } catch (e) {
     console.log("searchDetailPage", e)
   } finally {

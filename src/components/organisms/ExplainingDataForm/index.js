@@ -4,7 +4,7 @@ import { ifProp } from "styled-tools"
 import moment from "moment"
 import { VATLIST, GET_DELIVERY_IMAGE, VAT_SEARCH, TAOBAO_ORDER_BATCH, SYNC_DELIVERY_ORDER } from "../../../gql"
 import { useMutation } from "@apollo/client"
-import { Table, Popover, Radio, Button, Input, DatePicker, message } from "antd"
+import { Table, Popover, Radio, Button, Input, DatePicker, message, Tooltip } from "antd"
 import { FileImageOutlined, ClockCircleOutlined } from "@ant-design/icons"
 import { UserContext } from "context/UserContext"
 import {UserSelect, VatDataModal} from "components"
@@ -1877,22 +1877,25 @@ const ExplainingDataForm = () => {
           
         {<UserSelect handleSelectChange={handleSelectChange} userID={user.id} />}
 
-          <Button type="primary"
-            style={{
-              marginRight: "5px"
-            }}
-            icon={<ClockCircleOutlined />}
-            onClick={async () => {
-              const response = await vatSearch({
-                variables: {
-                  userID: selectUser
-                }
-              })
-              console.log("response", response)
-              message.success("데이터 수집을 시작합니다.")
-            }}
-          >카페24 데이터 수집</Button>
-
+          <Tooltip
+            title="사업자당 조회할 필요 없음. 한번 조회하면 사업자 다 조회함"
+          >
+            <Button type="primary"
+              style={{
+                marginRight: "5px"
+              }}
+              icon={<ClockCircleOutlined />}
+              onClick={async () => {
+                const response = await vatSearch({
+                  variables: {
+                    userID: selectUser
+                  }
+                })
+                console.log("response", response)
+                message.success("데이터 수집을 시작합니다.")
+              }}
+            >카페24 주문 수집(1년)</Button>
+          </Tooltip>
           {/* <Button type="primary"
           loading={syncLoading}
             style={{
@@ -1921,6 +1924,7 @@ const ExplainingDataForm = () => {
 
           
           <Button type="primary"
+            disabled
             style={{
               marginRight: "5px"
             }}

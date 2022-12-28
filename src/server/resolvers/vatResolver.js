@@ -1281,7 +1281,7 @@ const resolvers = {
       }
     },
     VatSearch: async (
-      parent, {userID}, {req, model:{Market},  logger} 
+      parent, {userID}, {req, model:{User, Market},  logger} 
     ) => {
       try {
         const user = userID ? userID : req.user.adminUser
@@ -1294,285 +1294,276 @@ const resolvers = {
           } finally {
             console.log("환율 조회 끝")
           }
-  
-          const market = await Market.aggregate([
-            {
-              $match: {
-                userID: ObjectId(user)
-              }
-            }
-          ])
+          const userGroup = await User.findOne({
+            _id: ObjectId(user)
+          })
         
-          for (const item of market) {
-            try {
-              console.log("카페24 주문정보 수집 시작")
-              if (item && item.cafe24 && item.cafe24.mallID && item.cafe24.mallID.length > 0 && item.cafe24.password && item.cafe24.password.length > 0) {
-                // await searchCafe24OrderList({
-                //   userID: item.userID,
-                //   mallID: item.cafe24.mallID,
-                //   password: item.cafe24.password
-                // })
-                await searchCafe24({
-                  userID: item.userID,
-                  mallID: item.cafe24.mallID,
-                })
-              }
-            } catch (e) {
-              console.log("searchcafe24OrderList", e)
-            } finally {
-              console.log("카페24 주문정보 수집 끝")
-            }
-        
-            try {
-              console.log("쿠팡 주문수집 주문아이디로")
-              const temp = await MarketOrder.find(
-                {
-                  userID: item.userID,
-                  market: "쿠팡"
-                  // orderItems: { $size: 0}
-                }
-              ).sort({
-                _id: -1
-              })
-              
-              for(const marketItem of temp){
-                
-                const response = await GetOrderID({userID: item.userID, vendorId: item.coupang.vendorId, orderId: marketItem.orderId})
-                
-                if(response && response.code === 200){
+          if(userGroup && userGroup.group){
+            const userGroups = await User.find({
+              group: userGroup.group
+            })
 
-                  let orderItemsArr = []
-                  for(const responseItem of response.data){
-                    
-                   
-                    for(const orderItem of responseItem.orderItems){
-                      console.log("orderItem", orderItem)
-                      orderItemsArr.push({
-                        title: orderItem.vendorItemPackageName,
-                        option: orderItem.sellerProductItemName,
-                        quantity: orderItem.shippingCount,
-                        salesPrice: orderItem.salesPrice,
-                        orderPrice: orderItem.orderPrice,
-                        discountPrice: orderItem.discountPrice,
-                        sellerProductName: orderItem.sellerProductName,
-                        vendorItemId: orderItem.vendorItemId,
-                      })
-                    }
-                    
-                  }
-
-                  if(orderItemsArr.length > 0){
-                      
-                    await MarketOrder.findOneAndUpdate(
-                      {
-                        userID: item.userID,
-                        orderId: marketItem.orderId
-                      },
-                      {
-                        $set: {
-                          orderItems: orderItemsArr
-                        }
-                      },
-                      
-                    )
-                  }
-                }
-              }
-            } catch (e) {
-              console.log("GetOrderID",e)
-            }
-
-            try {
-              console.log("쿠팡 주문수집 시작")
-              const userID = item.userID
-        
-              for (const statusItem of [
-                "ACCEPT",
-                "INSTRUCT",
-                "DEPARTURE",
-                "DELIVERING",
-                "FINAL_DELIVERY"
-              ]) {
-                // eslint-disable-next-line no-loop-func
-                ;(async () => {
-                  console.log(`${statusItem} 시작`)
-                  let prevToken = "prev"
-                  let nextToken = "next"
-        
-                  while (nextToken) {
-                    try {
-                     
-                      const response = await GetOrderSheet({
-                        userID,
-                        vendorId: item.coupang.vendorId,
-                        status: statusItem
-                      })
-                      
-                      nextToken =
-                        response.nextToken && response.nextToken.length > 0 ? response.nextToken : null
-                      if (prevToken === nextToken) {
-                        nextToken = null
-                      } else {
-                        prevToken = nextToken
+            const promiseArr = userGroups.map(user => {
+              return new Promise(async (resolve, reject) => {
+                try {
+                  console.log("user->", user.email)
+                  const market = await Market.aggregate([
+                    {
+                      $match: {
+                        userID: ObjectId(user._id)
                       }
+                    }
+                  ])
+                
+                  for (const item of market) {
+                    try {
+                      console.log("카페24 주문정보 수집 시작")
+                      if (item && item.cafe24 && item.cafe24.mallID && item.cafe24.mallID.length > 0 && item.cafe24.password && item.cafe24.password.length > 0) {
+                        // await searchCafe24OrderList({
+                        //   userID: item.userID,
+                        //   mallID: item.cafe24.mallID,
+                        //   password: item.cafe24.password
+                        // })
+                        await searchCafe24({
+                          userID: item.userID,
+                          mallID: item.cafe24.mallID,
+                        })
+                      }
+                    } catch (e) {
+                      console.log("searchcafe24OrderList", e)
+                    } finally {
+                      console.log("카페24 주문정보 수집 끝")
+                    }
+                
+                    try {
+                      console.log("쿠팡 주문수집 주문아이디로")
+                      const temp = await MarketOrder.find(
+                        {
+                          userID: item.userID,
+                          market: "쿠팡"
+                          // orderItems: { $size: 0}
+                        }
+                      ).sort({
+                        _id: -1
+                      })
                       
-                      if(response.data){
-                        for (const item of response.data) {
-                          const temp = await MarketOrder.findOne({
-                            userID: ObjectId(userID),
-                            market: "쿠팡",
-                            orderId: item.orderId
-                          })
-                          
-                          console.log("item->", item.orderId)
-             
-                          if (!temp || temp.orderItems.length === 0) {
+                      for(const marketItem of temp){
+                        
+                        const response = await GetOrderID({userID: item.userID, vendorId: item.coupang.vendorId, orderId: marketItem.orderId})
+                        
+                        if(response && response.code === 200){
+        
+                          let orderItemsArr = []
+                          for(const responseItem of response.data){
                             
+                           
+                            for(const orderItem of responseItem.orderItems){
+                              console.log("orderItem", orderItem)
+                              orderItemsArr.push({
+                                title: orderItem.vendorItemPackageName,
+                                option: orderItem.sellerProductItemName,
+                                quantity: orderItem.shippingCount,
+                                salesPrice: orderItem.salesPrice,
+                                orderPrice: orderItem.orderPrice,
+                                discountPrice: orderItem.discountPrice,
+                                sellerProductName: orderItem.sellerProductName,
+                                vendorItemId: orderItem.vendorItemId,
+                              })
+                            }
+                            
+                          }
+        
+                          if(orderItemsArr.length > 0){
+                              
                             await MarketOrder.findOneAndUpdate(
                               {
-                                userID: ObjectId(userID),
-                                market: "쿠팡",
-                                orderId: item.orderId
+                                userID: item.userID,
+                                orderId: marketItem.orderId
                               },
                               {
                                 $set: {
-                                  userID: ObjectId(userID),
-                                  market: "쿠팡",
-                                  shipmentBoxId: item.shipmentBoxId,
-                                  orderId: item.orderId,
-                                  orderer: {
-                                    name: item.orderer.name,
-                                    email: item.orderer.email,
-                                    hpNumber:
-                                      temp && temp.orderer && temp.orderer.hpNumber
-                                        ? temp.orderer.hpNumber
-                                        : item.orderer.safeNumber,
-                                    orderDate: item.orderedAt.split("T")[0].replace(/-/gi, ""),
-                                    orderTime: item.orderedAt.split("T")[1].replace(/:/gi, "")
-                                  },
-                                  paidAtDate: item.paidAt.split("T")[0].replace(/-/gi, ""),
-                                  paidAtTime: item.paidAt.split("T")[1].replace(/:/gi, ""),
-          
-                                  shippingPrice: item.shippingPrice + item.remotePrice,
-          
-                                  receiver: {
-                                    name: item.receiver.name,
-                                    hpNumber:
-                                      temp && temp.receiver && temp.receiver.hpNumber
-                                        ? temp.receiver.hpNumber
-                                        : item.receiver.safeNumber,
-                                    addr: `${item.receiver.addr1} ${item.receiver.addr2}`,
-                                    postCode: item.receiver.postCode,
-                                    parcelPrintMessage: item.parcelPrintMessage
-                                  },
-          
-                                  orderItems: item.orderItems.map((item, i) => {
-                                    return {
-                                      image: "https://img.echosting.cafe24.com/thumb/44x44.gif",
-                                      title: item.vendorItemPackageName,
-                                      option: item.sellerProductItemName,
-                                      quantity: item.shippingCount,
-                                      salesPrice: item.salesPrice,
-                                      orderPrice: item.orderPrice,
-                                      discountPrice: item.discountPrice,
-                                      sellerProductName: item.sellerProductName,
-                                      productId: item.productId,
-                                      vendorItemId: item.vendorItemId,
-                                      orderType:
-                                        temp && temp.orderItems[i] && temp.orderItems[i].orderType
-                                          ? temp.orderItems[i].orderType
-                                          : 1
-                                    }
-                                  }),
-          
-                                  overseaShippingInfoDto: {
-                                    personalCustomsClearanceCode:
-                                      temp &&
-                                      temp.overseaShippingInfoDto.overseaShippingInfoDto &&
-                                      temp.overseaShippingInfoDto.overseaShippingInfoDto
-                                        .personalCustomsClearanceCode
-                                        ? temp.overseaShippingInfoDto.overseaShippingInfoDto
-                                            .personalCustomsClearanceCode
-                                        : item.overseaShippingInfoDto.personalCustomsClearanceCode,
-                                    ordererPhoneNumber:
-                                      temp &&
-                                      temp.overseaShippingInfoDto.overseaShippingInfoDto &&
-                                      temp.overseaShippingInfoDto.overseaShippingInfoDto.ordererPhoneNumber
-                                        ? temp.overseaShippingInfoDto.overseaShippingInfoDto
-                                            .ordererPhoneNumber
-                                        : item.overseaShippingInfoDto.ordererPhoneNumber
-                                  },
-          
-                                  saleType:
-                                    temp && temp.saleType
-                                      ? temp.saleType
-                                      : item.orderItems[0].canceled
-                                      ? 2
-                                      : 1,
-          
-                                  deliveryCompanyName:
-                                  temp && temp.deliveryCompanyName === "경동택배"
-                                      ? temp.deliveryCompanyName
-                                      : item.deliveryCompanyName,
-                                  invoiceNumber:
-                                    temp && temp.deliveryCompanyName === "경동택배"
-                                      ? temp.invoiceNumber
-                                      : item.invoiceNumber
+                                  orderItems: orderItemsArr
                                 }
                               },
-                              { upsert: true, new: true }
+                              
                             )
                           }
                         }
                       }
-                      
                     } catch (e) {
-                      console.log("while", e)
-                      nextToken = null
+                      console.log("GetOrderID",e)
                     }
-                  }
-                })()
-                console.log(`${statusItem} 끝`)
-              }
-            } catch (e) {
-              console.log("GetOrderSheet", e)
-            } finally {
-              console.log("쿠팡 주문수집 끝")
-            }
-
-            
-        /*  // 이거는 타지 말자
-            try {
-              console.log("배대지 주문서 수집 시작", item)
-              if (item && item.deliverySite && item.deliverySite.loginID && item.deliverySite.password) {
-                await deliveryDestination({
-                  userID: item.userID,
-                  loginID: item.deliverySite.loginID,
-                  password: item.deliverySite.password
-                })
-              }
-            } catch (e) {
-              console.log("deliveryDestination", e)
-            } finally {
-              console.log("배대지 주문서 수집 끝")
-            }
         
-            try {
-              console.log("타오바오 주문서 수집 시작")
-              if (item && item.taobao && item.taobao.loginID && item.taobao.password) {
-                await searchTaobaoOrderList({
-                  userID: item.userID,
-                  loginID: item.taobao.loginID,
-                  password: item.taobao.password
-                })
-              }
-            } catch (e) {
-              console.log("searchTaobaoOrderList", e)
-            } finally {
-              console.log("타오바오 주문서 수집 끝")
-            }
-            */
+                    try {
+                      console.log("쿠팡 주문수집 시작")
+                      const userID = item.userID
+                
+                      for (const statusItem of [
+                        "ACCEPT",
+                        "INSTRUCT",
+                        "DEPARTURE",
+                        "DELIVERING",
+                        "FINAL_DELIVERY"
+                      ]) {
+                        // eslint-disable-next-line no-loop-func
+                        ;(async () => {
+                          console.log(`${statusItem} 시작`)
+                          let prevToken = "prev"
+                          let nextToken = "next"
+                
+                          while (nextToken) {
+                            try {
+                             
+                              const response = await GetOrderSheet({
+                                userID,
+                                vendorId: item.coupang.vendorId,
+                                status: statusItem
+                              })
+                              
+                              nextToken =
+                                response.nextToken && response.nextToken.length > 0 ? response.nextToken : null
+                              if (prevToken === nextToken) {
+                                nextToken = null
+                              } else {
+                                prevToken = nextToken
+                              }
+                              
+                              if(response.data){
+                                for (const item of response.data) {
+                                  const temp = await MarketOrder.findOne({
+                                    userID: ObjectId(userID),
+                                    market: "쿠팡",
+                                    orderId: item.orderId
+                                  })
+                                  
+                                  console.log("item->", item.orderId)
+                     
+                                  if (!temp || temp.orderItems.length === 0) {
+                                    
+                                    await MarketOrder.findOneAndUpdate(
+                                      {
+                                        userID: ObjectId(userID),
+                                        market: "쿠팡",
+                                        orderId: item.orderId
+                                      },
+                                      {
+                                        $set: {
+                                          userID: ObjectId(userID),
+                                          market: "쿠팡",
+                                          shipmentBoxId: item.shipmentBoxId,
+                                          orderId: item.orderId,
+                                          orderer: {
+                                            name: item.orderer.name,
+                                            email: item.orderer.email,
+                                            hpNumber:
+                                              temp && temp.orderer && temp.orderer.hpNumber
+                                                ? temp.orderer.hpNumber
+                                                : item.orderer.safeNumber,
+                                            orderDate: item.orderedAt.split("T")[0].replace(/-/gi, ""),
+                                            orderTime: item.orderedAt.split("T")[1].replace(/:/gi, "")
+                                          },
+                                          paidAtDate: item.paidAt.split("T")[0].replace(/-/gi, ""),
+                                          paidAtTime: item.paidAt.split("T")[1].replace(/:/gi, ""),
+                  
+                                          shippingPrice: item.shippingPrice + item.remotePrice,
+                  
+                                          receiver: {
+                                            name: item.receiver.name,
+                                            hpNumber:
+                                              temp && temp.receiver && temp.receiver.hpNumber
+                                                ? temp.receiver.hpNumber
+                                                : item.receiver.safeNumber,
+                                            addr: `${item.receiver.addr1} ${item.receiver.addr2}`,
+                                            postCode: item.receiver.postCode,
+                                            parcelPrintMessage: item.parcelPrintMessage
+                                          },
+                  
+                                          orderItems: item.orderItems.map((item, i) => {
+                                            return {
+                                              image: "https://img.echosting.cafe24.com/thumb/44x44.gif",
+                                              title: item.vendorItemPackageName,
+                                              option: item.sellerProductItemName,
+                                              quantity: item.shippingCount,
+                                              salesPrice: item.salesPrice,
+                                              orderPrice: item.orderPrice,
+                                              discountPrice: item.discountPrice,
+                                              sellerProductName: item.sellerProductName,
+                                              productId: item.productId,
+                                              vendorItemId: item.vendorItemId,
+                                              orderType:
+                                                temp && temp.orderItems[i] && temp.orderItems[i].orderType
+                                                  ? temp.orderItems[i].orderType
+                                                  : 1
+                                            }
+                                          }),
+                  
+                                          overseaShippingInfoDto: {
+                                            personalCustomsClearanceCode:
+                                              temp &&
+                                              temp.overseaShippingInfoDto.overseaShippingInfoDto &&
+                                              temp.overseaShippingInfoDto.overseaShippingInfoDto
+                                                .personalCustomsClearanceCode
+                                                ? temp.overseaShippingInfoDto.overseaShippingInfoDto
+                                                    .personalCustomsClearanceCode
+                                                : item.overseaShippingInfoDto.personalCustomsClearanceCode,
+                                            ordererPhoneNumber:
+                                              temp &&
+                                              temp.overseaShippingInfoDto.overseaShippingInfoDto &&
+                                              temp.overseaShippingInfoDto.overseaShippingInfoDto.ordererPhoneNumber
+                                                ? temp.overseaShippingInfoDto.overseaShippingInfoDto
+                                                    .ordererPhoneNumber
+                                                : item.overseaShippingInfoDto.ordererPhoneNumber
+                                          },
+                  
+                                          saleType:
+                                            temp && temp.saleType
+                                              ? temp.saleType
+                                              : item.orderItems[0].canceled
+                                              ? 2
+                                              : 1,
+                  
+                                          deliveryCompanyName:
+                                          temp && temp.deliveryCompanyName === "경동택배"
+                                              ? temp.deliveryCompanyName
+                                              : item.deliveryCompanyName,
+                                          invoiceNumber:
+                                            temp && temp.deliveryCompanyName === "경동택배"
+                                              ? temp.invoiceNumber
+                                              : item.invoiceNumber
+                                        }
+                                      },
+                                      { upsert: true, new: true }
+                                    )
+                                  }
+                                }
+                              }
+                              
+                            } catch (e) {
+                              console.log("while", e)
+                              nextToken = null
+                            }
+                          }
+                        })()
+                        console.log(`${statusItem} 끝`)
+                      }
+                    } catch (e) {
+                      console.log("GetOrderSheet", e)
+                    } finally {
+                      console.log("쿠팡 주문수집 끝")
+                    }
+
+                  }
+                  resolve()
+                } catch(e) {
+                  reject(e)
+                }
+              })
+            })
+           
+            await Promise.all(promiseArr)
+            console.log("카페24 주문수집 끝~~~")
           }
+          
         }, 1000)
         
         
@@ -1727,33 +1718,46 @@ const resolvers = {
       }
     },
     TaobaoOrderManual: async (
-      parent, {input, userID}, {req, model: {TaobaoOrder}, logger}
+      parent, {input, userID}, {req, model: {User, TaobaoOrder}, logger}
     ) => {
       try {
         const user = userID ? userID : req.user.adminUser
-        for (const item of input){
-          await TaobaoOrder.findOneAndUpdate(
-            {
-              orderNumber: item.orderNumber,
-              userID: ObjectId(user)
-            },
-            {
-              $set: {
-                orderNumber: item.orderNumber,
-                userID: ObjectId(user),
-                orderDate: item.orderDate,
-                orderTime: item.orderTime,
-                orders: item.orders,
-                purchaseAmount: item.purchaseAmount,
-                shippingFee: item.shippingFee,
-                quantity: item.quantity,
-                shippingStatus: item.shippingStatus,
-              }
-            },
-            { upsert: true }
-          )
-          
+
+        const userGroup = await User.findOne({
+          userID: ObjectId(user)
+        })
+
+        if(userGroup && userGroup.group){
+          const userGroups = await User.find({
+            group: userGroup.group
+          })
+          for(const user of userGroups){
+            for (const item of input){
+              await TaobaoOrder.findOneAndUpdate(
+                {
+                  orderNumber: item.orderNumber,
+                  userID: ObjectId(user._id)
+                },
+                {
+                  $set: {
+                    orderNumber: item.orderNumber,
+                    userID: ObjectId(user._id),
+                    orderDate: item.orderDate,
+                    orderTime: item.orderTime,
+                    orders: item.orders,
+                    purchaseAmount: item.purchaseAmount,
+                    shippingFee: item.shippingFee,
+                    quantity: item.quantity,
+                    shippingStatus: item.shippingStatus,
+                  }
+                },
+                { upsert: true }
+              )
+              
+            }
+          }
         }
+        
 
         return true
       } catch (e) {
@@ -1918,7 +1922,6 @@ const resolvers = {
 
         if(userGroup && userGroup.group){
           const userGroups = await User.find({
-            userID: req.user.adminUser,
             group: userGroup.group
           })
 

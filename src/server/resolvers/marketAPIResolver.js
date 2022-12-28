@@ -1032,12 +1032,12 @@ const marketAPIResolver = {
 
         let returnValue = []
         for (const item of response) {
-        
+          
           returnValue.push({
             market_id: item.market_id,
             market_order_info: item.market_order_info,
             payment_amount:
-              (Number(item.payment_amount) || 0) + (Number(item.final_shipping_fee) || 0),
+            (Number(item.actual_order_amount.order_price_amount) || 0) + (Number(item.final_shipping_fee) || 0),
             items: item.items.map((item) => {
               return {
                 product_name: item.product_name,
