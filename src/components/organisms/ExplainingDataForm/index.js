@@ -1884,7 +1884,9 @@ const ExplainingDataForm = () => {
             icon={<ClockCircleOutlined />}
             onClick={async () => {
               const response = await vatSearch({
-                variables: selectUser
+                variables: {
+                  userID: selectUser
+                }
               })
               console.log("response", response)
               message.success("데이터 수집을 시작합니다.")
@@ -1924,7 +1926,11 @@ const ExplainingDataForm = () => {
             }}
             icon={<ClockCircleOutlined />}
             onClick={async () => {
-              const response = await taobaoOrder()
+              const response = await taobaoOrder({
+                variables: {
+                  userID: selectUser
+                }
+              })
               console.log("response", response)
               message.success("데이터 수집을 시작합니다.")
             }}
