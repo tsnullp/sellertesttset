@@ -2752,14 +2752,14 @@ const updateCafe24 = async ({
         delete cafe24Product.request.options
       }
 
-      console.log("cafe24Product---", cafe24Product.request)
+      // console.log("cafe24Product---", cafe24Product.request)
 
       cafe24response = await Cafe24UpdateProduct({
         mallID: cafe24.mallID,
         payload: cafe24Product,
         product_no: product.cafe24_product_no,
       })
-      console.log("cafe24response", cafe24response)
+      // console.log("cafe24response", cafe24response)
       // console.log("**** 제품업데이트 ****")
       // const productTemp = await Product.findOne({
       //   userID,

@@ -7634,26 +7634,37 @@ const resolvers = {
         })
 
         for (const item of product.options) {
-          const filterArr = productResponse.data.items.filter(
-            (fItem) => fItem.itemName === item.korValue || fItem.itemName === item.korKey
-          )
-
-          if (filterArr.length > 0) {
-            const tempWeightPrice = item.weightPrice
-
-            const response = await CoupnagUPDATE_PRODUCT_PRICE_BY_ITEM({
-              userID: user,
-              vendorItemId: filterArr[0].vendorItemId,
-              price: item.salePrice + (shippingPrice.price - tempWeightPrice),
-            })
-
-            // if (response && response.code === "SUCCESS") {
-              product.product.weightPrice = shippingPrice.price
-              item.weightPrice = shippingPrice.price
-              item.salePrice = item.salePrice + (shippingPrice.price - tempWeightPrice)
-              item.productPrice = item.productPrice + (shippingPrice.price - tempWeightPrice)
-            // }
+          if(productResponse && productResponse.data && productResponse.data.items){
+            const filterArr = productResponse.data.items.filter(
+              (fItem) => fItem.itemName === item.korValue || fItem.itemName === item.korKey
+            )
+  
+            if (filterArr.length > 0) {
+              const tempWeightPrice = item.weightPrice
+  
+              const response = await CoupnagUPDATE_PRODUCT_PRICE_BY_ITEM({
+                userID: user,
+                vendorItemId: filterArr[0].vendorItemId,
+                price: item.salePrice + (shippingPrice.price - tempWeightPrice),
+              })
+  
+               if (response && response.code === "SUCCESS") {
+                product.product.weightPrice = shippingPrice.price
+                item.weightPrice = shippingPrice.price
+                item.salePrice = item.salePrice + (shippingPrice.price - tempWeightPrice)
+                item.productPrice = item.productPrice + (shippingPrice.price - tempWeightPrice)
+               }
+            }
           }
+          
+          if( user.toString() === "5f1947bd682563be2d22f008" || user.toString() === "5f601bdf18d42d13d0d616d0"){
+            product.product.weightPrice = shippingPrice.price
+            item.salePrice = item.salePrice + (shippingPrice.price - item.weightPrice)
+            item.productPrice = item.productPrice + (shippingPrice.price - item.weightPrice)
+            item.weightPrice = shippingPrice.price
+          }
+          
+
         }
 
         await Product.findOneAndUpdate(
