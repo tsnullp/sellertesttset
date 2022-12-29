@@ -9369,6 +9369,11 @@ const resolvers = {
 
         const allItems = await MarketOrder.aggregate([
           {
+            $addFields: {
+              "orderItems.paidAtDate" : "$paidAtDate"
+            }
+          },
+          {
             $match: {
               userID: user,
               saleType: 1,
@@ -9379,7 +9384,26 @@ const resolvers = {
         let orderItems = []
         allItems.forEach(item => {
           for(const orderItem of item.orderItems){
-            orderItems.push(orderItem.title)
+            const temp = _.find(orderItems, {title: orderItem.title})
+            if(temp){
+              if(temp.paidAtDate < orderItem.paidAtDate){
+                orderItems.push({
+                  title: orderItem.title,
+                  paidAtDate: orderItem.paidAtDate
+                })  
+              } else {
+                orderItems.push({
+                  title: orderItem.title,
+                  paidAtDate: temp.paidAtDate
+                })
+              }
+            } else {
+              orderItems.push({
+                title: orderItem.title,
+                paidAtDate: orderItem.paidAtDate
+              })
+            }
+            
           }
         })
 
@@ -9391,7 +9415,7 @@ const resolvers = {
           return new Promise(async (resolve, reject) => {
             try {
               let productName = ``
-              const nameArray = item
+              const nameArray = item.title
                   .split(" ")
                   .filter((item) => item.trim().length > 0)
     
@@ -9438,8 +9462,8 @@ const resolvers = {
                   image,
                   productNo: product.basic.good_id,
                   sellerTags: product.product.keyword,
-                  weightPrice: product.product.weightPrice
-
+                  weightPrice: product.product.weightPrice,
+                  paidAtDate: item.paidAtDate
                 })
               }
               resolve()
@@ -9470,13 +9494,14 @@ const resolvers = {
               reviewCount: 0,
               zzim: 0,
               recentSaleCount: 0,
-              weightPrice: product.weightPrice
+              weightPrice: product.weightPrice,
+              paidAtDate: product.paidAtDate
             })
           }
           
         }
         
-        return productList
+        return productList.sort((a, b) => b.paidAtDate - a.paidAtDate)
 
         
       } catch (e) {
