@@ -1295,6 +1295,7 @@ const schema = gql`
     marginInfo: [MaginInfoType]
     shippingWeightInfo: [MaginInfoType]
     keyword: [String]
+    videoUrl: String
   }
 
   input InputAttributes1 {
@@ -1339,6 +1340,7 @@ const schema = gql`
     content: [String]
     detail: String
     detailUrl: String
+    videoUrl: String
     html: String
     isClothes: Boolean
     isShoes: Boolean
@@ -1845,6 +1847,8 @@ const schema = gql`
   type CombineTitleType {
     keyword: String
     count: Int
+    isMain: Boolean
+    rank: Int
   }
   type Query {
     "A simple type for getting started!"
@@ -2330,7 +2334,7 @@ const schema = gql`
     GetSimilarProducts(urlString: String): [SimilarProductsType]
     GetSimilarProductKorTitle(input: [SimilarProductInputType]): [SimilarProductsKorType]
 
-    GetCombineTitleKeyword(title: String): [CombineTitleType]
+    GetCombineTitleKeyword(title: String, displayName: String): [CombineTitleType]
   }
 `
 

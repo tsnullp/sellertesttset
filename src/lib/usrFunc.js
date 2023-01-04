@@ -306,7 +306,7 @@ const AmazonAsin = (addr) => {
       const q1 = url.parse(addr, true)
       return q1.query.id
     } else if (addr.includes("tmall.com")) {
-      const q1 = url.parse(addr, true)
+      const q1 = url.parse(addr, true) 
       return q1.query.id
     } else if (addr.includes("vvic.com")) {
       const tmepUrl = addr.split("?")[0]
@@ -441,7 +441,7 @@ const getCombineTileKeyword = (keyword, arr) => {
   let array = []
   for (const item of arr) {
     if(keyword === item){
-      array.push(keyword)
+      //array.push(keyword)
     } else {
       array.push(`${keyword} ${item}`)
       array.push(`${item} ${keyword}`)

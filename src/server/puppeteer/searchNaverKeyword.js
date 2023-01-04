@@ -117,6 +117,8 @@ const searchNaver = async ({ keyword, mall }) => {
   }
 }
 
+
+
 module.exports = start
 
 const searchGmarketDetail = async ({ url }) => {

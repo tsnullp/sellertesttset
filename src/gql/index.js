@@ -2816,6 +2816,7 @@ export const GET_TAOBAO_DETAIL_QUERY_API = gql`
         price
       }
       keyword
+      videoUrl
     }
   }
 `
@@ -4050,10 +4051,12 @@ export const CAFE24_BOARDS = gql`
 `
 
 export const GET_COMBINE_TITLE = gql`
-  mutation GetCombineTitleKeyword($title: String) {
-    GetCombineTitleKeyword(title: $title) {
+  mutation GetCombineTitleKeyword($title: String, $displayName: String) {
+    GetCombineTitleKeyword(title: $title, displayName: $displayName) {
       keyword
       count
+      isMain
+      rank
     }
   }
 `

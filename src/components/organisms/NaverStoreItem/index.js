@@ -1442,6 +1442,7 @@ const NaverItem = ({
                     keyword={selectKeyword}
                     mainImages={[image]}
                     detailUrl={detail}
+                    displayName={displayName}
                   />
                 )}
                 <Button

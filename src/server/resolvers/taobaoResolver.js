@@ -250,7 +250,7 @@ const resolvers = {
                 : ""
             }${
               product.product.isShoes && product.product.shoesHtml ? product.product.shoesHtml : ""
-            }${product.product.optionHtml}${html}${product.product.bottomHtml}`
+            }${product.product.videoHtml ? product.product.videoHtml : ""}${product.product.optionHtml}${html}${product.product.bottomHtml}`
   
             const response = await CoupnagGET_PRODUCT_BY_PRODUCT_ID({
               userID: product.userID,
@@ -523,7 +523,7 @@ const resolvers = {
           })
         }
 
-        // console.log("detailItem", detailItem)
+        console.log("detailItem", detailItem)
         
         // let titleArray = []
         // const keywordResponse = await searchKeywordCategory({ keyword: detailItem.korTitle })

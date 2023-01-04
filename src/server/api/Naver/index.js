@@ -278,7 +278,7 @@ exports.NaverKeywordRel = async ({ keyword }) => {
 
     return response.data
   } catch (e) {
-    console.log("NaverKeywordRel", e)
+    // console.log("NaverKeywordRel", e)
     return null
   }
 }

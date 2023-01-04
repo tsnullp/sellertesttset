@@ -4,7 +4,7 @@ const { papagoTranslate } = require("./translate")
 const ExchangeRate = require("../models/ExchangeRate")
 const ShippingPrice = require("../models/ShippingPrice")
 const Brand = require("../models/Brand")
-const {Cafe24UploadLocalImages} = require("../api/Market/index")
+const {Cafe24UploadLocalImages, Cafe24UploadLocalImage} = require("../api/Market/index")
 const _ = require("lodash")
 
 const start = async ({url, title, userID}) => {
@@ -47,7 +47,7 @@ const start = async ({url, title, userID}) => {
             } else {
               ObjItem.korTitle = title
             }
-            
+            ObjItem.korTitle = ObjItem.korTitle.replace("실사 #", "")
 
             let brandList = await Brand.find(
               {
@@ -121,7 +121,9 @@ const start = async ({url, title, userID}) => {
               const imageRespone = await axios({
                 method: "GET",
                 url: image,
-                responseType: "arraybuffer"
+                responseType: "arraybuffer",
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity
               })
               const buffer = Buffer.from(imageRespone.data)
               const base64 = new Buffer(buffer).toString("base64")
@@ -160,6 +162,10 @@ const start = async ({url, title, userID}) => {
             
             ObjItem.good_id = itemVidTemp2
         
+            const videoTemp1 = content.split("var _ITEMVIDEO = '")[1]
+            const videoTemp2 = videoTemp1.split("';")[0]
+            ObjItem.videoUrl = videoTemp2
+
             const discountPriceTemp1 = content.split("var _DISCOUNTPRICE = '")[1]
             const discountPriceTemp2 = discountPriceTemp1.split("';")[0]
             ObjItem.price = Number(discountPriceTemp2) ? Number(discountPriceTemp2) : 0
@@ -182,7 +188,9 @@ const start = async ({url, title, userID}) => {
               const imageRespone = await axios({
                 method: "GET",
                 url: image,
-                responseType: "arraybuffer"
+                responseType: "arraybuffer",
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity
               })
               const buffer = Buffer.from(imageRespone.data)
               const base64 = new Buffer(buffer).toString("base64")
@@ -193,6 +201,26 @@ const start = async ({url, title, userID}) => {
               console.log("contentUrlResponse", contentUrlResponse)
               if(contentUrlResponse && Array.isArray(contentUrlResponse)){
                 ObjItem.content = contentUrlResponse
+              } else {
+                let tempContent = []
+                for(let image of ObjItem.content){
+                  const imageRespone = await axios({
+                    method: "GET",
+                    url: image,
+                    responseType: "arraybuffer",
+                  })
+                  const buffer = Buffer.from(imageRespone.data)
+                  const base64 = new Buffer(buffer).toString("base64")
+
+                  const contentUrlResponse = await Cafe24UploadLocalImage({base64Image: `base64,${base64}`})
+                  console.log("===", contentUrlResponse)
+                  if(contentUrlResponse) {
+                    tempContent.push(contentUrlResponse)
+                  }
+                }
+
+                ObjItem.content = tempContent
+
               }
             }
             

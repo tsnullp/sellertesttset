@@ -143,6 +143,7 @@ const TaobaoUploadItem = forwardRef(({ asin, url, productName, onDelete, onCompl
           content: item.content,
           detailUrl: item.detailUrl ? item.detailUrl : url,
           html: item.html,
+          videoUrl: item.videoUrl ? item.videoUrl : null,
           clothes: item.clothes,
           shoes: item.shoes,
           mainImages: item.mainImages,

@@ -1693,6 +1693,7 @@ const updateCoupang = async ({
       _id: ObjectId(id),
       isDelete: false,
     })
+   
 
     if (tempProduct) {
       if (
@@ -1757,9 +1758,6 @@ const updateCoupang = async ({
       .filter((item) => item.active && !item.disabled)
       .filter((i, index) => index < 100)[0].salePrice
 
-    console.log("salePrice", salePrice)
-
-    console.log("searchTags", searchTags)
 
     let minSalePrice = salePrice
     options
@@ -1770,9 +1768,9 @@ const updateCoupang = async ({
           minSalePrice = item.salePrice
         }
       })
-    const htmlContent = `${product.gifHtml ? producth.gifHtml: ""}${product.topHtml}${
+    const htmlContent = `${product.gifHtml ? product.gifHtml: ""}${product.topHtml}${
       product.isClothes && product.clothesHtml ? product.clothesHtml : ""
-    }${product.isShoes && product.shoesHtml ? product.shoesHtml : ""}${product.optionHtml}${
+    }${product.isShoes && product.shoesHtml ? product.shoesHtml : ""}${product.videoHtml ? product.videoHtml: ""}${product.optionHtml}${
       product.html
     }${product.bottomHtml}`
 
@@ -2495,7 +2493,7 @@ const updateCafe24 = async ({
 
     const htmlContent = `${product.gifHtml ? product.gifHtml : ""}${product.topHtml}${
       product.isClothes && product.clothesHtml ? product.clothesHtml : ""
-    }${product.isShoes && product.shoesHtml ? product.shoesHtml : ""}${product.optionHtml}${
+    }${product.isShoes && product.shoesHtml ? product.shoesHtml : ""}${product.videoHtml ? product.videoHtml : ""}${product.optionHtml}${
       product.html
     }${product.bottomHtml}`
 
@@ -3252,6 +3250,7 @@ const updateCafe24 = async ({
         },
       },
       {
+        new: true,
         upsert: true,
       }
     )

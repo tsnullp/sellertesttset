@@ -5,6 +5,8 @@ const {
   searchSomeTrend,
   searchSomeTrendOnly,
   searchCategoryKeyword,
+  searchNaverRanking,
+  searchNaverTerms
 } = require("../puppeteer/keyword")
 const { sleep, isNumber,  getCombineTileKeyword, DimensionArray} = require("../../lib/usrFunc")
 const startBrowser = require("../puppeteer/startBrowser")
@@ -309,14 +311,18 @@ const resolvers = {
         return false
       }
     },
-    GetCombineTitleKeyword: async(parent, {title}, {logger}) => {
+    GetCombineTitleKeyword: async(parent, {title, displayName}, {logger}) => {
+      let terms = await searchNaverTerms({keyword: title})
+
+
       let combineArr = []
       let mainKeywordArray = []
       const korean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/
       const exceptWord = ["당일방송", "정품", "국내AS", "가", "그", "있는"]
       try {
         for(const item of title.split(" ")) {
-          const productNameArr = title.split(" ")
+          // const productNameArr = title.split(" ")
+          const productNameArr = terms ? terms.map(mItem => mItem.keyword) : title.split(" ")
           .filter(
             (fItem) =>
               fItem.length > 0 &&
@@ -351,16 +357,27 @@ const resolvers = {
         }
         mainKeywordArray = mainKeywordArray.sort((a, b) =>  (b.monthlyPcQcCnt + b.monthlyMobileQcCnt) - (a.monthlyPcQcCnt + a.monthlyMobileQcCnt))
         mainKeywordArray = _.unionBy(mainKeywordArray, "relKeyword")
-        .filter(item => item.monthlyPcQcCnt + item.monthlyPcQcCnt > 100)
+        .filter(item => item.monthlyPcQcCnt + item.monthlyPcQcCnt > 20)
         .map(item => {
           return {
             keyword: item.relKeyword,
-            count: item.monthlyPcQcCnt + item.monthlyMobileQcCnt
+            count: item.monthlyPcQcCnt + item.monthlyMobileQcCnt,
+            isMain: false,
+            rank: 10000000,
           }
         })
-        console.log("mainKeywordArray", mainKeywordArray)
-        console.log("mainKeywordArray", mainKeywordArray.length)
-        return mainKeywordArray
+        // console.log("mainKeywordArray", mainKeywordArray)
+        // console.log("mainKeywordArray", mainKeywordArray.length)
+        for(const keyword of mainKeywordArray){
+          // console.log("keyword", keyword, displayName)
+          await sleep(200)
+          const findObj = await searchNaverRanking({keyword: keyword.keyword, productTitle: title, mallName: displayName})
+          if(findObj){
+            keyword.isMain = true
+            keyword.rank = findObj.rank
+          }
+        }
+        return mainKeywordArray.sort((a, b) => a.rank - b.rank)
       } catch(e) {
         logger.error(`SetFavoriteKeyword: ${e}`)
         return mainKeywordArray

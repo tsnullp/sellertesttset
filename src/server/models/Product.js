@@ -186,6 +186,7 @@ const ProductSchema = mongoose.Schema({
     price: String,
     salePrice: String,
     gifHtml: String,
+    videoHtml: String,
     topHtml: String,
     clothesHtml: String,
     isClothes: Boolean,

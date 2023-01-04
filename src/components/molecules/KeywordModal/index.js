@@ -32,9 +32,10 @@ const KeywordModal = ({
   spec = [],
   detailUrl,
   keywordTag = false,
+  displayName = null
 }) => {
   const [search, setSearch] = useState(keyword)
-
+  
   const [naverProductLoading, setNaverProductLoading] = useState(false)
   const [naverTagLoading, setNaverTagLoading] = useState(false)
   const [couapngRelatedLoading, setCouapngRelatedLoading] = useState(false)
@@ -226,7 +227,8 @@ const KeywordModal = ({
       setCombineLoading(true)
       const response = await getCombineTitle({
         variables: {
-          title: selectedKeywords
+          title: selectedKeywords,
+          displayName
         }
       })
       if (response.data.GetCombineTitleKeyword) {
@@ -342,10 +344,20 @@ const KeywordModal = ({
                         .filter((item) => item.keyword.trim().length > 0)
                         .map((item, i) => {
                           return (
-                            <Tooltip  key={i}  title={`${item.count.toLocaleString("ko")}`}>
+                            <Tooltip  key={i}  title={`${item.count.toLocaleString("ko")}(${item.rank < 10000000 ? `${item.rank.toLocaleString("ko")}위` : "-"})`}>
+
+                              {item.isMain ? 
+                              <KeywordMainLabel onClick={() => handleMainKeyword(item.keyword)}>
+
+                              {item.keyword.trim()}
+                            </KeywordMainLabel>
+                              : 
                               <KeywordLabel onClick={() => handleMainKeyword(item.keyword)}>
+
                                 {item.keyword.trim()}
                               </KeywordLabel>
+                              }
+                              
                             </Tooltip>
                           )
                         })}
@@ -525,6 +537,20 @@ const KeywordLabel = styled.div`
   &:hover {
     font-weight: 700;
     /* font-size: 14px; */
+  }
+  box-sizing: border-box;
+`
+
+const KeywordMainLabel = styled.div`
+  cursor: pointer;
+  font-size: 13px;
+  padding: 6px 12px;
+  margin-bottom: 4px;
+  margin-right: 4px;
+  color: orange;
+  font-weight: 700;
+  &:hover {
+    font-size: 14px;
   }
   box-sizing: border-box;
 `

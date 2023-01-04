@@ -2,6 +2,126 @@ const startBrowser = require("./startBrowser")
 const axios = require("axios")
 const qs = require("querystring")
 const { sleep } = require("../../lib/usrFunc")
+const _ = require("lodash")
+
+const searchNaverRanking = async ({ keyword, productTitle,  mallName }) => {
+  let findObj = null
+  try {
+
+    const pages = [1,2,3,4,5]
+    const promiseArr = pages.map((page, i) => {
+      return new Promise(async (resolve, reject) =>{
+        try {
+          await sleep(100 * i)
+          const content = await axios.get(
+            `https://search.shopping.naver.com/api/search/all?sort=rel&pagingIndex=${page}&pagingSize=40&viewType=list&productSet=overseas&deliveryFee=&deliveryTypeValue=&frm=NVSHOVS&query=${encodeURI(keyword)}&iq=&eq=&xq=`,
+            {
+              headers: {
+                "User-Agent":
+                  "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36",
+                "sec-fetch-site": "same-origin",
+                "sec-fetch-mode": "cors",
+                "Accept-Encoding": "gzip, deflate, br",
+                Connection: "keep-alive",
+                "Cache-Control": "no-cache",
+                Pragma: "no-cache",
+                Expires: "0",
+                referer: `https://search.shopping.naver.com/`,
+              },
+            }
+          )
+      
+          const jsObj = content.data
+      
+          const list = jsObj.shoppingResult.products
+          const total = jsObj.shoppingResult.total
+         
+      
+          let findObjTemp = _.find(list, { productTitle, mallName })
+          if(findObjTemp){
+            findObj = {
+              page,
+              total,
+              rank: findObjTemp.rank,
+              // product: findObjTemp
+            }
+            // return
+          }
+
+          resolve()
+        } catch (e) {
+          reject(e)
+        }
+      })
+    })
+    // for(const page of pages){
+      
+      
+    // }
+    await Promise.all(promiseArr)
+  } catch (e) {
+    // console.log("==============", keyword)
+    console.log("searchNaver", e)
+    return null
+  } finally {
+    if(findObj) {
+      console.log("findObj", keyword, findObj)
+    }
+    return findObj
+  }
+}
+
+const searchNaverTerms = async ({ keyword }) => {
+  
+  try {
+
+    const content = await axios.get(
+      `https://search.shopping.naver.com/api/search/all?sort=rel&pagingIndex=1&pagingSize=40&viewType=list&productSet=total&deliveryFee=&deliveryTypeValue=&frm=NVSHOVS&query=${encodeURI(keyword)}&iq=&eq=&xq=`,
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36",
+          "sec-fetch-site": "same-origin",
+          "sec-fetch-mode": "cors",
+          "Accept-Encoding": "gzip, deflate, br",
+          Connection: "keep-alive",
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+          Expires: "0",
+          referer: `https://search.shopping.naver.com/`,
+        },
+      }
+    )
+
+    const jsObj = content.data
+    
+    let category = null
+    if(jsObj.shoppingResult.cmp.category4){
+      category = jsObj.shoppingResult.cmp.category4.categories.map(item => {
+        return {
+          keyword: item.name.replace(/\//, ""),
+          type: "category"
+        }
+      })
+    }
+    if(!category) {
+      category = jsObj.shoppingResult.cmp.category3.categories.map(item => {
+        return {
+          keyword: item.name.replace(/\//, ""),
+          type: "category"
+        }
+      })
+    }
+    return [...category, ...jsObj.shoppingResult.nluTerms]
+    
+  } catch (e) {
+    // console.log("==============", keyword)
+    console.log("searchNaver", e)
+    return null
+  } finally {
+ 
+  }
+}
 
 const relatedSimple = async ({ page, keyword }) => {
   try {
@@ -394,6 +514,8 @@ const searchCategoryKeyword = async ({ category }) => {
   }
 }
 module.exports = {
+  searchNaverRanking,
+  searchNaverTerms,
   relatedSimple,
   relatedKeyword,
   relatedKeywordOnly,

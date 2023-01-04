@@ -3662,6 +3662,15 @@ const resolvers = {
                     </p>
                     `
                   }
+                  let videoHtml = ``
+                  if(detailItem.videoUrl && detailItem.videoUrl.length > 0 && detailItem.videoUrl.includes("mp4")){
+                    videoHtml += `<br>
+                    <video width="400" controls muted style="max-width: 800px; display: block; margin: 0 auto;">
+                        <source src="${detailItem.videoUrl}" type="video/mp4">
+                    </video>
+                    <br>
+                    `
+                  }
                   // 옵션 HTML
                   let optionHtml = ``
                   if (detailItem.optionsImage && !duplication) {
@@ -3747,6 +3756,7 @@ const resolvers = {
                           0.1
                       ) * 10,
                     gifHtml,
+                    videoHtml,
                     topHtml: detailItem.topImage,
                     isClothes: _isClothes,
                     isShoes: _isShoes,
@@ -4904,6 +4914,15 @@ const resolvers = {
                 </p>
                 `
               }
+              let videoHtml = ``
+              if(detailItem.videoUrl && detailItem.videoUrl.length > 0 && detailItem.videoUrl.includes("mp4")){
+                videoHtml += `<br>
+                <video width="400" controls muted style="max-width: 800px; display: block; margin: 0 auto;">
+                    <source src="${detailItem.videoUrl}" type="video/mp4">
+                </video>
+                <br>
+                `
+              }
               // 옵션 HTML
               let optionHtml = ``
               if (detailItem.optionsImage && !duplication) {
@@ -4988,6 +5007,7 @@ const resolvers = {
                     (Number(detailItem.options[0].price) * exchange + addPrice + weightPrice) * 0.1
                   ) * 10,
                 gifHtml,
+                videoHtml,
                 topHtml: detailItem.topImage,
                 isClothes: _isClothes,
                 isShoes: _isShoes,
@@ -7889,7 +7909,7 @@ const resolvers = {
               : ""
           }${
             product.product.isShoes && product.product.shoesHtml ? product.product.shoesHtml : ""
-          }${product.product.optionHtml}${html}${product.product.bottomHtml}`
+          }${product.product.videoHtml ? product.product.videoHtml : ""}${product.product.optionHtml}${html}${product.product.bottomHtml}`
 
           const response = await CoupnagGET_PRODUCT_BY_PRODUCT_ID({
             userID: user,
@@ -8204,6 +8224,16 @@ const resolvers = {
                 })
               }
 
+              let videoHtml = ``
+              if(detail.videoUrl && detail.videoUrl.length > 0 && detail.videoUrl.includes("mp4")){
+                videoHtml += `<br>
+                <video width="400" controls muted style="max-width: 800px; display: block; margin: 0 auto;">
+                    <source src="${detail.videoUrl}" type="video/mp4">
+                </video>
+                <br>
+                `
+              }
+
               let optionHtml = ``
               if (detail.prop && !duplication) {
                 for (const item of detail.prop) {
@@ -8252,6 +8282,7 @@ const resolvers = {
                 isShoes: detail.isShoes,
                 clothesHtml: ObjItem.clothImage,
                 shoesHtml: ObjItem.shoesImage,
+                videoHtml,
                 optionHtml: isUSA && detail.options.length === 1 ? "" : optionHtml,
                 html: detail.html,
                 bottomHtml: ObjItem.bottomImage,
@@ -8312,11 +8343,13 @@ const resolvers = {
                   }
                 }),
               }
-
+              
               const productItem = await Product.findOneAndUpdate(
                 {
                   userID: req.user.adminUser,
                   "basic.good_id": detail.good_id,
+                  "basic.url": detail.detailUrl,
+                  "product.korTitle": product.korTitle
                 },
                 {
                   $set: {
@@ -8403,6 +8436,7 @@ const resolvers = {
 
         return true
       } catch (e) {
+        console.log("UploadNaverPlusItem", e)
         logger.error(`UploadNaverPlusItem: ${e}`)
         return false
       }

@@ -335,6 +335,7 @@ const AmazonUploadPage = () => {
                         input.push({
                           content: value.content,
                           detailUrl: value.detailUrl,
+                          videoUrl: value.videoUrl ? value.videoUrl : null,
                           html: value.html,
                           isClothes: value.clothes ? value.clothes : false,
                           isShoes: value.shoes ? value.shoes : false,
