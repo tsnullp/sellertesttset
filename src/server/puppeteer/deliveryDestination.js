@@ -27,7 +27,7 @@ const start = async ({  userID, loginID, password }) => {
     //response.market_order_info
   
     listDataArr = []
-    await page.goto("https://www.tabae.co.kr/", { waituntil: "networkidle0" })
+    await page.goto("http://tabae.izsolution.co.kr/", { waituntil: "networkidle0" })
 
     const opts = {
       delay: 6 + Math.floor(Math.random() * 2) //每个字母之间输入的间隔
@@ -40,7 +40,7 @@ const start = async ({  userID, loginID, password }) => {
     await page.keyboard.press("Enter")
     await page.waitFor(1000)
 
-    await page.goto("https://www.tabae.co.kr/Front/Member/MyPage.asp", {
+    await page.goto("http://tabae.izsolution.co.kr/Front/Member/MyPage.asp", {
       waituntil: "networkidle0"
     })
 
@@ -145,7 +145,7 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
     let customsImageBase64 = null
     let deliveryImageBase64 = null
     await page.goto(
-      `https://www.tabae.co.kr/Front/Acting/Acting_V.asp?shStatSeq=0&ORD_SEQ=${tableItem.id}`,
+      `http://tabae.izsolution.co.kr/Front/Acting/Acting_V.asp?shStatSeq=0&ORD_SEQ=${tableItem.id}`,
       {
         waituntil: "networkidle0"
       }
@@ -322,7 +322,7 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
     
 
     await page.goto(
-      `https://tabae.co.kr/Library/Html/DlvrShKr_S.asp?IVC_NO=${tableItem.shippingNumber}`,
+      `http://tabae.izsolution.co.kr/Library/Html/DlvrShKr_S.asp?IVC_NO=${tableItem.shippingNumber}`,
       {
         waituntil: "networkidle0"
       }
@@ -421,7 +421,7 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
 
     try {
       await page.goto(
-        `https://tabae.co.kr/Library/Html/TrackingSearch_S.asp?sDComp=CJ&sTrkNo=${tableItem.shippingNumber}`,
+        `http://tabae.izsolution.co.kr/Library/Html/TrackingSearch_S.asp?sDComp=CJ&sTrkNo=${tableItem.shippingNumber}`,
         {
           waituntil: "networkidle0"
         }
