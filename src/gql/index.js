@@ -4061,4 +4061,16 @@ export const GET_COMBINE_TITLE = gql`
   }
 `
 
-  
+export const GET_DETAIL_IMAGE_LIST = gql`
+  mutation GetDetailImageList($userID: ID){
+    GetDetailImageList(userID: $userID) {
+      _id
+      name
+      detailUrl
+      image
+      content
+      isContentTranslate
+      createdAt
+    }
+  }
+`

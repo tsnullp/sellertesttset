@@ -1,4 +1,4 @@
-const {korTranslate, cnTranslate} = require("../puppeteer/translate")
+const {papagoTranslate, cnTranslate} = require("../puppeteer/translate")
 
 const resolvers = {
   Query: {
@@ -27,7 +27,7 @@ const resolvers = {
         // return returnValue
         // return await papagoTranslateArray(text)
        
-        const response = await korTranslate(text)
+        const response = await papagoTranslate(text)
         
         return response
       } catch (e) {

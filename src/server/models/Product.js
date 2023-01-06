@@ -353,7 +353,8 @@ const ProductSchema = mongoose.Schema({
     type: Date,
     default: () => moment().toDate(),
     index: true
-  }
+  },
+  isContentTranslate: Boolean
 })
 
 ProductSchema.index({

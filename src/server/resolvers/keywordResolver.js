@@ -368,15 +368,19 @@ const resolvers = {
         })
         // console.log("mainKeywordArray", mainKeywordArray)
         // console.log("mainKeywordArray", mainKeywordArray.length)
-        for(const keyword of mainKeywordArray){
-          // console.log("keyword", keyword, displayName)
-          await sleep(200)
-          const findObj = await searchNaverRanking({keyword: keyword.keyword, productTitle: title, mallName: displayName})
-          if(findObj){
-            keyword.isMain = true
-            keyword.rank = findObj.rank
+        console.log("displayName", displayName)
+        if(displayName){
+          for(const keyword of mainKeywordArray){
+            // console.log("keyword", keyword, displayName)
+            await sleep(200)
+            const findObj = await searchNaverRanking({keyword: keyword.keyword, productTitle: title, mallName: displayName})
+            if(findObj){
+              keyword.isMain = true
+              keyword.rank = findObj.rank
+            }
           }
         }
+        
         return mainKeywordArray.sort((a, b) => a.rank - b.rank)
       } catch(e) {
         logger.error(`SetFavoriteKeyword: ${e}`)

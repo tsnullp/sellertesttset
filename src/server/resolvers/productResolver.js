@@ -9393,7 +9393,7 @@ const resolvers = {
       {},
       {
         req,
-        model: { MarketOrder, DeliveryInfo, TaobaoOrder, NaverFavoriteItem, NaverSaveItemFavorite, CoupangWinner, Product, Brand },
+        model: { MarketOrder, Product },
         logger,
       }
     ) => {
@@ -10647,6 +10647,207 @@ const resolvers = {
       } catch(e) {
         logger.error(`SetTaobaoUrl: ${e}`)
         return false
+      }
+    },
+    GetDetailImageList: async (
+      parent,
+      {userID},
+      {req, model: {Product, MarketOrder}, logger}
+    ) => {
+      try {
+        const user = userID ? ObjectId(userID) : ObjectId(req.user.adminUser)
+        const allItems = await MarketOrder.aggregate([
+          {
+            $addFields: {
+              "orderItems.paidAtDate" : "$paidAtDate"
+            }
+          },
+          {
+            $match: {
+              userID: user,
+              saleType: 1,
+            }
+          }
+        ])
+        let orderItems = []
+        allItems.forEach(item => {
+          for(const orderItem of item.orderItems){
+            const temp = _.find(orderItems, {title: orderItem.title})
+            if(temp){
+              if(temp.paidAtDate < orderItem.paidAtDate){
+                orderItems.push({
+                  title: orderItem.title,
+                  paidAtDate: orderItem.paidAtDate
+                })  
+              } else {
+                orderItems.push({
+                  title: orderItem.title,
+                  paidAtDate: temp.paidAtDate
+                })
+              }
+            } else {
+              orderItems.push({
+                title: orderItem.title,
+                paidAtDate: orderItem.paidAtDate
+              })
+            }
+            
+          }
+        })
+
+        let productItems = []
+
+        const promiseArr = orderItems.map(item => {
+          return new Promise(async (resolve, reject) => {
+            try {
+              let productName = ``
+              const nameArray = item.title
+                  .split(" ")
+                  .filter((item) => item.trim().length > 0)
+    
+              for (const item of nameArray) {
+                productName += ` "${item}"`
+              }
+              const product = await Product.findOne({
+                userID: ObjectId(user),
+                isDelete: {$ne: true},
+                isContentTranslate: {$ne: true},
+                $text: {
+                  $search: productName.trim(),
+                },
+              }, 
+              {
+                _id: 1,
+                "product.korTitle" : 1,
+                "product.mainImages" : 1,
+                "product.options": 1,
+                "basic.content": 1,
+                "basic.url": 1,
+                createdAt: 1,
+                isContentTranslate: 1
+              })
+
+              if(product) {
+                let image = null
+                if(product.product.mainImages && Array.isArray(product.product.mainImages) && product.product.mainImages.length > 0){
+                  image = product.product.mainImages[0]
+                }
+                if(!image) {
+                  if(product.product.options && Array.isArray(product.product.options) && product.product.options.length > 0) {
+                    image = product.product.options[0]
+                  }
+                }
+                if(!image) {
+                  if(product.basic.content && Array.isArray(product.basic.content) && product.basic.content.length > 0) {
+                    image = product.basic.content[0]
+                  }
+                }
+                productItems.push( {
+                  _id: product._id.toString(),
+                  detailUrl: product.basic.url,
+                  content: product.basic.content,
+                  name: product.product.korTitle,
+                  image,
+                  createdAt: product.createdAt,
+                  isContentTranslate: product.isContentTranslate
+                })
+              }
+
+              
+              resolve()
+            } catch(e){
+              reject(e)
+            }
+          })
+
+        
+        })
+        await Promise.all(promiseArr)
+
+        
+        const rankingArr = ranking(productItems.map(item => item._id), 0)
+        // console.log("rankingArr", rankingArr)
+        let productList = []
+        for(const item of rankingArr){
+          const product = _.find(productItems, {_id: item.name})
+          if(product){
+            productList.push({
+              _id: product._id,
+              name: product.name,
+              detailUrl: product.detailUrl,
+              image: product.image,
+              content: product.content,
+              createdAt: product.createdAt
+            })
+          }
+          
+        }
+        
+        productList =  productList.sort((a, b) => b.paidAtDate - a.paidAtDate)
+        // console.log("productList", productList)
+
+        const productIDs = productList.map(item => ObjectId(item._id))
+        
+        const notSaled = await Product.aggregate([
+          {
+            $match: {
+              userID: ObjectId(user),
+              isDelete: {$ne: true},
+              isContentTranslate: {$ne: true},
+              _id: {$in: productIDs}
+            }
+          },
+          {
+            $sort : {
+              createdAt: -1
+            }
+          },
+          {
+            $project: {
+              _id: 1,
+              "product.korTitle" : 1,
+              "product.mainImages" : 1,
+              "product.options": 1,
+              "basic.content": 1,
+              "basic.url": 1,
+              createdAt: 1,
+              isContentTranslate: 1
+            }
+          }
+        ])
+        
+        productList.push(
+          ...notSaled.map(product => {
+            let image = null
+            if(product.product.mainImages && Array.isArray(product.product.mainImages) && product.product.mainImages.length > 0){
+              image = product.product.mainImages[0]
+            }
+            if(!image) {
+              if(product.product.options && Array.isArray(product.product.options) && product.product.options.length > 0) {
+                image = product.product.options[0]
+              }
+            }
+            if(!image) {
+              if(product.basic.content && Array.isArray(product.basic.content) && product.basic.content.length > 0) {
+                image = product.basic.content[0]
+              }
+            }
+            return {
+              _id: product._id,
+              name: product.product.korTitle,
+              detailUrl: product.product.url,
+              image,
+              content: product.basic.content,
+              createdAt: product.createdAt,
+              isContentTranslate: product.isContentTranslate
+            }
+          })
+        )
+        return productList
+      } catch(e){
+        console.log("error", e)
+        logger.error(`GetDetailImageList: ${e}`)
+        return []
       }
     }
   },

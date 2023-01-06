@@ -256,7 +256,7 @@ const TabaeOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
             id="test-table-xls-button"
             className="download-table-xls-button"
             table="table-to-xls"
-            filename={`타배 주문 신청서_${moment().format("YYYY-MM-DD HH:mm:SS")}`}
+            filename={`(구)타배 주문 신청서_${moment().format("YYYY-MM-DD HH:mm:SS")}`}
             sheet="신청"
             buttonText="엑셀 다운"
           />

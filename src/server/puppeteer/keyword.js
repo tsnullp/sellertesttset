@@ -14,7 +14,7 @@ const searchNaverRanking = async ({ keyword, productTitle,  mallName }) => {
         try {
           await sleep(100 * i)
           const content = await axios.get(
-            `https://search.shopping.naver.com/api/search/all?sort=rel&pagingIndex=${page}&pagingSize=40&viewType=list&productSet=overseas&deliveryFee=&deliveryTypeValue=&frm=NVSHOVS&query=${encodeURI(keyword)}&iq=&eq=&xq=`,
+            `https://search.shopping.naver.com/api/search/all?sort=rel&pagingIndex=${page}&pagingSize=80&viewType=list&productSet=overseas&deliveryFee=&deliveryTypeValue=&frm=NVSHOVS&query=${encodeURI(keyword)}&iq=&eq=&xq=`,
             {
               headers: {
                 "User-Agent":

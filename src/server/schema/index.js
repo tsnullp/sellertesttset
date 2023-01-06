@@ -1850,6 +1850,17 @@ const schema = gql`
     isMain: Boolean
     rank: Int
   }
+
+
+  type DetailImageListType {
+    _id: ID
+    name: String
+    detailUrl: String
+    image: String
+    content: [String]
+    isContentTranslate: Boolean
+    createdAt: String
+  }
   type Query {
     "A simple type for getting started!"
     hello: String
@@ -2335,6 +2346,8 @@ const schema = gql`
     GetSimilarProductKorTitle(input: [SimilarProductInputType]): [SimilarProductsKorType]
 
     GetCombineTitleKeyword(title: String, displayName: String): [CombineTitleType]
+
+    GetDetailImageList(userID: ID): [DetailImageListType]
   }
 `
 

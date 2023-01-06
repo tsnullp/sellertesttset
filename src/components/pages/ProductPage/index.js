@@ -1,7 +1,7 @@
 import React from "react"
-import { ProductList, ItemWinnerProcessingList } from "components"
+import { ProductList, ItemWinnerProcessingList, DetailPageList } from "components"
 import { Tabs } from "antd"
-import { CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons"
+import { CheckCircleOutlined, ClockCircleOutlined, FileImageOutlined } from "@ant-design/icons"
 const { TabPane } = Tabs
 
 const ProductPage = () => {
@@ -28,6 +28,17 @@ const ProductPage = () => {
         key="2"
       >
         <ItemWinnerProcessingList />
+      </TabPane>
+      <TabPane
+        tab={
+          <span>
+            <FileImageOutlined style={{ fontSize: "16px", color: "orange" }} />
+            상세페이지
+          </span>
+        }
+        key="3"
+      >
+        <DetailPageList />
       </TabPane>
     </Tabs>
   )

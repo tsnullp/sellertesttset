@@ -3,7 +3,7 @@ import styled from "styled-components"
 import {
   TabaeCategory,
   TabaeOrderTable,
-  CoolzikuOrderTable,
+  NewTabaeOrderTable,
   TaobaoOrderModal,
   TaobaoOrderManualModal,
   UserSelect,
@@ -63,7 +63,7 @@ const OrderForm = ({ orderState }) => {
 
   const [isTaobaoOrderModalVisible, setTaobaoOrderModalVisible] = useState(false)
   const [isCoolzikcuConvertModalVisible, setCoolzikcuConvertModalVisible] = useState(false)
-  const [isCoolzikudalVisible, setCoolzikuModalVisible] = useState(false)
+  const [isNewTabaeModalVisible, SetNewTabaeModalVisible] = useState(false)
 
   const { data, refetch, networkStatus } = useQuery(LIST_ALL_ORDER, {
     variables: {
@@ -83,20 +83,20 @@ const OrderForm = ({ orderState }) => {
     setIsModalVisible(true)
   }
 
-  const showCoolzikcuModal = () => {
-    setCoolzikuModalVisible(true)
+  const showNewTabaeModal = () => {
+    SetNewTabaeModalVisible(true)
   }
 
   const handleOk = () => {
     setIsModalVisible(false)
     setCoolzikcuConvertModalVisible(false)
-    setCoolzikuModalVisible(false)
+    SetNewTabaeModalVisible(false)
   }
 
   const handleCancel = () => {
     setIsModalVisible(false)
     setCoolzikcuConvertModalVisible(false)
-    setCoolzikuModalVisible(false)
+    SetNewTabaeModalVisible(false)
   }
 
   const handleProdcutData = (i, values) => {
@@ -676,22 +676,24 @@ const OrderForm = ({ orderState }) => {
               showModal()
             }}
           >
-            타배 엑셀생성
+            (구)타배 엑셀생성
           </Button>
         )}
 
-        {isCoolzikudalVisible && (
-          <CoolzikuOrderTable
-            isModalVisible={isCoolzikudalVisible}
+        {isNewTabaeModalVisible && (
+          <NewTabaeOrderTable
+            isModalVisible={isNewTabaeModalVisible}
             handleOk={handleOk}
             handleCancel={handleCancel}
             data={selectedRow}
           />
         )}
 
-        {/* {orderState === "상품준비" && <Button onClick={() => {
-          console.log("itemData", itemData)
-          console.log("selectedRow", selectedRow)
+        {(orderState === "상품준비" || orderState === "배송지시" || orderState === "배송중") && 
+        <Button 
+        style={{ background: "blue", color: "white" }}
+        onClick={() => {
+        
 
           let temp = selectedRow.map(item => {
             return (
@@ -700,10 +702,11 @@ const OrderForm = ({ orderState }) => {
           })
           setSelectedRow(temp)
           
-          showCoolzikcuModal()
-        }}>꿀직구 엑셀생성</Button>} */}
+          showNewTabaeModal()
+        }}>(뉴)타배 엑셀생성</Button>}
         {orderState === "배송지시" && (
           <Button
+            
             onClick={async () => {
               console.log("itemData", itemData)
               console.log("selectedRow", selectedRow)
@@ -757,7 +760,7 @@ const OrderForm = ({ orderState }) => {
             })
           }}
         >
-          배대지 수집
+          (구)배대지 수집
         </Button>
       </ButtonContainer>
       <BackTop />
@@ -784,7 +787,7 @@ const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   & > :not(:last-child) {
-    margin-right: 30px;
+    margin-right: 15px;
   }
 `
 const IconDateContainer = styled.div`

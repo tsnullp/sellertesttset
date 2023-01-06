@@ -1,14 +1,14 @@
 import React, {useEffect, useRef} from 'react'
 import { Table, Modal } from "antd"
 import { useQuery } from "@apollo/client"
-import { ENG_TRANSLATE, KORTOENG_TRANSLATE, NEW_ZIP_CODE } from "../../../gql"
+import { TRANSLATE_PAPAGO, ENG_TRANSLATE, KORTOENG_TRANSLATE, NEW_ZIP_CODE } from "../../../gql"
 import styled from "styled-components"
 import ReactHTMLTableToExcel from "react-html-table-to-excel"
 import moment from "moment"
 import "./style.css"
 
 
-const CoolzikuOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
+const NewTabaeOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
 
   console.log("data--***->", data)
   const tableRef = useRef()
@@ -61,45 +61,42 @@ const CoolzikuOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
 
   const columns = [
     {
-      title: "묶음값",
-      width: 30,
+      title: "묶음번호",
+      width: 60,
+      
       render: (data) => data.row
     },
     {
-      title: "배송방법 (AIR/SEA만 가능)",
-      width: 80,
-      render: () => "SEA"
+      title: "자동결제 여부",
+      width: 60,
+      // ellipsis: true,
+      render: () => "2"
     },
     {
-      title: "성명(한글)",
-      width: 60,
+      title: "바로포장 여부",
+    },
+    {
+      title: "수취인(한글)",
+      width: 120,
+      textWrap: 'word-break',
+      ellipsis: true,
       render: (data) => data.valid_number.name
     },
     {
-      title: "성명(영어)",
+      title: "수취인(영어)",
     },
     {
-      title: "개인통관번호",
-      width: 100,
-      render: (data) => data.valid_number.persEcm
-    },
-    {
-      title: "빈값(고정)",
-      width: 30,
-    },
-    {
-      title: "핸드폰",
-      width: 100,
+      title: "휴대폰 번호",
+      width: 150,
+      textWrap: 'word-break',
+      ellipsis: true,
       render: (data) => data.valid_number.phone
     },
     {
-      title: "용도구분",
-      width: 40,
-      render: () => "개인"
-    },
-    {
       title: "우편번호",
-      width: 60,
+      width: 120,
+      textWrap: 'word-break',
+      ellipsis: true,
       render: (data) => {
 
         if(data.receiver.zipcode.length === 5){
@@ -117,24 +114,31 @@ const CoolzikuOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
       }
     },
     {
-      title: "주소",
+      title: "수취인 주소",
       width: 250,
       render: (data) => data.receiver.address_full
     },
     {
-      title: "상세주소",
-      // render: data => data.연락처
+      title: "수취인 주소(영문)",
+      width: 230,
     },
     {
-      title: "영문 주소",
-      width: 30,
-    },
-    {
-      title: "영문 상세주소",
-    },
-    {
-      title: "배송시요청사항",
+      title: "통관구분",
       width: 60,
+      render: () => "1"
+    },
+    {
+      title: "개인통관번호",
+      width: 150,
+      render: (data) => data.valid_number.persEcm
+    },
+    {
+      title: "센터 요청사항",
+      width: 130,
+    },
+    {
+      title: "국내택배 요청사항",
+      width: 160,
       render: (data) => {
         let message = data.receiver.shipping_message
         if(message.includes("배송메세지 : ")){
@@ -143,33 +147,46 @@ const CoolzikuOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
         if(message.includes(" (주문번호 :")){
           message = message.split(" (주문번호 :")[0]
         }
+        if(message.includes("직접작성")){
+          message = message.split("직접작성")[1]
+        }
         return message
       }
     },
     {
-      title: "쇼핑몰주소",
+      title: "통관품목 번호",
+      width: 60,
+      render:  (data) => data.singleItem && data.singleItem.category ? data.singleItem.category : ""
+    },
+    {
+      title: "쇼핑몰 URL",
+      width: 120,
       render: () => "taobao.com"
     },
     {
-      title: "주문번호 (Order No)",
-      width: 60,
+      title: "쇼핑몰 오더번호",
+      width: 220,
+ 
       render: (data) => data.singleItem && data.singleItem.taobaoOrder && data.singleItem.taobaoOrder.orderNumber && `'${data.singleItem.taobaoOrder.orderNumber}`
     },
     {
-      title: "상품명)",
+      title: "상품명",
       width: 250,
       render:  (data) => {
         
         if(data.singleItem && data.singleItem.taobaoOrder && data.singleItem.taobaoOrder.order){
           if(Array.isArray(data.singleItem.taobaoOrder.order)) {
-            return (<EngTitle text={data.singleItem.taobaoOrder.order.productName} />)  
+            return (<KorTitle text={data.singleItem.taobaoOrder.order.productName} />)  
           }
-          return (<EngTitle text={data.singleItem.taobaoOrder.order.productName} />)
+          return (<KorTitle text={data.singleItem.taobaoOrder.order.productName} />)
           
         } else {
           return ""
         }
       }
+    },
+    {
+      title: "브랜드",
     },
     {
       title: "색상",
@@ -196,41 +213,58 @@ const CoolzikuOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
     {
       title: "이미지URL",
       width: 60,
+      ellipsis: true,
       render: (data) => data.singleItem && data.singleItem.taobaoOrder && data.singleItem.taobaoOrder.order ? data.singleItem.taobaoOrder.order.thumbnail : ""
     },
     {
       title: "상품URL",
       width: 60,
+      ellipsis: true,
       render: (data) => data.singleItem && data.singleItem.taobaoOrder && data.singleItem.taobaoOrder.order ? data.singleItem.taobaoOrder.order.detail : ""
     },
     {
-      title: "구매자 이름",
-      render: (data) => data.valid_number.name
+      title: "트래킹번호(중국 운송장번호)",
     },
     {
-      title: "배송사",
+      title: "재고번호",
     },
     {
-      title: "TRACKING#",
-      width: 30
+      title: "부가서비스",
+      width: 60,
+      ellipsis: true,
     },
     {
-      title: "HS CODE (HS CODE 시트 참조)",
-      render: data => data["HS CODE"]
+      title: "화물 선착불 선불=1, 착불=0",
+      width: 60,
+      ellipsis: true,
+      render: () => "0"
     },
     {
-      title: "물류센터 요청사항",
+      title: "HS CODE",
+      width: 60,
+      ellipsis: true,
     },
     {
-      title: "빈값(고정)",
+      title: "오픈마켓 이름",
+      width: 60,
+      ellipsis: true,
+      render: (data) => data.market_id
     },
     {
-      title: "자동포장신청(Y/N)",
-      render: () => "N"
+      title: "오픈마켓 결제수단",
+      width: 60,
+      ellipsis: true,
     },
     {
-      title: "예치금자동결제(Y/N)",
-      render: () => "N"
+      title: "오픈마켓 주문번호",
+      width: 60,
+      ellipsis: true,
+      render: (data) => `'${data.market_order_info}`
+    },
+    {
+      title: "오픈마켓 판매금액",
+      width: 60,
+      ellipsis: true,
     },
 
   ]
@@ -242,7 +276,7 @@ const CoolzikuOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
             id="test-table-xls-button"
             className="download-table-xls-button"
             table="table-to-xls"
-            filename={`꿀직구 주문 신청서_${moment().format("YYYY-MM-DD HH:mm:SS")}`}
+            filename={`(뉴)타배 주문 신청서_${moment().format("YYYY-MM-DD HH:mm:SS")}`}
             sheet="신청"
             buttonText="엑셀 다운"
           />
@@ -259,7 +293,7 @@ const CoolzikuOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
   )
 }
 
-export default CoolzikuOrderTable
+export default NewTabaeOrderTable
 
 const TableContaniner = styled.div`
   overflow: auto;
@@ -291,8 +325,8 @@ const KortoEngTitle = ({text}) => {
   )
 }
 
-const EngTitle = ({text}) => {
-  const { loading, data } = useQuery(ENG_TRANSLATE, {
+const KorTitle = ({text}) => {
+  const { loading, data } = useQuery(TRANSLATE_PAPAGO, {
     variables: {
       text
     }
@@ -305,10 +339,10 @@ const EngTitle = ({text}) => {
     )
   }
   
-  if( data && data.EngTranslate){
+  if( data && data.TranslatePapago){
     return (
       <div>
-      {data.EngTranslate}
+      {data.TranslatePapago}
       </div>
     )
   }
