@@ -1,4 +1,4 @@
-import React, {useState, useContext} from "react"
+import React, {useState, useContext } from "react"
 import { Button, Table, Image, notification } from "antd"
 import { DetailExcelModal, UserSelect, ExcelImport} from "components"
 import { useMutation } from "@apollo/client"
@@ -18,6 +18,8 @@ const DetailPageList = () => {
   const [setModifyDetailPages] = useMutation(SET_MODIFY_DETAIL_PAGES)
   const [excelModalVisible, setExcelModalVisible] = useState(false)
   const [uploading, setUploading] = useState(false)
+
+  
   const handleExcelOk = () => {
     setExcelModalVisible(false)
   }
@@ -73,6 +75,7 @@ const DetailPageList = () => {
     }
   }
 
+  
   const columns = [
     {
       title: "이미지",
@@ -100,11 +103,7 @@ const DetailPageList = () => {
       title: "상품명",
       render: (data) => <LinkLabel onClick={() => shell.openExternal(data.detailUrl)}>{data.name}</LinkLabel>
     },
-    {
-      title: "상세페이지",
-      align: "right",
-      render: (data) => data.content.length.toLocaleString("ko")
-    },
+    
     {
       title: "등록일",
       align: "center",

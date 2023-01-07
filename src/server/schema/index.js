@@ -1857,7 +1857,7 @@ const schema = gql`
     name: String
     detailUrl: String
     image: String
-    content: [String]
+    content: String
     isContentTranslate: Boolean
     createdAt: String
   }

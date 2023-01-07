@@ -1,15 +1,12 @@
 import React, {useEffect, useRef} from 'react'
 import { Table, Modal } from "antd"
-import { useQuery } from "@apollo/client"
-import { GET_MARKETORDER_INFO, GET_TAOBAOORDER_SIMPLE_INFO } from "../../../gql"
 import styled from "styled-components"
 import ReactHTMLTableToExcel from "react-html-table-to-excel"
 import moment from "moment"
-import {regExp_test} from "../../../lib/userFunc"
 import "./style.css"
 
 const DetailExcelModal = ({isModalVisible, handleOk, handleCancel, data}) => {
-  console.log("data--***->", data)
+
   const tableRef = useRef()
 
   useEffect(() => {
@@ -32,17 +29,17 @@ const DetailExcelModal = ({isModalVisible, handleOk, handleCancel, data}) => {
   const columns = [
     {
       title: "아이디",
+      key: "아이디",
       render: data => data._id
     },
     {
       title: "상세페이지 원본",
+      key: "상세페이지원본",
       render: data => data.content
-                          .filter(item => !item.includes("gif"))
-                          .map(item => item.replace("https:https:", "https:"))
-                          .join("#")
     },
     {
       title: "상세페이지 번역",
+      key: "상세페이지 번역",
     },
   ]
 
@@ -64,7 +61,7 @@ const DetailExcelModal = ({isModalVisible, handleOk, handleCancel, data}) => {
         dataSource={data}
         columns={columns}
         pagination={false}
-        
+        rowKey={record => record._id}
         />
       </TableContaniner>
     </Modal>

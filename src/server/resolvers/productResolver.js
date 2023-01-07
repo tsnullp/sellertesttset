@@ -10784,8 +10784,7 @@ const resolvers = {
         }
         
         productList =  productList.sort((a, b) => b.paidAtDate - a.paidAtDate)
-        // console.log("productList", productList)
-
+       
         const productIDs = productList.map(item => ObjectId(item._id))
         
         const notSaled = await Product.aggregate([
@@ -10794,7 +10793,7 @@ const resolvers = {
               userID: ObjectId(user),
               isDelete: {$ne: true},
               isContentTranslate: {$ne: true},
-              _id: {$in: productIDs}
+              _id: {$nin: productIDs}
             }
           },
           {
@@ -10835,7 +10834,7 @@ const resolvers = {
             return {
               _id: product._id,
               name: product.product.korTitle,
-              detailUrl: product.product.url,
+              detailUrl: product.basic.url,
               image,
               content: product.basic.content,
               createdAt: product.createdAt,
@@ -10843,7 +10842,15 @@ const resolvers = {
             }
           })
         )
-        return productList.filter(item => item.detailUrl && !item.detailUrl.includes("iherb.com"))
+        
+        return productList.filter(item => item.detailUrl && !item.detailUrl.includes("iherb.com")).map(item => {
+          return {
+            ...item,
+            content: item.content && Array.isArray(item.content) ? item.content.filter(item => item && !item.includes("gif"))
+            .map(item => item.replace("https:https:", "https:"))
+            .join("#") : ""
+          }
+        })
       } catch(e){
         console.log("error", e)
         logger.error(`GetDetailImageList: ${e}`)
