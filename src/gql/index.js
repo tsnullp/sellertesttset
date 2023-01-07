@@ -4074,3 +4074,9 @@ export const GET_DETAIL_IMAGE_LIST = gql`
     }
   }
 `
+
+export const SET_MODIFY_DETAIL_PAGES = gql`
+  mutation SetModifyDetailPage($input: [ModifyDetailPageType]) {
+    SetModifyDetailPage(input: $input)
+  }
+`

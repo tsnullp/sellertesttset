@@ -10843,11 +10843,122 @@ const resolvers = {
             }
           })
         )
-        return productList
+        return productList.filter(item => item.detailUrl && !item.detailUrl.includes("iherb.com"))
       } catch(e){
         console.log("error", e)
         logger.error(`GetDetailImageList: ${e}`)
         return []
+      }
+    },
+    SetModifyDetailPage: async(
+      parent,
+      {input},
+      {req, model: {Product}, logger}
+    ) => {
+      try {
+
+        setTimeout(async () => {
+          let i = 1
+          for(const item of input) {
+            try {
+              const product = await Product.findOne({
+                _id: ObjectId(item._id)
+              })
+    
+              if(product) {
+                let isSingle = product.basic.url.includes("iherb.com") && product.options.length === 1 ? true : false
+                
+                let html = ``
+                for(const img of item.content.filter(fItem => fItem && fItem.length > 0 && fItem.includes("http"))){
+                  html += `<img src="${img}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+                }
+    
+                const htmlContent = `${product.product.gifHtml ? product.product.gifHtml : ""}${product.product.topHtml}${
+                  product.product.isClothes && product.product.clothesHtml
+                    ? product.product.clothesHtml
+                    : ""
+                }${
+                  product.product.isShoes && product.product.shoesHtml ? product.product.shoesHtml : ""
+                }${product.product.videoHtml ? product.product.videoHtml : ""}${product.product.optionHtml}${html}${product.product.bottomHtml}`
+    
+    
+                // 쿠팡
+                const response = await CoupnagGET_PRODUCT_BY_PRODUCT_ID({
+                  userID: product.userID,
+                  productID: product.product.coupang.productID,
+                })
+    
+                if (response && response.code === "SUCCESS") {
+                  for (const item of response.data.items) {
+                    for (const content of item.contents) {
+                      content.contentDetails[0].content = htmlContent
+                    }
+                  }
+      
+                  const updateProduct = await CoupnagUPDATE_PRODUCT({
+                    userID: product.userID,
+                    product: response.data,
+                  })
+    
+      
+                  const approveResponse = await CoupangAPPROVE_PRODUCT({
+                    userID: user,
+                    sellerProductId: response.data.sellerProductId,
+                  })
+    
+                }
+    
+    
+                // 카페 24
+                if (
+                  product.product.cafe24 &&
+                  product.product.cafe24.mallID &&
+                  product.product.cafe24.shop_no
+                ) {
+                  product.product.cafe24_product_no = product.product.cafe24.product_no
+                  product.product.html = html
+                  product.basic.content = item.content
+                  const cafe24Response = await updateCafe24({
+                    id: product._id,
+                    isSingle,
+                    product: product.product,
+                    options: product.options,
+                    cafe24: {
+                      mallID: product.product.cafe24.mallID,
+                      shop_no: product.product.cafe24.shop_no,
+                    },
+                    userID: user,
+                    writerID: user,
+                  })
+                  // console.log("cafe24Response", cafe24Response)
+                }
+    
+                console.log(`${i++} / ${input.length} `, product.product.korTitle)
+                await Product.findOneAndUpdate(
+                  {
+                    userID: product.userID,
+                    _id: ObjectId(item._id),
+                  },
+                  {
+                    $set: {
+                      "product.html": html,
+                      "product.content": item.content,
+                      isContentTranslate: true
+                    },
+                  },
+                  { new: true }
+                )
+                
+              }
+            } catch(e){
+              console.log("error", e)
+            }
+          }
+        }, 1000)
+        return true
+      } catch(e){
+        logger.error(`SetModifyDetailPage: ${e}`)
+        return false
       }
     }
   },

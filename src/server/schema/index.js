@@ -1861,6 +1861,12 @@ const schema = gql`
     isContentTranslate: Boolean
     createdAt: String
   }
+
+  input ModifyDetailPageType {
+    _id: ID
+    content: [String]
+  }
+
   type Query {
     "A simple type for getting started!"
     hello: String
@@ -2348,6 +2354,8 @@ const schema = gql`
     GetCombineTitleKeyword(title: String, displayName: String): [CombineTitleType]
 
     GetDetailImageList(userID: ID): [DetailImageListType]
+
+    SetModifyDetailPage(input:[ModifyDetailPageType]): Boolean
   }
 `
 

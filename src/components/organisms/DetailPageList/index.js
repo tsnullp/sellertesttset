@@ -1,8 +1,8 @@
 import React, {useState, useContext} from "react"
-import { Button, Table, Image } from "antd"
-import { DetailExcelModal, UserSelect} from "components"
+import { Button, Table, Image, notification } from "antd"
+import { DetailExcelModal, UserSelect, ExcelImport} from "components"
 import { useMutation } from "@apollo/client"
-import { GET_DETAIL_IMAGE_LIST } from "gql"
+import { GET_DETAIL_IMAGE_LIST, SET_MODIFY_DETAIL_PAGES } from "gql"
 import { UserContext } from "context/UserContext"
 import moment from "moment"
 import styled from "styled-components"
@@ -13,9 +13,11 @@ const DetailPageList = () => {
   const [selectUser, setSelectUser] = useState(null)
   const [isLoading, setLoading] = useState(false)
   const [list, setList] = useState([])
+  const [translateList, setTranslateList] = useState([])
   const [getDetailImageList] = useMutation(GET_DETAIL_IMAGE_LIST)
+  const [setModifyDetailPages] = useMutation(SET_MODIFY_DETAIL_PAGES)
   const [excelModalVisible, setExcelModalVisible] = useState(false)
-
+  const [uploading, setUploading] = useState(false)
   const handleExcelOk = () => {
     setExcelModalVisible(false)
   }
@@ -51,6 +53,26 @@ const DetailPageList = () => {
     setSelectUser(value)
   }
 
+  const handleExcel = async (value) => {
+    console.log("value--", value)
+    const rowDatas = value.filter(item => {
+      if(item.아이디 && item["상세페이지 번역"]) {
+        let temp = item["상세페이지 번역"]
+        temp = temp.split("#").filter(fItem => fItem.length > 0 && fItem.includes("jpg"))
+        if(temp.length > 0){
+          return true
+        }
+      } 
+
+      return false
+    })
+
+    if(rowDatas && rowDatas.length > 0){
+      setList([])
+      setTranslateList(rowDatas)
+    }
+  }
+
   const columns = [
     {
       title: "이미지",
@@ -80,17 +102,33 @@ const DetailPageList = () => {
     },
     {
       title: "상세페이지",
+      align: "right",
       render: (data) => data.content.length.toLocaleString("ko")
     },
     {
       title: "등록일",
+      align: "center",
       render: (data) => moment(Number(data.createdAt)).format("YYYY.MM.DD")
     },
   
   ]
+
+  const transLateColumns = [
+    {
+      title: "아이디",
+      width: 250,
+      render: (data) => data.아이디
+    },
+    {
+      title: "번역",
+      ellipsis: true,
+      render: (data) => data["상세페이지 번역"]
+    }
+  ]
   return (
     <>
       <ButtonContainer>
+        <div>
         <UserSelect handleSelectChange={handleSelectChange} userID={user.id} />
         <Button
           onClick={handleDetailImages}
@@ -110,15 +148,65 @@ const DetailPageList = () => {
             data={list}
           />
         }
+        <ExcelImport size="middle" title="가져오기"
+          onSuccess={handleExcel}
+        />
+        </div>
+        {translateList.length > 0 &&<Button loading={uploading} type="primary"
+        
+          onClick={async() => {
+            try {
+              setUploading(true)
+              const response = await setModifyDetailPages({
+                variables: {
+                  input: translateList.map(item => {
+                    return {
+                      _id: item.아이디,
+                      content: item["상세페이지 번역"].split("#").filter(item => item.includes("jpg"))
+                    }
+                  })
+                }
+              })
+              console.log("response", response)
+
+              if(response && response.data.SetModifyDetailPage) {
+                notification['success']({
+                  message: '상세페이지를 변경하고 있습니다...',
+                });
+              } else {
+                notification['error']({
+                  message: '상세페이지를 변경 오류...',
+                });
+              }
+              
+
+            } catch(e) {
+              
+            } finally{
+              setTranslateList([])
+              setUploading(false)
+            }
+          }}
+        >상세페이지 업데이트</Button>}
       </ButtonContainer>
 
+      {list.length > 0 && 
       <Table
         columns={columns}
         rowKey={(record) => record._id}
         dataSource={list}
         pagination={false}
         loading={isLoading}
-      />
+      />}
+
+      {translateList.length > 0 && 
+      <Table
+        columns={transLateColumns}
+        rowKey={(record) => record._id}
+        dataSource={translateList}
+        pagination={false}
+        
+      />}
 
     </>
   )
@@ -137,7 +225,8 @@ const LinkLabel = styled.div`
 
 const ButtonContainer = styled.div`
   display: flex;
-  & > :not(:last-child) {
+  justify-content: space-between;
+  & > div > :not(:last-child) {
     margin-right: 10px;
   }
 `
