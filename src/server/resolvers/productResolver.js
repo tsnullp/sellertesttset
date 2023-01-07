@@ -10816,18 +10816,18 @@ const resolvers = {
         ])
         
         productList.push(
-          ...notSaled.map(product => {
+          ...notSaled.filter(item => item.product && item.basic).map(product => {
             let image = null
-            if(product.product.mainImages && Array.isArray(product.product.mainImages) && product.product.mainImages.length > 0){
+            if(product.product && product.product.mainImages && Array.isArray(product.product.mainImages) && product.product.mainImages.length > 0){
               image = product.product.mainImages[0]
             }
             if(!image) {
-              if(product.product.options && Array.isArray(product.product.options) && product.product.options.length > 0) {
+              if(product.product && product.product.options && Array.isArray(product.product.options) && product.product.options.length > 0) {
                 image = product.product.options[0]
               }
             }
             if(!image) {
-              if(product.basic.content && Array.isArray(product.basic.content) && product.basic.content.length > 0) {
+              if(product.basic && product.basic.content && Array.isArray(product.basic.content) && product.basic.content.length > 0) {
                 image = product.basic.content[0]
               }
             }
@@ -10843,7 +10843,7 @@ const resolvers = {
           })
         )
         
-        return productList.filter(item => item.detailUrl && !item.detailUrl.includes("iherb.com")).map(item => {
+        return productList.filter(item => item.detailUrl && !item.detailUrl.includes("iherb.com") && !item.detailUrl.includes("aliexpress")).map(item => {
           return {
             ...item,
             content: item.content && Array.isArray(item.content) ? item.content.filter(item => item && !item.includes("gif"))
