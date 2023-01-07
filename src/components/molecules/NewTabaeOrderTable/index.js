@@ -84,6 +84,9 @@ const NewTabaeOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
     },
     {
       title: "수취인(영어)",
+      width: 120,
+      textWrap: 'word-break',
+      render: (data) => <KortoEngTitle text={data.valid_number.name} />
     },
     {
       title: "휴대폰 번호",
