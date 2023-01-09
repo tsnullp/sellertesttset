@@ -28,6 +28,7 @@ import {
   UNIPASSVALID,
   TAOBAO_ORDER_BATCH,
   TABAE_ORDER_BATCH,
+  NEW_TABAE_ORDER_BATCH,
   SET_ORDER_SHIPPING,
   SET_TAOBAO_URL
 } from "gql"
@@ -59,6 +60,7 @@ const OrderForm = ({ orderState }) => {
   const [tabaeOrderExcel, setTaeOrderExcel] = useState([])
   const [taobaoOrder] = useMutation(TAOBAO_ORDER_BATCH)
   const [tabaeOrder] = useMutation(TABAE_ORDER_BATCH)
+  const [newTabaeOrder] = useMutation(NEW_TABAE_ORDER_BATCH)
   const [setOrderShipping] = useMutation(SET_ORDER_SHIPPING)
 
   const [isTaobaoOrderModalVisible, setTaobaoOrderModalVisible] = useState(false)
@@ -661,7 +663,7 @@ const OrderForm = ({ orderState }) => {
         )}
         {(orderState === "상품준비" || orderState === "배송지시" || orderState === "배송중") && (
           <Button
-            style={{ background: "green", color: "white" }}
+            style={{ background: "gray", color: "white" }}
             onClick={() => {
               console.log("itemData", itemData)
               console.log("selectedRow", selectedRow)
@@ -741,7 +743,7 @@ const OrderForm = ({ orderState }) => {
         data={selectedRow}/> */}
 
         <Button
-          type="primary"
+          style={{background: "gray", color: "white"}}
           onClick={async () => {
             const response = await tabaeOrder({
               variables: {
@@ -762,6 +764,30 @@ const OrderForm = ({ orderState }) => {
         >
           (구)배대지 수집
         </Button>
+
+        <Button
+          type="primary"
+          onClick={async () => {
+            const response = await newTabaeOrder({
+              variables: {
+                userID: selectUser
+              }
+            })
+            console.log("response", response)
+            // message.success("데이터 수집을 시작합니다.")
+            notification["success"]({
+              message: "배대지 주문서 수집을 시작합니다.",
+              description: (
+                <>
+                  <div>이 작업은 오래 걸립니다.</div>
+                </>
+              ),
+            })
+          }}
+        >
+          (뉴)배대지 수집
+        </Button>
+
       </ButtonContainer>
       <BackTop />
       <Table

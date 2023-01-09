@@ -5,6 +5,7 @@ const findExchange = require("../puppeteer/findExchange")
 const searchCafe24OrderList = require("../puppeteer/searchCafe24OrderList")
 const searchCafe24 = require("../puppeteer/searchCafe24")
 const deliveryDestination = require("../puppeteer/deliveryDestination")
+const deliveryDestinationNew = require("../puppeteer/deliveryDestinationNew")
 const searchTaobaoOrderList = require("../puppeteer/searchTaobaoOrderList")
 const MarketOrder = require("../models/MarketOrder")
 const { GetOrderSheet, GetOrderID } = require("../api/Market")
@@ -1641,6 +1642,56 @@ const resolvers = {
               console.log("배대지 주문서 수집 시작")
               if (item && item.deliverySite && item.deliverySite.loginID && item.deliverySite.password) {
                 await deliveryDestination({
+              
+                  userID: item.userID,
+                  loginID: item.deliverySite.loginID,
+                  password: item.deliverySite.password
+                })
+              }
+            } catch (e) {
+              console.log("deliveryDestination", e)
+            } finally {
+              console.log("배대지 주문서 수집 끝")
+            }
+          }
+        }, 1000)
+        return true
+      } catch (e) {
+        logger.error(`TabaeOrderBatch ${e.message}`)
+        return false
+      }
+    },
+    NewTabaeOrderBatch: async (
+      parent, {userID}, {req, model:{Market},  logger} 
+    ) => {
+      try {
+        setTimeout(async() => {
+          try {
+            console.log("환율 조회 시작")
+            await findExchange()
+          } catch (e) {
+            console.log("fineExchange", e)
+          } finally {
+            console.log("환율 조회 끝")
+          }
+        }, 1000)
+        setTimeout(async() => {
+          const user = userID ? userID : req.user.adminUser
+          
+          
+          const market = await Market.aggregate([
+            {
+              $match: {
+                userID: ObjectId(user)
+              }
+            }
+          ])
+        
+          for (const item of market) {
+            try {
+              console.log("배대지 주문서 수집 시작")
+              if (item && item.deliverySite && item.deliverySite.loginID && item.deliverySite.password) {
+                await deliveryDestinationNew({
               
                   userID: item.userID,
                   loginID: item.deliverySite.loginID,

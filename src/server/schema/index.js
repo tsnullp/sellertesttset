@@ -2193,6 +2193,7 @@ const schema = gql`
 
     TaobaoOrderBatch(userID: ID): Boolean
     TabaeOrderBatch(userID: ID): Boolean
+    NewTabaeOrderBatch(userID: ID): Boolean
 
     GetTaobaoItem(orderNumber: String): TaobaoItemType
     UnipassValid(name: String, customID: String, phone: String): Boolean

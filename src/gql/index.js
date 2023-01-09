@@ -2370,6 +2370,12 @@ export const TABAE_ORDER_BATCH = gql`
   }
 `
 
+export const NEW_TABAE_ORDER_BATCH = gql`
+  mutation NewTabaeOrderBatch($userID: ID) {
+    NewTabaeOrderBatch(userID: $userID)
+  }
+`
+
 export const SALES_CLENDAR = gql`
   query SalesClendar($date: String, $userID: ID) {
     SalesClendar(date: $date, userID: $userID) {
