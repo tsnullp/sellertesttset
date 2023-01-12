@@ -235,6 +235,7 @@ const NewTabaeOrderTable = ({isModalVisible, handleOk, handleCancel, data}) => {
       title: "부가서비스",
       width: 60,
       ellipsis: true,
+      render: () => "2"
     },
     {
       title: "화물 선착불 선불=1, 착불=0",
