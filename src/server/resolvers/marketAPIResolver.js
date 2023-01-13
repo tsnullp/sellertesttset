@@ -3230,7 +3230,7 @@ const updateCafe24 = async ({
     if (productTemp) {
       product.coupang = productTemp.product.coupang
     }
-
+    
     await Product.findOneAndUpdate(
       {
         userID,

@@ -10909,7 +10909,7 @@ const resolvers = {
     
       
                   const approveResponse = await CoupangAPPROVE_PRODUCT({
-                    userID: user,
+                    userID: product.userID,
                     sellerProductId: response.data.sellerProductId,
                   })
     
@@ -10934,8 +10934,8 @@ const resolvers = {
                       mallID: product.product.cafe24.mallID,
                       shop_no: product.product.cafe24.shop_no,
                     },
-                    userID: user,
-                    writerID: user,
+                    userID: product.userID,
+                    writerID: product.writerID,
                   })
                   // console.log("cafe24Response", cafe24Response)
                 }
