@@ -26,7 +26,7 @@ const {
   NaverKeywordRel
 } = require("../api/Naver")
 const { GetNaverExcelItem } = require("../api/ExcelFile")
-const { sleep, checkStr, AmazonAsin, ranking, DimensionArray } = require("../../lib/usrFunc")
+const { sleep, checkStr, AmazonAsin, ranking, DimensionArray, imageCheck } = require("../../lib/usrFunc")
 const { updateCoupang, updateCafe24 } = require("./marketAPIResolver")
 
 const ObjectId = mongoose.Types.ObjectId
@@ -10877,7 +10877,13 @@ const resolvers = {
                 
                 let html = ``
                 for(const img of item.content.filter(fItem => fItem && fItem.length > 0 && fItem.includes("http"))){
-                  html += `<img src="${img}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+                  try {
+                    await imageCheck(img)
+                    html += `<img src="${img}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+                  } catch(e) {
+                    console.log("ImageCheck--", e)
+                  }
+                   
                 }
     
                 const htmlContent = `${product.product.gifHtml ? product.product.gifHtml : ""}${product.product.topHtml}${

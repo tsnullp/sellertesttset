@@ -159,9 +159,10 @@ const DetailPageList = () => {
               const response = await setModifyDetailPages({
                 variables: {
                   input: translateList.map(item => {
+                    const original = item["상세페이지 원본"].includes("https://tsnullp") ? item["상세페이지 원본"] : item["상세페이지 번역"]
                     return {
                       _id: item.아이디,
-                      content: item["상세페이지 번역"].split("#").filter(item => item.includes("jpg"))
+                      content: original.split("#").filter(item => item.includes("jpg"))
                     }
                   })
                 }
