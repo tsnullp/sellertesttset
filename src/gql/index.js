@@ -1303,6 +1303,12 @@ export const CAFE24_AUTO = gql`
   }
 `
 
+export const CAFE24_TOKEN = gql`
+  mutation Care24Token {
+    Cafe24Token
+  }
+`
+
 export const INTERPARK_AUTO = gql`
   mutation InterparkAuto {
     InterparkAuto

@@ -1,4 +1,5 @@
 const cafe24 = require("../puppeteer/cafe24")
+const cafe24Token = require("../puppeteer/cafe24Token")
 const interpark = require("../puppeteer/interpark")
 const Market = require("../models/Market")
 const mongoose = require("mongoose")
@@ -30,6 +31,16 @@ const resolvers = {
         return true
       } catch (e) {
         logger.error(`Cafe24Auto: ${e}`)
+        return false
+      }
+    },
+    Cafe24Token: async (parent, {}, { req, logger }) => {
+      try {
+        cafe24Token()
+        
+        return true
+      } catch (e) {
+        logger.error(`Cafe24Token: ${e}`)
         return false
       }
     },

@@ -2090,6 +2090,7 @@ const schema = gql`
     GetExcelNaver: Boolean
     GetCategoryWithTitle(title: String): Boolean
     Cafe24Auto: Boolean
+    Cafe24Token: Boolean
     InterparkAuto: Boolean
     VatListType(startDate: String, endDate: String, search: String, userID: ID): [VatListType]
     GetDeliveryImage(shippingNumber: String, type: String): String

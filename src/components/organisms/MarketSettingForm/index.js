@@ -10,6 +10,7 @@ import {
   NAVERSHOPPING_UPLOAD,
   CAFE24_SYNC,
   CAFE24_AUTO,
+  CAFE24_TOKEN,
   DUPLICATE_PRODUCT_LIST,
   INTERPARK_AUTO
 } from "gql"
@@ -725,6 +726,7 @@ const Cafe24Info = ({ item, refetch }) => {
   const [cafe24Sync] = useMutation(CAFE24_SYNC)
   const [cafe24Duplicate] = useMutation(DUPLICATE_PRODUCT_LIST)
   const [cafe24Auto] = useMutation(CAFE24_AUTO)
+  const [cafe24Token] = useMutation(CAFE24_TOKEN)
   const [naverLoading, setNaverLoading] = useState(false)
   const [syncLoading, setSyncLoading] = useState(false)
   const [duplicateLoading, setDuplicateLoading] = useState(false)
@@ -856,6 +858,23 @@ const Cafe24Info = ({ item, refetch }) => {
           </AttributeDetailNamesContainer>
 
           <ButtonContainer>
+          <Button
+              danger
+              htmlType="button"
+              onClick={async () => {
+               
+                try {
+                  await cafe24Token()
+                } catch(e){
+                  console.log("dd", e)
+                } finally {
+               
+                }
+                
+              }}
+            >
+              카페24 안될때
+            </Button>
           <Button
               disabled
               danger
