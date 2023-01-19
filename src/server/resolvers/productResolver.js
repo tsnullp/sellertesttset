@@ -1692,7 +1692,7 @@ const resolvers = {
         }
 
         const shippingPrice = await ShippingPrice.find({
-          userID: req.user.adminUser,
+          userID: ObjectId(user),
           type: 2,
         }).sort({ title: 1 })
 

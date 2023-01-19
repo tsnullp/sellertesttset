@@ -2192,8 +2192,8 @@ export const GET_AMAZON_JP_SHIPPINGPRICE_LIST = gql`
 `
 
 export const GET_SHIPPINGPRICE = gql`
-  mutation GetShippingPrice {
-    GetShippingPrice {
+  mutation GetShippingPrice ($userID: ID) {
+    GetShippingPrice(userID: $userID) {
       _id
       title
       price
@@ -2201,8 +2201,8 @@ export const GET_SHIPPINGPRICE = gql`
   }
 `
 export const GET_USA_SHIPPINGPRICE = gql`
-  mutation GetUSAShippingPrice {
-    GetUSAShippingPrice {
+  mutation GetUSAShippingPrice($userID: ID)  {
+    GetUSAShippingPrice (userID: $userID){
       _id
       title
       price

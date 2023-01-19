@@ -130,6 +130,7 @@ const ProductList = () => {
     try {
       setTimeout(async () => {
         const response = await getShippingPrice()
+        console.log("response", response)
         const usaResponse = await getUSAShippingPrice()
         if (response.data.GetShippingPrice.length === 0) {
           message.error("추가금액과 배송비 설정이 되지 않았습니다.")
@@ -863,8 +864,25 @@ const ProductList = () => {
     }
   }
 
-  const handleSelectChange = (value) => {
+  const handleSelectChange = async (value) => {
     setSelectUser(value)
+    
+    const response = await getShippingPrice({
+      variables: {
+        userID: value
+      }
+    })
+    const usaResponse = await getUSAShippingPrice({
+      variables: {
+        userID: value
+      }
+    })
+    if (response.data.GetShippingPrice.length === 0) {
+      message.error("추가금액과 배송비 설정이 되지 않았습니다.")
+    }
+    
+    SetShippingprice(response.data.GetShippingPrice)
+    SetUSAShippingprice(usaResponse.data.GetUSAShippingPrice)
   }
 
   const rowSelection = {

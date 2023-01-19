@@ -1,3 +1,6 @@
+const mongoose = require("mongoose")
+const ObjectId = mongoose.Types.ObjectId
+
 const resolvers = {
   Query: {
     GetAddPriceList: async (parent, {}, { req, model: { ShippingPrice }, logger }) => {
@@ -485,12 +488,14 @@ const resolvers = {
         return false
       }
     },
-    GetShippingPrice: async (parent, {}, { req, model: { ShippingPrice }, logger }) => {
+    GetShippingPrice: async (parent, {userID}, { req, model: { ShippingPrice }, logger }) => {
       try {
+        const user = userID ? userID : req.user.adminUser
+        console.log("user", user)
         const list = await ShippingPrice.aggregate([
           {
             $match: {
-              userID: req.user.adminUser,
+              userID: ObjectId(user),
               type: 2,
             },
           },
@@ -506,12 +511,13 @@ const resolvers = {
         return []
       }
     },
-    GetUSAShippingPrice: async (parent, {}, { req, model: { ShippingPrice }, logger }) => {
+    GetUSAShippingPrice: async (parent, {userID}, { req, model: { ShippingPrice }, logger }) => {
       try {
+        const user = userID ? userID : req.user.adminUser
         const list = await ShippingPrice.aggregate([
           {
             $match: {
-              userID: req.user.adminUser,
+              userID: ObjectId(user),
               type: 5,
             },
           },

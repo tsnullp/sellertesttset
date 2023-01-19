@@ -2172,8 +2172,8 @@ const schema = gql`
     SetAmazonJPShippingPrice(_id: ID, title: Float, price: Float): Boolean
     DeleteShippingPrice(_id: ID): Boolean
 
-    GetShippingPrice: [AddPriceType]
-    GetUSAShippingPrice: [AddPriceType]
+    GetShippingPrice(userID: ID): [AddPriceType]
+    GetUSAShippingPrice(userID: ID): [AddPriceType]
 
     SetMargin(margin: Float): Boolean
 
