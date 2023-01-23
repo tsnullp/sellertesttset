@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react'
-import { Cascader } from 'antd'
+import { Cascader, Select } from 'antd'
 
 
 const TabaeCategory = ({categoryChange}) => {
@@ -188,15 +188,27 @@ const TabaeCategory = ({categoryChange}) => {
     }
   }
   return (
-  <Cascader
-    //   size="small"
-      placeholder="품목을 선택해 주세요."
-      matchInputWidth={false}
-      options={options}
-      onChange={onChange}
-      showSearch={{ filter }}
-      style={{ width: "100%" }}
-      allowClear={false}
+  // <Cascader
+  //   //   size="small"
+  //     placeholder="품목을 선택해 주세요."
+  //     matchInputWidth={false}
+  //     options={options}
+  //     onChange={onChange}
+  //     showSearch={{ filter }}
+  //     style={{ width: "100%" }}
+  //     allowClear={false}
+  //   />
+  <Select
+    showSearch
+    placeholder="품목을 선택해 주세요."
+    optionFilterProp="children"
+    onChange={onChange}
+    onSearch={onChange}
+    filterOption={(input, option) =>
+      option.label.includes(input) ? true : false
+    }
+    options={options}
+    style={{ width: "100%" }}
     />
   )
 }

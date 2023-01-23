@@ -5,6 +5,7 @@ import {
   TabaeOrderTable,
   NewTabaeOrderTable,
   TaobaoOrderModal,
+  FirstOrderTable,
   TaobaoOrderManualModal,
   UserSelect,
   LinkUrlModal
@@ -66,6 +67,7 @@ const OrderForm = ({ orderState }) => {
   const [isTaobaoOrderModalVisible, setTaobaoOrderModalVisible] = useState(false)
   const [isCoolzikcuConvertModalVisible, setCoolzikcuConvertModalVisible] = useState(false)
   const [isNewTabaeModalVisible, SetNewTabaeModalVisible] = useState(false)
+  const [isFirstModalVisible, SetFirstModalVisible] = useState(false)
 
   const { data, refetch, networkStatus } = useQuery(LIST_ALL_ORDER, {
     variables: {
@@ -89,16 +91,22 @@ const OrderForm = ({ orderState }) => {
     SetNewTabaeModalVisible(true)
   }
 
+  const showFirstModal = () => {
+    SetFirstModalVisible(true)
+  }
+
   const handleOk = () => {
     setIsModalVisible(false)
     setCoolzikcuConvertModalVisible(false)
     SetNewTabaeModalVisible(false)
+    SetFirstModalVisible(false)
   }
 
   const handleCancel = () => {
     setIsModalVisible(false)
     setCoolzikcuConvertModalVisible(false)
     SetNewTabaeModalVisible(false)
+    SetFirstModalVisible(false)
   }
 
   const handleProdcutData = (i, values) => {
@@ -463,6 +471,7 @@ const OrderForm = ({ orderState }) => {
         return data.items.map((item, index) => {
           return (
             <ProductForm
+              key={index}
               row={row}
               index={index}
               item={item}
@@ -706,6 +715,31 @@ const OrderForm = ({ orderState }) => {
           
           showNewTabaeModal()
         }}>(뉴)타배 엑셀생성</Button>}
+
+        {isFirstModalVisible && (
+          <FirstOrderTable
+            isModalVisible={isFirstModalVisible}
+            handleOk={handleOk}
+            handleCancel={handleCancel}
+            data={selectedRow}
+          />
+        )}
+
+        {(orderState === "상품준비" || orderState === "배송지시" || orderState === "배송중") && 
+        <Button 
+        style={{ background: "blue", color: "white" }}
+        onClick={() => {
+        
+
+          let temp = selectedRow.map(item => {
+            return (
+              itemData.filter(fItem => fItem.market_order_info === item.market_order_info)[0]
+            )
+          })
+          setSelectedRow(temp)
+          
+          showFirstModal()
+        }}>퍼스트 엑셀생성</Button>}
         {orderState === "배송지시" && (
           <Button
             

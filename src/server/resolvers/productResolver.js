@@ -1805,7 +1805,8 @@ const resolvers = {
                           base: Oitem.base,
                           cafe24_variant_code: Oitem.cafe24 ? Oitem.cafe24.variant_code : null,
                           coupang_sellerProductItemId: Oitem.coupang
-                            ? Oitem.coupang.sellerProductItemId
+                            ? Oitem
+                            .coupang.sellerProductItemId
                             : null,
                           coupang_vendorItemId: Oitem.coupang ? Oitem.coupang.vendorItemId : null,
                           coupang_itemId: Oitem.coupang ? Oitem.coupang.itemId : null,

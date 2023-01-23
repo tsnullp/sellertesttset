@@ -292,9 +292,9 @@ const ExplainingDataForm = () => {
             <CellCenter>
               {moment(item.taobaoItem.orderDate, "YYYYMMDD").format("YYYY-MM-DD")}
             </CellCenter>
-            <CellCenter>
+            {/* <CellCenter>
               {moment(item.taobaoItem.orderTime, "HHmmSS").format("HH:mm:SS")}
-            </CellCenter>
+            </CellCenter> */}
           </div>
           )
         })
@@ -564,9 +564,9 @@ const ExplainingDataForm = () => {
             <CellCenter>
               {moment(item.taobaoItem.orderDate, "YYYYMMDD").format("YYYY-MM-DD")}
             </CellCenter>
-            <CellCenter>
+            {/* <CellCenter>
               {moment(item.taobaoItem.orderTime, "HHmmSS").format("HH:mm:SS")}
-            </CellCenter>
+            </CellCenter> */}
           </div>
           )
         })
@@ -1058,9 +1058,9 @@ const ExplainingDataForm = () => {
                     <CellCenter>
                       {moment(item.taobaoItem.orderDate, "YYYYMMDD").format("YYYY-MM-DD")}
                     </CellCenter>
-                    <CellCenter>
+                    {/* <CellCenter>
                       {moment(item.taobaoItem.orderTime, "HHmmSS").format("HH:mm:SS")}
-                    </CellCenter>
+                    </CellCenter> */}
                   </div>
                 )
               })
