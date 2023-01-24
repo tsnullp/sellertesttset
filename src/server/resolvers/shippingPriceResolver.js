@@ -556,6 +556,54 @@ const resolvers = {
         return false
       }
     },
+    DeleteAllWeight: async (parent, {userID}, {req, model: {ShippingPrice}, logger }) => {
+      try {
+        const user = userID ? userID : req.user.adminUser
+
+        await ShippingPrice.deleteMany({
+          userID: ObjectId(user),
+          type: 2
+        })
+
+        return true
+      } catch (e) {
+        logger.error(`DeleteAllWeight: ${e}`)
+        return false
+      }
+    },
+    SetAllWeight: async (parent, {userID, input}, {req, model: {ShippingPrice}, logger }) => {
+      try {
+        const user = userID ? userID : req.user.adminUser
+        for(const item of input) {
+          try {
+            await ShippingPrice.findOneAndUpdate(
+              {
+                userID: ObjectId(user),
+                type: 2,
+                title: Number(item.weight)
+              },
+              {
+                $set: {
+                  userID: ObjectId(user),
+                  type: 2,
+                  title: Number(item.weight.replace("kg", "").replace("KG", "")),
+                  price: Number(item.price.replace(/,/, "")),
+                }
+              },
+              {
+                upsert: true, new: true
+              }
+            )
+          } catch (e){
+            console.log("000", e)
+          }
+        }
+        return true
+      } catch (e) {
+        logger.error(`SetAllWeight: ${e}`)
+        return false
+      }
+    }
   },
 }
 

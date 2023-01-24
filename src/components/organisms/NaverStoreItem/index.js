@@ -53,6 +53,7 @@ import {
 import { RandomWords, AmazonAsin } from "../../../lib/userFunc"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 
+import _ from "lodash"
 import SimpleBar from "simplebar-react"
 import "simplebar/dist/simplebar.min.css"
 
@@ -892,9 +893,10 @@ const NaverItem = ({
   }, [])
 
   const handleChange = (value) => {
+    // setShppingPrice(index, value)
     setTimeout(() => {
       setShppingPrice(index, value)
-    }, 200)
+    }, 300)
   }
 
   const getPurchaseLable = ({
@@ -1727,12 +1729,28 @@ const NaverItem = ({
 }
 
 const ShippingForm = ({ shippingWeight, shippingPrice, handleChange }) => {
+
+  const [lshippingWeight, setlshippingWeight] = useState(shippingWeight)
+  const [lshippingPrice, setlshippingPrice] = useState(shippingPrice)
+
+  useEffect(() => {
+    if(shippingWeight !== lshippingWeight) {
+      
+      setlshippingWeight(shippingWeight)
+    }
+  }, [shippingWeight])
+  useEffect(() => {
+    
+    setlshippingPrice(shippingPrice)
+  }, [shippingPrice])
   const getDefaultValue = () => {
-    const temp = shippingPrice.filter((item) => item.title === shippingWeight)
-    if (temp.length > 0) {
-      return `${temp[0].title}Kg (${temp[0].price.toLocaleString("ko")}원)`
+    const temp =  _.find(lshippingPrice, {title: lshippingWeight})
+
+    // const temp = lshippingPrice.filter((item) => item.title === lshippingWeight)
+    if (temp) {
+      return `${temp.title}Kg (${temp.price.toLocaleString("ko")}원)`
     } else {
-      return `${shippingPrice[0].title}Kg (${shippingPrice[0].price.toLocaleString("ko")}원)`
+      return `${lshippingPrice[0].title}Kg (${lshippingPrice[0].price.toLocaleString("ko")}원)`
     }
   }
   return (
@@ -1744,7 +1762,7 @@ const ShippingForm = ({ shippingWeight, shippingPrice, handleChange }) => {
       style={{ width: 180, border: "3px solid #512da8" }}
       onChange={handleChange}
     >
-      {shippingPrice.map((item, index) => (
+      {lshippingPrice.map((item, index) => (
         <Option key={index} value={item.title}>{`${item.title}Kg (${item.price.toLocaleString(
           "ko"
         )}원)`}</Option>

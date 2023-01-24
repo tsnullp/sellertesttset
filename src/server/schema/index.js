@@ -1867,6 +1867,11 @@ const schema = gql`
     content: [String]
   }
 
+  input AllWeightType {
+    weight: String
+    price: String
+  }
+
   type Query {
     "A simple type for getting started!"
     hello: String
@@ -2358,6 +2363,9 @@ const schema = gql`
     GetDetailImageList(userID: ID): [DetailImageListType]
 
     SetModifyDetailPage(input:[ModifyDetailPageType]): Boolean
+
+    DeleteAllWeight(userID: ID): Boolean
+    SetAllWeight(userID: ID, input: [AllWeightType]): Boolean
   }
 `
 

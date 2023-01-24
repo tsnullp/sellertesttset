@@ -4092,3 +4092,15 @@ export const SET_MODIFY_DETAIL_PAGES = gql`
     SetModifyDetailPage(input: $input)
   }
 `
+
+export const DELETE_ALL_WEIGHT = gql`
+  mutation DeleteAllWeight($userID: ID) {
+    DeleteAllWeight(userID: $userID)
+  }
+`
+
+export const SET_ALL_WEIGHT = gql`
+  mutation SetAllWeight($userID: ID, $input:[AllWeightType]) {
+    SetAllWeight(userID: $userID, input: $input)
+  }
+`

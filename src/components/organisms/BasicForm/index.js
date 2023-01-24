@@ -43,10 +43,12 @@ import {
   DELETE_SHIPPINGPRICE,
   GET_MARGIN,
   SET_MARGIN,
+  DELETE_ALL_WEIGHT,
+  SET_ALL_WEIGHT
 } from "../../../gql"
 import { useFormik } from "formik"
 import styled from "styled-components"
-import { TextEditor } from "components"
+import { TextEditor, ExcelImport } from "components"
 import { DeleteOutlined, CheckOutlined } from "@ant-design/icons"
 import Checkbox from "antd/lib/checkbox/Checkbox"
 
@@ -855,6 +857,8 @@ const ShippingPriceForm = ({ items, refetch }) => {
   const [price, setPrice] = useState(0)
 
   const [addShipping] = useMutation(SET_SHIPPINGPRICE)
+  const [deleteAllWeight] = useMutation(DELETE_ALL_WEIGHT)
+  const [setAllWeight] = useMutation(SET_ALL_WEIGHT)
 
   const showModal = () => {
     setIsModalVisible(true)
@@ -887,8 +891,50 @@ const ShippingPriceForm = ({ items, refetch }) => {
     setPrice(0)
   }
 
+  const handleExcel = async(value) => {
+    console.log("value--", value)
+    const response = await setAllWeight({
+      variables: {
+        input: value.map(item => {
+          return {
+            weight: item.무게.toString(),
+            price: item.비용.toString()
+          }
+        })
+      }
+    })
+    console.log("response", response)
+    if (response.data.SetAllWeight) {
+      refetch()
+    } else {
+      message.error("실패하였습니다.")
+    }
+  }
+
+  const deleteAllConfirm = async () => {
+    const response = await deleteAllWeight()
+
+    if (response.data.DeleteAllWeight) {
+      refetch()
+      message.info("삭제 하였습니다.")
+    } else {
+      message.error("삭제에 실패하였습니다.")
+    }
+  }
+
   return (
     <>
+      <WeightButtonContainer>
+        <ExcelImport size="middle" title="(무게, 비용) 불러오기" onSuccess={handleExcel} />
+        <Popconfirm
+          title="삭제하시겠습니까?"
+          onConfirm={deleteAllConfirm}
+          okText="예"
+          cancelText="아니오"
+        >
+          <Button type="primary" danger icon={<DeleteOutlined />}>전체삭제</Button>
+        </Popconfirm>
+      </WeightButtonContainer>
       {items.map((item, index) => (
         <ShippingdPriceItemForm key={index} item={item} refetch={refetch} />
       ))}
@@ -1955,4 +2001,13 @@ const ButtonContainer = styled.div`
   margin-top: 30px;
   display: flex;
   justify-content: flex-end;
+`
+
+const WeightButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  &>:nth-child(1){
+    margin-right: 10px;
+  }
 `
