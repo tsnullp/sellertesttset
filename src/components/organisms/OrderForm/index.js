@@ -972,7 +972,8 @@ const ProductForm = ({ row, index, item, handleTaobaoOrderNumber, handleTabaeCat
   }
 
   const handleCategroyChange = (value) => {
-    handleTabaeCategroyChange(row, index, value[value.length - 1])
+    
+    handleTabaeCategroyChange(row, index, value)
   }
 
   const handleNewWindow = (productID) => {

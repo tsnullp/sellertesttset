@@ -182,7 +182,7 @@ const TabaeCategory = ({categoryChange}) => {
   }
 
   const onChange = (value) => {
-    console.log(value);
+    
     if(typeof categoryChange === "function"){
       categoryChange(value)
     }
@@ -14028,38 +14028,7 @@ const options = [
      "value": "3500",
      "label": "카디건> 카디건"
     },
-    {
-     "value": "3501",
-     "label": "카디건> 카디건"
-    },
-    {
-     "value": "3502",
-     "label": "카디건> 카디건"
-    },
-    {
-     "value": "3708",
-     "label": "카디건> 카디건"
-    },
-    {
-     "value": "3709",
-     "label": "카디건> 카디건"
-    },
-    {
-     "value": "3710",
-     "label": "카디건> 카디건"
-    },
-    {
-     "value": "3797",
-     "label": "카디건> 카디건"
-    },
-    {
-     "value": "3798",
-     "label": "카디건> 카디건"
-    },
-    {
-     "value": "3799",
-     "label": "카디건> 카디건"
-    },
+    
     {
      "value": "926",
      "label": "카메라/캠코더 관련용품> 기타카메라/캠코더용품"
