@@ -47,7 +47,7 @@ const start = async ({  userID, loginID, password }) => {
           return element.map(ele => {
             return {
               orderNumber: ele.querySelector(".project-name > h4 > a").textContent.trim(),
-              shippingNumber: ele.querySelector(".num").textContent.trim()
+              shippingNumber: ele.querySelector("strong.num").textContent.trim()
             }
           })
         }
@@ -338,7 +338,7 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
                 )
                 
             
-        
+                console.log("tempOrderItmes", tempOrderItmes.length)
                 for (const orderItem of deliveryTemp.orderItems) {
         
                   
@@ -439,13 +439,13 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
                 }
         
                 for (const orderItem of tempOrderItmes) {
-        
+                  console.log("orderItem.오픈마켓명", orderItem.오픈마켓명)
                   if(orderItem.오픈마켓명 && orderItem.오픈마켓명 === "wemake"){
                     continue
                   }
-                  // console.log("cafe24OrderResponse", cafe24OrderResponse)
+                  console.log("cafe24OrderResponse", cafe24OrderResponse.length)
                   const tempCafe24Order = cafe24OrderResponse.filter(fItem => fItem.market_order_info === orderItem.오픈마켓주문번호)
-                  
+                  console.log("tempCafe24Order", tempCafe24Order.length)
                   if(tempCafe24Order.length > 0){
                     const marketOrder = await MarketOrder.findOne({
                       userID: ObjectId(user._id),

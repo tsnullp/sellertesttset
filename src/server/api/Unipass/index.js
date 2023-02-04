@@ -19,8 +19,11 @@ exports.customs = async ({persEcm, pltxNm = [], cralTelno}) => {
 
 
       const result1 = JSON.parse(convert.xml2json(response.data.toString(), {compact: true, spaces: 4}));
-     
-      if(result1 && result1.persEcmQryRtnVo && result1.persEcmQryRtnVo.tCnt._text === "1"){
+      // console.log("result1.persEcmQryRtnVo", result1.persEcmQryRtnVo)
+      // console.log("result1", result1.persEcmQryRtnVo.persEcmQryRtnErrInfoVo.errMsgCn)
+      if((result1 && result1.persEcmQryRtnVo && result1.persEcmQryRtnVo.tCnt._text === "1") ||
+      (result1 && result1.persEcmQryRtnVo && result1.persEcmQryRtnVo.persEcmQryRtnErrInfoVo.errMsgCn._text === "납세의무자 휴대전화번호가 일치하지 않습니다.")
+      ){
         returnValue = {
           name,
           persEcm
