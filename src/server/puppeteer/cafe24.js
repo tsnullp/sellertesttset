@@ -15,7 +15,7 @@ const start = async ({ mallID, password }) => {
   await page.setJavaScriptEnabled(true)
 
   try {
-    await page.goto("https://eclogin.cafe24.com/Shop/", { waituntil: "networkidle0" })
+    await page.goto("https://eclogin.cafe24.com/Shop/?mode=mp", { waituntil: "networkidle0" })
 
     const opts = {
       delay: 6 + Math.floor(Math.random() * 2), //每个字母之间输入的间隔
@@ -43,30 +43,30 @@ const start = async ({ mallID, password }) => {
       }
     } catch {}
 
-    await page.waitForSelector("#QA_Lnb_Menu1553")
-    await page.hover("#QA_Lnb_Menu1553")
+    // await page.waitForSelector("#QA_Lnb_Menu1553")
+    // await page.hover("#QA_Lnb_Menu1553")
 
-    // await page.mouse.down()
-    await page.click("#QA_Lnb_Menu1553")
+    // // await page.mouse.down()
+    // await page.click("#QA_Lnb_Menu1553")
 
-    const marketPage = await browser.newPage()
+    // const marketPage = await browser.newPage()
 
-    marketPage.on("dialog", async (dialog) => {
-      if (dialog) {
-        await dialog.dismiss()
-      }
-    })
+    // marketPage.on("dialog", async (dialog) => {
+    //   if (dialog) {
+    //     await dialog.dismiss()
+    //   }
+    // })
 
     await page.waitFor(5000)
 
-    await marketPage.goto(
-      `https://${mallID}.shopcafe.cafe24.com/mp/product/front/noSale?page=${1}`,
+    await page.goto(
+      `https://mp.cafe24.com/mp/product/front/noSale?page=${1}`,
       {
         waituntil: "networkidle0",
       }
     )
-
-    const total = await marketPage.$eval(
+    await page.waitFor(3000)
+    const total = await page.$eval(
       ".table-top-info > .top-txt-inline > .txt-inline > strong",
       (el) => el.innerText
     )
@@ -76,20 +76,20 @@ const start = async ({ mallID, password }) => {
       console.log("Page", i , " / ", totalPage)
       try {
         if (i !== 1) {
-          await marketPage.goto(
-            `https://${mallID}.shopcafe.cafe24.com/mp/product/front/noSale?page=${i}`,
+          await page.goto(
+            `https://mp.cafe24.com/mp/product/front/noSale?page=${i}`,
             {
               waituntil: "networkidle0",
             }
           )
         }
 
-        const productList = await getProductID({ page: marketPage })
+        const productList = await getProductID({ page: page })
 
         for (const item of productList) {
           try {
             if (item.length > 0) {
-              await detailProduct({ mallID, page: marketPage, prd_no: item })
+              await detailProduct({ mallID, page: page, prd_no: item })
             }
           } catch (e) {
             console.log("for Detail -", e)
