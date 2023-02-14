@@ -180,9 +180,11 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
               오픈마켓명 = item.querySelector("div > div.col > div > div > div > div:nth-child(11) > div").textContent.trim()
             } catch(e) {}
             try {
-              오픈마켓주문번호 = tem.querySelector("div > div.col > div > div > div > div:nth-child(12) > div").textContent.trim().replace("'", "").replace("`", "")
-            } catch(e) {}
-         
+              오픈마켓주문번호 = item.querySelector("div > div.col > div > div > div > div:nth-child(12) > div").textContent.trim().replace("'", "").replace("`", "")
+            } catch(e) {
+           
+            }
+    
             return {
               trackingNo,
               orderNo,
@@ -228,6 +230,8 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
       _id: ObjectId(userID)
     })
 
+
+    console.log("orderTables ----==", orderTables)
     if(userGroup && userGroup.group){
       const userGroups = await User.find({
         group: userGroup.group
@@ -254,11 +258,6 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
               orderNo: 주문번호
             })
 
-            console.log("주문번호 -- ", 주문번호, temp && temp.orderItems[i] && temp.orderItems[i].오픈마켓주문번호.trim().length > 0
-            ? temp.orderItems[i].오픈마켓주문번호.replace("`", "").replace("′", "").trim()
-            : item.오픈마켓주문번호.replace("`", "").replace("′", "").trim())
-
-            
             const deliveySave = await DeliveryInfo.findOneAndUpdate(
               {
                 userID: ObjectId(user._id),
@@ -276,6 +275,7 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
                   수취인연락처,
                   개인통관부호,
                   orderItems: orderTables.map((item, i) => {
+                    
                     return {
                       taobaoTrackingNo: item.trackingNo.replace("Tracking# 등록", ""),
                       taobaoOrderNo:
