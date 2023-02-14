@@ -168,7 +168,7 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
           .map(item => {
             let trackingNo = ""
             let orderNo = ""
-            let tra오픈마켓명ckingNo = ""
+            let 오픈마켓명 = ""
             let 오픈마켓주문번호 = ""
             try {
               trackingNo = item.querySelector("div > div.col > div > div > div > div:nth-child(1) > div").textContent.trim()
@@ -182,7 +182,7 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
             try {
               오픈마켓주문번호 = tem.querySelector("div > div.col > div > div > div > div:nth-child(12) > div").textContent.trim().replace("'", "").replace("`", "")
             } catch(e) {}
-
+            console.log("오픈마켓주문번호", 오픈마켓주문번호)
             return {
               trackingNo,
               orderNo,
