@@ -182,7 +182,7 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
             try {
               오픈마켓주문번호 = tem.querySelector("div > div.col > div > div > div > div:nth-child(12) > div").textContent.trim().replace("'", "").replace("`", "")
             } catch(e) {}
-            console.log("오픈마켓주문번호", 오픈마켓주문번호)
+         
             return {
               trackingNo,
               orderNo,
@@ -279,9 +279,9 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
                           ? temp.orderItems[i].taobaoOrderNo.replace("`", "").replace("′", "")
                           : item.orderNo.replace("`", "").replace("′", ""),
                       오픈마켓주문번호:
-                        temp && temp.orderItems[i] && temp.orderItems[i].오픈마켓주문번호.length > 0
-                          ? temp.orderItems[i].오픈마켓주문번호.replace("`", "").replace("′", "")
-                          : item.오픈마켓주문번호.replace("`", "").replace("′", "")
+                        temp && temp.orderItems[i] && temp.orderItems[i].오픈마켓주문번호.trim().length > 0
+                          ? temp.orderItems[i].오픈마켓주문번호.replace("`", "").replace("′", "").trim()
+                          : item.오픈마켓주문번호.replace("`", "").replace("′", "").trim()
                     }
                   }),
                   무게: Number(무게),
