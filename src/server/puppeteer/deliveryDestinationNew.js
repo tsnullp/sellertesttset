@@ -254,7 +254,11 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
               orderNo: 주문번호
             })
 
-            console.log("주문번호 -- ", 주문번호)
+            console.log("주문번호 -- ", 주문번호, temp && temp.orderItems[i] && temp.orderItems[i].오픈마켓주문번호.trim().length > 0
+            ? temp.orderItems[i].오픈마켓주문번호.replace("`", "").replace("′", "").trim()
+            : item.오픈마켓주문번호.replace("`", "").replace("′", "").trim())
+
+            
             const deliveySave = await DeliveryInfo.findOneAndUpdate(
               {
                 userID: ObjectId(user._id),
