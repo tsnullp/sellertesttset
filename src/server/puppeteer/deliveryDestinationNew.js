@@ -45,9 +45,13 @@ const start = async ({  userID, loginID, password }) => {
         "#frmList > .list-container > .project-con",
         element => {
           return element.map(ele => {
+            let shippingNumber = ""
+            try {
+              shippingNumber = ele.querySelector("strong.num").textContent.trim()
+            } catch(e) {}
             return {
               orderNumber: ele.querySelector(".project-name > h4 > a").textContent.trim(),
-              shippingNumber: ele.querySelector("strong.num").textContent.trim()
+              shippingNumber
             }
           })
         }
@@ -162,11 +166,28 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
         
         return element
           .map(item => {
+            let trackingNo = ""
+            let orderNo = ""
+            let tra오픈마켓명ckingNo = ""
+            let 오픈마켓주문번호 = ""
+            try {
+              trackingNo = item.querySelector("div > div.col > div > div > div > div:nth-child(1) > div").textContent.trim()
+            } catch(e) {}
+            try {
+              orderNo = item.querySelector("div > div.col > div > div > div > div:nth-child(2) > div").textContent.trim().replace("`", "")
+            } catch(e) {}
+            try {
+              오픈마켓명 = item.querySelector("div > div.col > div > div > div > div:nth-child(11) > div").textContent.trim()
+            } catch(e) {}
+            try {
+              오픈마켓주문번호 = tem.querySelector("div > div.col > div > div > div > div:nth-child(12) > div").textContent.trim().replace("'", "").replace("`", "")
+            } catch(e) {}
+
             return {
-              trackingNo: item.querySelector("div > div.col > div > div > div > div:nth-child(1) > div").textContent.trim(),
-              orderNo: item.querySelector("div > div.col > div > div > div > div:nth-child(2) > div").textContent.trim(),
-              오픈마켓명: item.querySelector("div > div.col > div > div > div > div:nth-child(11) > div").textContent.trim(),
-              오픈마켓주문번호: item.querySelector("div > div.col > div > div > div > div:nth-child(12) > div").textContent.trim().replace("'", "")
+              trackingNo,
+              orderNo,
+              오픈마켓명,
+              오픈마켓주문번호
             }
           })
       }
@@ -232,6 +253,8 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
               userID: ObjectId(user._id),
               orderNo: 주문번호
             })
+
+            console.log("주문번호 -- ", 주문번호)
             const deliveySave = await DeliveryInfo.findOneAndUpdate(
               {
                 userID: ObjectId(user._id),
@@ -253,12 +276,12 @@ const searchDetailPage = async ({ browser, tableItem, userID }) => {
                       taobaoTrackingNo: item.trackingNo.replace("Tracking# 등록", ""),
                       taobaoOrderNo:
                         temp && temp.orderItems[i] && temp.orderItems[i].taobaoOrderNo.length > 0
-                          ? temp.orderItems[i].taobaoOrderNo
-                          : item.orderNo,
+                          ? temp.orderItems[i].taobaoOrderNo.replace("`", "").replace("′", "")
+                          : item.orderNo.replace("`", "").replace("′", ""),
                       오픈마켓주문번호:
                         temp && temp.orderItems[i] && temp.orderItems[i].오픈마켓주문번호.length > 0
-                          ? temp.orderItems[i].오픈마켓주문번호
-                          : item.오픈마켓주문번호
+                          ? temp.orderItems[i].오픈마켓주문번호.replace("`", "").replace("′", "")
+                          : item.오픈마켓주문번호.replace("`", "").replace("′", "")
                     }
                   }),
                   무게: Number(무게),

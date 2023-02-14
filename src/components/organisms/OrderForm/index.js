@@ -670,7 +670,7 @@ const OrderForm = ({ orderState }) => {
             data={selectedRow}
           />
         )}
-        {(orderState === "상품준비" || orderState === "배송지시" || orderState === "배송중") && (
+        {/* {(orderState === "상품준비" || orderState === "배송지시" || orderState === "배송중") && (
           <Button
             style={{ background: "gray", color: "white" }}
             onClick={() => {
@@ -689,7 +689,7 @@ const OrderForm = ({ orderState }) => {
           >
             (구)타배 엑셀생성
           </Button>
-        )}
+        )} */}
 
         {isNewTabaeModalVisible && (
           <NewTabaeOrderTable
@@ -775,7 +775,7 @@ const OrderForm = ({ orderState }) => {
         handleOk={handleOk}
         handleCancel={handleCancel} 
         data={selectedRow}/> */}
-
+{/* 
         <Button
           style={{background: "gray", color: "white"}}
           onClick={async () => {
@@ -797,7 +797,7 @@ const OrderForm = ({ orderState }) => {
           }}
         >
           (구)배대지 수집
-        </Button>
+        </Button> */}
 
         <Button
           type="primary"
