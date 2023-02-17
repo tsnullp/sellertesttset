@@ -336,7 +336,7 @@ const NaverShoppingPage = () => {
                 : [],
             isNaver: val.type !== "coupang" ? true : false,
             html: item.html && item.html.length > 0 ? item.html : null,
-            detailImages: item.detailImages ? item.detailImages : []
+            detailImages: item.detailImages ? item.detailImages.filter(fItem => fItem && fItem.length > 0) : []
           })
         }
       
