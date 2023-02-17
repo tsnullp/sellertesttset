@@ -5195,7 +5195,8 @@ const resolvers = {
 
         return true
       } catch (e) {
-        logger.error(`UploadItemWinnerList: ${e}`)
+        console.log("UploadItemNaverList", e)
+        logger.error(`UploadItemNaverList: ${e}`)
         return false
       }
     },
