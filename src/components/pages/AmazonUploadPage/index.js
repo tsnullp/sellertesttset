@@ -269,6 +269,8 @@ const AmazonUploadPage = () => {
             marketType = 4
           } else if (item.detailUrl.includes("tmall.com/")) {
             marketType = 5
+          } else if (item.detailUrl.includes("vvic.com/")) {
+            marketType = 6
           }
           return {
             ...item,
@@ -398,6 +400,7 @@ const AmazonUploadPage = () => {
             </Container>
           )
         } else if (item.isCollection) {
+         
           switch (item.marketType) {
             case 1:
               return (

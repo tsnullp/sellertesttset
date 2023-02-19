@@ -41,12 +41,14 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailmages }) => {
             detailmages
           })
 
-          const { title, options, tempMainImages, tempOptionImages, prop, videoUrl, videoGif } = await getOptionsV2({
+          const { title, options, tempMainImages, tempOptionImages, prop, videoUrl, videoGif, attribute } = await getOptionsV2({
             itemId: ObjItem.good_id,
             userID,
             url,
             // mainImage: Array.isArray(mainImages) && mainImages.length > 0 ? mainImages[0] : null
           })
+          console.log("title", title)
+          console.log("cnTitle", cnTitle)
           if (title) {
             ObjItem.korTitle = await papagoTranslate(title.trim())
           } else {
@@ -61,6 +63,7 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailmages }) => {
           ObjItem.videoGif = videoGif
 
           ObjItem.mainImages = tempMainImages
+          ObjItem.attribute = attribute
 
           resolve()
         } catch (e) {
@@ -453,6 +456,7 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
   let tempProp = []
   let videoUrl = null
   let videoGif = null
+  let tempProductProps = []
   try {
     console.time(itemId)
     const response = await ItemSKUV2({ userID, item_id: itemId })
@@ -463,7 +467,36 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
       console.log("getOptionsV2 실패")
     }
     console.timeEnd(itemId)
-    const { title, sku_props, skus, main_imgs, video_url, video_gif } = response
+    const { title, sku_props, skus, main_imgs, video_url, video_gif, product_props } = response
+
+    if(product_props && Array.isArray(product_props)) {
+      const promiseArray = product_props.map(item => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            
+            let tempStr = JSON.stringify(item)
+            tempStr = tempStr.replace("{", "").replace("}", "").replace(/'/gi, "").replace(/"/gi, "")
+            const temp = await papagoTranslate(tempStr)
+            item.key = tempStr.split(":")[0].trim()
+            item.value = tempStr.split(":")[1].trim()
+            item.korKey = temp.split(":")[0].trim()
+            item.korValue = temp.split(":")[1].trim()
+            resolve()
+          } catch(e) {
+            reject(e)
+          }
+        })
+      })
+      await Promise.all(promiseArray)
+      tempProductProps = product_props.map(item => {
+        return {
+          key: item.key,
+          value: item.value,
+          korKey: item.korKey,
+          korValue: item.korValue
+        }
+      })
+    }
 
     // tempMainImags.push(
     //   item.pic.includes("https:") ? item.pic : `https:${item.pic}`
@@ -1138,7 +1171,8 @@ const getOptionsV2 = async ({ itemId, userID, url }) => {
       tempOptionImages: tempOptionImages,
       prop: tempProp,
       videoUrl,
-      videoGif
+      videoGif,
+      attribute: tempProductProps
     }
   }
 }

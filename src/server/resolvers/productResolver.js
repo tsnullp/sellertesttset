@@ -1390,27 +1390,7 @@ const resolvers = {
       const user = userID ? ObjectId(userID) : ObjectId(req.user.adminUser)
 
       try {
-        const marketOrder = await MarketOrder.aggregate([
-          {
-            $match: {
-              userID: ObjectId(user),
-              saleType: 1,
-            },
-          },
-          {
-            $unwind: "$orderItems",
-          },
-          {
-            $project: {
-              "orderItems.title": 1,
-            },
-          },
-        ])
-
-        const sellerProductNames = []
-        for (const item of marketOrder) {
-          sellerProductNames.push(item.orderItems.title)
-        }
+        
 
         // console.log("sellerProductNames", sellerProductNames)
         const match = {}
@@ -1455,6 +1435,28 @@ const resolvers = {
         let product
 
         if (notSales) {
+          const marketOrder = await MarketOrder.aggregate([
+            {
+              $match: {
+                userID: ObjectId(user),
+                saleType: 1,
+              },
+            },
+            {
+              $unwind: "$orderItems",
+            },
+            {
+              $project: {
+                "orderItems.title": 1,
+              },
+            },
+          ])
+  
+          const sellerProductNames = []
+          for (const item of marketOrder) {
+            sellerProductNames.push(item.orderItems.title)
+          }
+
           product = await Product.aggregate([
             {
               $facet: {
@@ -1624,14 +1626,14 @@ const resolvers = {
                   {
                     $skip: (page - 1) * perPage,
                   },
-                  {
-                    $lookup: {
-                      from: "users",
-                      localField: "writerID",
-                      foreignField: "_id",
-                      as: "user",
-                    },
-                  },
+                  // {
+                  //   $lookup: {
+                  //     from: "users",
+                  //     localField: "writerID",
+                  //     foreignField: "_id",
+                  //     as: "user",
+                  //   },
+                  // },
                   {
                     $project: {
                       _id: 1,
@@ -1744,6 +1746,8 @@ const resolvers = {
                     ? getWeight(item.product.weightPrice)
                     : 0,
                 titleArray: titleArr,
+                title: item.basic.titile,
+                attribute: item.basic.attribute,
                 korTitle:
                   item.product && item.product.korTitle
                     ? item.product.korTitle
@@ -1814,6 +1818,7 @@ const resolvers = {
                       })
                     : [],
                 createdAt: item.createdAt,
+                content: item.basic.content
               }
             })
 
@@ -4995,6 +5000,7 @@ const resolvers = {
                 weightPrice,
                 good_id: detailItem.good_id,
                 naverID: _productNo,
+          
                 korTitle: _title,
                 mainImages: detailItem.mainImages,
                 price:

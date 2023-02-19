@@ -59,13 +59,22 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailImages }) => {
             detailImages
           })
 
-          const { title, options, tempMainImages, tempOptionImages, prop, videoUrl, videoGif } = await getOptionsV2({
+          const { title, options, tempMainImages, tempOptionImages, prop, videoUrl, videoGif, attribute } = await getOptionsV2({
             userID,
             itemId: ObjItem.good_id,
             // mainImage: Array.isArray(mainImages) && mainImages.length > 0 ? mainImages[0] : null
           })
+          console.log("title", title)
+          console.log("cnTitle", cnTitle)
           if (title) {
-            ObjItem.korTitle = await papagoTranslate(title.trim())
+            
+            ObjItem.title = await papagoTranslate(title.trim())
+            if(orginalTitle){
+              ObjItem.korTitle = orginalTitle
+            } else {
+              ObjItem.korTitle = ObjItem.title
+            }
+            
           } else {
             ObjItem.title = cnTitle
             ObjItem.korTitle = await papagoTranslate(cnTitle)
@@ -78,6 +87,9 @@ const start = async ({ url, cnTitle, userID, orginalTitle, detailImages }) => {
           ObjItem.videoGif = videoGif
 
           ObjItem.mainImages = tempMainImages
+
+          ObjItem.attribute = attribute
+
           const {
             categoryCode,
             attributes,
@@ -626,6 +638,7 @@ const getOptionsV2 = async ({ userID, itemId }) => {
   let tempProp = []
   let videoUrl = null
   let videoGif = null
+  let tempProductProps = []
   try {
     console.time(itemId)
     const response = await ItemSKUV2({ userID, item_id: itemId })
@@ -637,8 +650,35 @@ const getOptionsV2 = async ({ userID, itemId }) => {
     }
     console.timeEnd(itemId)
     
-    const { title, sku_props, skus, main_imgs, video_url, video_gif } = response
-    // console.log("item", item)
+    const { title, sku_props, skus, main_imgs, video_url, video_gif, product_props } = response
+    if(product_props && Array.isArray(product_props)) {
+      const promiseArray = product_props.map(item => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            
+            let tempStr = JSON.stringify(item)
+            tempStr = tempStr.replace("{", "").replace("}", "").replace(/'/gi, "").replace(/"/gi, "")
+            const temp = await papagoTranslate(tempStr)
+            item.key = tempStr.split(":")[0].trim()
+            item.value = tempStr.split(":")[1].trim()
+            item.korKey = temp.split(":")[0].trim()
+            item.korValue = temp.split(":")[1].trim()
+            resolve()
+          } catch(e) {
+            reject(e)
+          }
+        })
+      })
+      await Promise.all(promiseArray)
+      tempProductProps = product_props.map(item => {
+        return {
+          key: item.key,
+          value: item.value,
+          korKey: item.korKey,
+          korValue: item.korValue
+        }
+      })
+    }
     // tempMainImags.push(
     //   item.pic.includes("https:") ? item.pic : `https:${item.pic}`
     // )
@@ -1197,7 +1237,8 @@ const getOptionsV2 = async ({ userID, itemId }) => {
       tempOptionImages: tempOptionImages,
       prop: tempProp,
       videoUrl,
-      videoGif
+      videoGif,
+      attribute: tempProductProps
     }
   }
 }

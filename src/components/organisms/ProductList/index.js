@@ -22,7 +22,8 @@ import {
   DetailModifyModal,
   OptionModifyModal,
   UserSelect,
-
+  TitleExcelModal,
+  ExcelImport
 } from "components"
 import styled from "styled-components"
 import { useQuery, useMutation } from "@apollo/client"
@@ -104,6 +105,8 @@ const ProductList = () => {
   const [getProductList] = useMutation(GET_PRODUCT_LIST)
 
   const [notSales, setNotSales] = useState(false)
+
+  const [titleExcelModalVisible, setTitleExcelModalVisible] = useState(false)
 
   // const { data, refetch, networkStatus } = useQuery(GET_PRODUCT_LIST, {
   //   variables: {
@@ -242,6 +245,9 @@ const ProductList = () => {
     if (url.includes("aliexpress.com")) {
       return "https://ae01.alicdn.com/images/eng/wholesale/icon/aliexpress.ico"
     }
+    if (url.includes("vvic.com")) {
+      return "https://src.vvic.com/favicon.ico"
+    }
   }
 
   const getMarketName = (url) => {
@@ -263,26 +269,29 @@ const ProductList = () => {
     if (url.includes("aliexpress.com")) {
       return "알리익스프레스"
     }
+    if (url.includes("vvic.com")) {
+      return "VVIC"
+    }
   }
 
   const columns = [
-    {
-      title: "등록",
-      dataIndex: "user",
-      width: "100px",
-      render: (user) => {
-        if (user) {
-          return (
-            <AvatarContainer>
-              <Avatar src={user.avatar} />
-              <NickName>{user.nickname}</NickName>
-            </AvatarContainer>
-          )
-        } else {
-          return null
-        }
-      },
-    },
+    // {
+    //   title: "등록",
+    //   dataIndex: "user",
+    //   width: "100px",
+    //   render: (user) => {
+    //     if (user) {
+    //       return (
+    //         <AvatarContainer>
+    //           <Avatar src={user.avatar} />
+    //           <NickName>{user.nickname}</NickName>
+    //         </AvatarContainer>
+    //       )
+    //     } else {
+    //       return null
+    //     }
+    //   },
+    // },
     {
       title: "이미지",
       dataIndex: "mainImage",
@@ -955,6 +964,15 @@ const ProductList = () => {
       })
     }
   }
+
+  const handleTitleExcelOk = () => {
+    setTitleExcelModalVisible(false)
+  }
+
+  const handleTitleExcelCancel = () => {
+    setTitleExcelModalVisible(false)
+  }
+
   return (
     <Container>
       <BackTop />
@@ -974,7 +992,7 @@ const ProductList = () => {
             allowClear={true}
             allowEmpty={[true, true]}
             placeholder={["시작일", "종료일"]}
-            size={"large"}
+          
             format={dateFormat}
             // value={[moment(startDate, dateFormat), moment(endDate, dateFormat)]}
             onChange={(value) => {
@@ -1004,13 +1022,27 @@ const ProductList = () => {
           loading={listLoading}
           allowClear={true}
           placeholder="제목 또는 상품코드를 입력하세요."
-          size="large"
+         
           onSearch={(value) => {
             setSearch(value)
             handleSearch({ searchKey: value })
           }}
           enterButton
         />
+
+        {titleExcelModalVisible &&
+          <TitleExcelModal 
+            isModalVisible={titleExcelModalVisible}
+            handleOk={handleTitleExcelOk}
+            handleCancel={handleTitleExcelCancel}
+            data={selectedRow}
+          />
+        }
+        <Button
+          
+          style={{ background: "blue", color: "white" }}
+          onClick={() => setTitleExcelModalVisible(true)}  
+        >상품명 수정 엑셀 다운</Button>
 
         <Popconfirm
           title="선택 상품을 삭제하시겠습니까？"
@@ -1020,7 +1052,7 @@ const ProductList = () => {
           onConfirm={() => confirmSelectedItemDelete()}
         >
           <Button
-            size="large"
+          
             style={{ marginLeft: "10px" }}
             icon={<DeleteTwoTone style={{ fontSize: "18px", padding: "3px" }} />}
           >
@@ -1035,7 +1067,7 @@ const ProductList = () => {
           onConfirm={() => confirmSelectedItemApprove()}
         >
           <Button
-            size="large"
+          
             style={{ marginLeft: "10px" }}
             icon={<CheckCircleTwoTone style={{ fontSize: "18px", padding: "3px" }} />}
           >

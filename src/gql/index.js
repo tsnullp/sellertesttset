@@ -924,12 +924,17 @@ export const GET_PRODUCT_LIST = gql`
       list {
         _id
         url
+        title
         korTitle
         titleArray {
           word
           brand
           ban
           kipris
+        }
+        attribute {
+          korKey
+          korValue
         }
         weightPrice
         weight
@@ -976,6 +981,7 @@ export const GET_PRODUCT_LIST = gql`
           coupang_vendorItemId
           coupang_itemId
         }
+        content
       }
     }
   }

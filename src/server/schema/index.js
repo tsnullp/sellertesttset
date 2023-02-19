@@ -541,9 +541,14 @@ const schema = gql`
     nickname: String
     avatar: String
   }
+  type AttributeKeyVlaueType{
+    korKey: String
+    korValue: String
+  }
   type ProductListType {
     _id: ID
     url: String # 상품 원본 주소
+    title: String
     korTitle: String # 상품명
     titleArray: [BrandTitleArray]
     weightPrice: Int
@@ -558,6 +563,8 @@ const schema = gql`
     createdAt: String
     options: [ProductOptionType]
     user: ProductUserType
+    content: [String]
+    attribute: [AttributeKeyVlaueType]
   }
   type ProductListResponse {
     count: Int

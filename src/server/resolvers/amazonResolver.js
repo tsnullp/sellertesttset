@@ -221,7 +221,8 @@ const resolvers = {
         if (
           req.user.adminUser.toString() === "5f0d5ff36fc75ec20d54c40b" ||
           req.user.adminUser.toString() === "5f1947bd682563be2d22f008" ||
-          req.user.adminUser.toString() === "62707ad073dd9253ac84bfbd"
+          req.user.adminUser.toString() === "62707ad073dd9253ac84bfbd" ||
+          req.user.adminUser.toString() === "62bd48f391d7fb85bcc54693"
         ) {
           banList = await Brand.find(
             {
@@ -230,6 +231,7 @@ const resolvers = {
                   "5f0d5ff36fc75ec20d54c40b",
                   "5f1947bd682563be2d22f008",
                   "62707ad073dd9253ac84bfbd",
+                  "62bd48f391d7fb85bcc54693"
                 ],
               },
             },
@@ -293,6 +295,9 @@ const resolvers = {
                 {
                   "basic.url": { $regex: `.*aliexpress.com.*` },
                 },
+                {
+                  "basic.url": { $regex: `.*vvic.com.*` },
+                },
               ],
             },
           },
@@ -319,6 +324,9 @@ const resolvers = {
                 },
                 {
                   "basic.url": { $regex: `.*aliexpress.com.*` },
+                },
+                {
+                  "basic.url": { $regex: `.*vvic.com.*` },
                 },
               ],
             },
@@ -653,7 +661,8 @@ const resolvers = {
                   ])
                 } else if (
                   item.detailUrl.includes("taobao.com") ||
-                  item.detailUrl.includes("tmall.com")
+                  item.detailUrl.includes("tmall.com") ||
+                  item.detailUrl.includes("vvic.com")
                 ) {
                   exchange = Number(excahgeRate[0].CNY_송금보내실때.replace(/,/gi, "") || 1250) + 5
                   marginInfo = await ShippingPrice.aggregate([
