@@ -547,6 +547,7 @@ const schema = gql`
   }
   type ProductListType {
     _id: ID
+    naverID: String
     url: String # 상품 원본 주소
     title: String
     korTitle: String # 상품명
@@ -555,6 +556,7 @@ const schema = gql`
     weight: Int
     naverCategoryName: String
     mainImage: String
+    mainImages: [String]
     isWinner: Boolean
     isNaver: Boolean
     isCoupang: Boolean

@@ -923,6 +923,7 @@ export const GET_PRODUCT_LIST = gql`
       count
       list {
         _id
+        naverID
         url
         title
         korTitle
@@ -943,6 +944,7 @@ export const GET_PRODUCT_LIST = gql`
         isCoupang
         naverCategoryName
         mainImage
+        mainImages
         createdAt
         user {
           _id

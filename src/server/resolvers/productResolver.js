@@ -1729,6 +1729,7 @@ const resolvers = {
               
               return {
                 _id: item._id,
+                naverID: item.basic.naverID,
                 url: item.basic.url,
                 user:
                   item.user && Array.isArray(item.user) && item.user.length > 0
@@ -1764,6 +1765,17 @@ const resolvers = {
                       item.basic.mainImages[0]
                     ? item.basic.mainImages[0]
                     : item.options[0].image,
+                mainImages:
+                  item.product &&
+                  item.product.mainImages &&
+                  Array.isArray(item.product.mainImages) &&
+                  item.product.mainImages.length > 0
+                    ? item.product.mainImages
+                    : Array.isArray(item.basic.mainImages) &&
+                      item.basic.mainImages.length > 0 &&
+                      item.basic.mainImages
+                    ? item.basic.mainImages
+                    : [],
                 cafe24: {
                   mallID: item.product && item.product.cafe24 ? item.product.cafe24.mallID : "",
                   shop_no: item.product && item.product.cafe24 ? item.product.cafe24.shop_no : 1,

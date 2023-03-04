@@ -28,15 +28,30 @@ const TitleExcelModal = ({isModalVisible, handleOk, handleCancel, data}) => {
   console.log("data---", data)
   const columns = [
     {
-      title: "아이디",
-      key: "아이디",
+      title: "셀러아이디",
+      key: "셀러아이디",
       render: data => data._id
     },
     {
-      title: "이미지",
-      key: "이미지",
+      title: "네이버아이디",
+      key: "네이버아이디",
+      render: data => data.naverID
+    },
+    {
+      title: "메인이미지",
+      key: "메인이미지",
       ellipsis: true,
-      render: data => data.mainImage
+      render: data => {
+        let mainImage = ``
+        data.mainImages.map(item => {
+          if(mainImage.length > 0) {
+            mainImage += `#${item}`
+          } else {
+            mainImage += `${item}`
+          }
+        })
+        return mainImage
+      }
     },
     {
       title: "중국상품명",
