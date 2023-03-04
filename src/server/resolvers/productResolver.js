@@ -1726,7 +1726,7 @@ const resolvers = {
                   ban: banArr.length > 0 ? banArr.map((item) => item.banWord) : [],
                 }
               })
-
+              
               return {
                 _id: item._id,
                 url: item.basic.url,
@@ -1746,7 +1746,7 @@ const resolvers = {
                     ? getWeight(item.product.weightPrice)
                     : 0,
                 titleArray: titleArr,
-                title: item.basic.titile,
+                title: item.basic.title,
                 attribute: item.basic.attribute,
                 korTitle:
                   item.product && item.product.korTitle
@@ -8165,8 +8165,9 @@ const resolvers = {
             
               detail.url = detail.detailUrl
               detail.naverID = detail.productNo
-              detail.good_id = isUSA ? AmazonAsin(detail.detailUrl) : getGoodid(detail.detailUrl)
-            
+              // detail.good_id = isUSA ? AmazonAsin(detail.detailUrl) : getGoodid(detail.detailUrl)
+              detail.good_id = AmazonAsin(detail.detailUrl)
+
               const {
                 categoryCode,
                 attributes,

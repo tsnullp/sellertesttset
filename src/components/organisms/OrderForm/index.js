@@ -1166,7 +1166,7 @@ const ProductForm = ({ row, index, item, handleTaobaoOrderNumber, handleTabaeCat
               />
             )}
           </TaobaoNumberContainer>
-          <TabaeCategory categoryChange={handleCategroyChange} />
+          
           <DownloadContainer>
             <ProductName onClick={() => handleNewWindow(item.productID)}>
               {item.product_name}
@@ -1182,11 +1182,13 @@ const ProductForm = ({ row, index, item, handleTaobaoOrderNumber, handleTabaeCat
               {/* </a> */}
             </CopyToClipboard>
           </DownloadContainer>
+          
           <OptionLabel>{`(${item.option_value})`}</OptionLabel>
           {item.korValue && item.isMatch && (
             <OptionValueLabel>{`${item.korValue}`}</OptionValueLabel>
           )}
           {item.value && item.isMatch && <OptionValueLabel>{`${item.value}`}</OptionValueLabel>}
+          <TabaeCategory categoryChange={handleCategroyChange} />
         </ProductTitleContainer>
       </div>
       {taobaoOrder && (

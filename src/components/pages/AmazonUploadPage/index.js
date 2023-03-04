@@ -333,6 +333,8 @@ const AmazonUploadPage = () => {
                     uploadData.map((item) => {
                       const value = AmazonRef.current[item.asin].showData()
                       console.log("VALUE---", value)
+
+                      
                       if (value) {
                         input.push({
                           content: value.content,
@@ -356,7 +358,7 @@ const AmazonUploadPage = () => {
                         })
                       }
                     })
-
+                   
                     const response = await uploadNaverItem({
                       variables: {
                         input,

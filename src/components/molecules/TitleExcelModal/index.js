@@ -91,9 +91,9 @@ const TitleExcelModal = ({isModalVisible, handleOk, handleCancel, data}) => {
         if(data.attribute && Array.isArray(data.attribute)){
           data.attribute.map(item => {
             if(attr.length > 0) {
-              attr += `#${attr.korValue.replace(/ /gi, "")}`
+              attr += `#${item.korValue.replace(/ /gi, "")}`
             } else {
-              attr += `${attr.korValue.replace(/ /gi, "")}`
+              attr += `${item.korValue.replace(/ /gi, "")}`
             }
           })
         }
@@ -104,8 +104,12 @@ const TitleExcelModal = ({isModalVisible, handleOk, handleCancel, data}) => {
     {
       title: "수정상품명",
       key: "수정상품명",    
-      ellipsis: true, 
-     
+      ellipsis: true,  
+    },
+    {
+      title: "쇼핑렌즈",
+      key: "쇼핑렌즈",    
+      ellipsis: true,  
     },
   ]
 

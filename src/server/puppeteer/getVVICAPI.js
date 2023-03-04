@@ -4,6 +4,7 @@ const { papagoTranslate } = require("./translate")
 const ExchangeRate = require("../models/ExchangeRate")
 const ShippingPrice = require("../models/ShippingPrice")
 const Brand = require("../models/Brand")
+const {regExp_test} = require("../../lib/usrFunc")
 const {Cafe24UploadLocalImages, Cafe24UploadLocalImage} = require("../api/Market/index")
 const _ = require("lodash")
 
@@ -40,14 +41,14 @@ const start = async ({url, title, userID}) => {
           
             const $ = cheerio.load(content)
         
-            ObjItem.title = $(".detail-title").text()
+            ObjItem.title = $(".detail-title").text().trim()
 
             if (!title || title.length === 0) {
               ObjItem.korTitle = await papagoTranslate(ObjItem.title)
             } else {
               ObjItem.korTitle = title
             }
-            ObjItem.korTitle = ObjItem.korTitle.replace("실사 #", "")
+            ObjItem.korTitle = regExp_test(ObjItem.korTitle.replace(/실사/gi, "").replace(/실가/gi, "").replace(/샷/gi, "").replace("~", "").replace("#", "").trim())
 
             let brandList = await Brand.find(
               {
@@ -116,26 +117,26 @@ const start = async ({url, title, userID}) => {
         
             
 
-            // let base64Images = ``
-            // for(let image of ObjItem.mainImages){
-            //   const imageRespone = await axios({
-            //     method: "GET",
-            //     url: image,
-            //     responseType: "arraybuffer",
-            //     maxContentLength: Infinity,
-            //     maxBodyLength: Infinity
-            //   })
-            //   const buffer = Buffer.from(imageRespone.data)
-            //   const base64 = new Buffer(buffer).toString("base64")
-            //   base64Images += `${base64}"PAPAGO_OCR"`
-            // }
-            // if(base64Images.length > 0) {
-            //   const imageUrlResponse = await Cafe24UploadLocalImages({base64Images})
-            //   console.log("imageUrlResponse", imageUrlResponse)
-            //   if(imageUrlResponse && Array.isArray(imageUrlResponse)){
-            //     ObjItem.mainImages = imageUrlResponse
-            //   }
-            // }
+            let base64Images = ``
+            for(let image of ObjItem.mainImages){
+              const imageRespone = await axios({
+                method: "GET",
+                url: image,
+                responseType: "arraybuffer",
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity
+              })
+              const base64 = Buffer.from(imageRespone.data).toString("base64")
+              
+              base64Images += `${base64}"PAPAGO_OCR"`
+            }
+            if(base64Images.length > 0) {
+              const imageUrlResponse = await Cafe24UploadLocalImages({base64Images})
+              console.log("imageUrlResponse", imageUrlResponse)
+              if(imageUrlResponse && Array.isArray(imageUrlResponse)){
+                ObjItem.mainImages = imageUrlResponse
+              }
+            }
             
 
             const keyword = []
@@ -183,46 +184,45 @@ const start = async ({url, title, userID}) => {
               ObjItem.content.push(image)
             })
 
-            // base64Images = ``
-            // for(let image of ObjItem.content){
-            //   const imageRespone = await axios({
-            //     method: "GET",
-            //     url: image,
-            //     responseType: "arraybuffer",
-            //     maxContentLength: Infinity,
-            //     maxBodyLength: Infinity
-            //   })
-            //   const buffer = Buffer.from(imageRespone.data)
-            //   const base64 = new Buffer(buffer).toString("base64")
-            //   base64Images += `${base64}"PAPAGO_OCR"`
-            // }
-            // if(base64Images.length > 0){
-            //   const contentUrlResponse = await Cafe24UploadLocalImages({base64Images})
-            //   console.log("contentUrlResponse", contentUrlResponse)
-            //   if(contentUrlResponse && Array.isArray(contentUrlResponse)){
-            //     ObjItem.content = contentUrlResponse
-            //   } else {
-            //     let tempContent = []
-            //     for(let image of ObjItem.content){
-            //       const imageRespone = await axios({
-            //         method: "GET",
-            //         url: image,
-            //         responseType: "arraybuffer",
-            //       })
-            //       const buffer = Buffer.from(imageRespone.data)
-            //       const base64 = new Buffer(buffer).toString("base64")
+            base64Images = ``
+            for(let image of ObjItem.content){
+              const imageRespone = await axios({
+                method: "GET",
+                url: image,
+                responseType: "arraybuffer",
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity
+              })
+              const base64 = Buffer.from(imageRespone.data).toString("base64")
+              
+              base64Images += `${base64}"PAPAGO_OCR"`
+            }
+            if(base64Images.length > 0){
+              const contentUrlResponse = await Cafe24UploadLocalImages({base64Images})
+              console.log("contentUrlResponse", contentUrlResponse)
+              if(contentUrlResponse && Array.isArray(contentUrlResponse)){
+                ObjItem.content = contentUrlResponse
+              } else {
+                let tempContent = []
+                for(let image of ObjItem.content){
+                  const imageRespone = await axios({
+                    method: "GET",
+                    url: image,
+                    responseType: "arraybuffer",
+                  })
+                  const base64 = Buffer.from(imageRespone.data).toString("base64")
 
-            //       const contentUrlResponse = await Cafe24UploadLocalImage({base64Image: `base64,${base64}`})
-            //       console.log("===", contentUrlResponse)
-            //       if(contentUrlResponse) {
-            //         tempContent.push(contentUrlResponse)
-            //       }
-            //     }
+                  const contentUrlResponse = await Cafe24UploadLocalImage({base64Image: `base64,${base64}`})
+                  console.log("===", contentUrlResponse)
+                  if(contentUrlResponse) {
+                    tempContent.push(contentUrlResponse)
+                  }
+                }
 
-            //     ObjItem.content = tempContent
+                ObjItem.content = tempContent
 
-            //   }
-            // }
+              }
+            }
             
 
         
@@ -249,8 +249,8 @@ const start = async ({url, title, userID}) => {
                 url: item.originImage,
                 responseType: "arraybuffer"
               })
-              const buffer = Buffer.from(imageRespone.data)
-              const base64 = new Buffer(buffer).toString("base64")
+              const base64 = Buffer.from(imageRespone.data).toString("base64")
+              
               base64Images += `${base64}"PAPAGO_OCR"`
             }
 

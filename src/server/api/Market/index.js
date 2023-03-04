@@ -239,7 +239,7 @@ exports.Cafe24UploadLocalImage = async ({ base64Image }) => {
     const params = new url.URLSearchParams({ base64str: base64Image.split("base64,")[1] })
     const options = {
       method: "POST",
-      url: `https://tsnullp.chickenkiller.com/upload`,
+      url: `http://tsnullp.chickenkiller.com/upload`,
       data: params.toString(),
     }
     const response = await axios({
@@ -320,7 +320,7 @@ exports.Cafe24UploadLocalImages = async ({ base64Images }) => {
     const params = new url.URLSearchParams({ base64strs: base64Images.replace(/base64,/gi, "") })
     const options = {
       method: "POST",
-      url: `https://tsnullp.chickenkiller.com/upload-multi`,
+      url: `http://tsnullp.chickenkiller.com/upload-multi`,
       data: params.toString(),
     }
     const response = await axios({
