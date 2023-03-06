@@ -6,7 +6,39 @@ const searchWemakeKeyword = require("../puppeteer/searchWemakeKeyword")
 const searchTmonKeyword = require("../puppeteer/searchTmonKeyword")
 
 const resolvers = {
-  Query: {},
+  Query: {
+    GetNaverCategory: async (parent, {title}, {req, logger}) => {
+      try {
+        let categoryArray = []
+
+        for(const item of title) {
+          let categoryName = ``
+          const naverCategory = await searchNaverKeyword({ title: item })
+          if(naverCategory){
+            if(naverCategory.category4Name){
+              categoryName = naverCategory.category4Name
+            } else {
+              categoryName = naverCategory.category3Name            
+            }
+          }
+          categoryArray.push(
+            {
+              title: item,
+              categoryName
+            }
+          )
+        }
+
+        return categoryArray
+      } catch (e) {
+        logger.error(`GetNaverCategory: ${e}`)
+        return []
+      }
+  
+  
+  
+    }
+  },
   Mutation: {
     GetCategoryWithTitle: async (parent, { title }, { req, logger }) => {
       try {
@@ -77,7 +109,7 @@ const resolvers = {
         logger.error(`GetCategoryWithTitle: ${e}`)
         return false
       }
-    }
+    },   
   }
 }
 

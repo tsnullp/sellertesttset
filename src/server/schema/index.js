@@ -1881,6 +1881,11 @@ const schema = gql`
     price: String
   }
 
+  type NaverCategoryType {
+    title: String
+    categoryName: String
+  }
+
   type Query {
     "A simple type for getting started!"
     hello: String
@@ -2023,6 +2028,7 @@ const schema = gql`
     GetCategorySales(sort: String):[CategroySalesType]
 
     Cafe24Boards(userID: ID): Boolean
+    GetNaverCategory(title: [String]): [NaverCategoryType]
   }
 
   type Mutation {
@@ -2375,6 +2381,8 @@ const schema = gql`
 
     DeleteAllWeight(userID: ID): Boolean
     SetAllWeight(userID: ID, input: [AllWeightType]): Boolean
+
+    
   }
 `
 

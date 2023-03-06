@@ -4112,3 +4112,12 @@ export const SET_ALL_WEIGHT = gql`
     SetAllWeight(userID: $userID, input: $input)
   }
 `
+
+export const GET_NAVER_CATEGORY = gql`
+  query GetNaverCategory($title: [String]) {
+    GetNaverCategory(title: $title) {
+      title
+      categoryName
+    }
+  }
+`

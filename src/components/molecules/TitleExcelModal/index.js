@@ -1,11 +1,31 @@
-import React, {useEffect, useRef} from 'react'
-import { Table, Modal } from "antd"
+import React, {useEffect, useRef, useState} from 'react'
+import { Table, Modal, Spin } from "antd"
 import styled from "styled-components"
+import { useQuery } from "@apollo/client"
+import { GET_NAVER_CATEGORY } from "../../../gql"
 import ReactHTMLTableToExcel from "react-html-table-to-excel"
 import moment from "moment"
 import "./style.css"
+import _ from "lodash"
 
 const TitleExcelModal = ({isModalVisible, handleOk, handleCancel, data}) => {
+  const [categoryNames, setCategoryNames] = useState([])
+  const [loading, setLoading] = useState(true)
+  useQuery(GET_NAVER_CATEGORY, {
+    variables: {
+      title: data.map(item => item.korTitle)
+    },
+    onCompleted: categorys=> {
+      
+      setLoading(false)
+      setCategoryNames(categorys.GetNaverCategory.map(item => {
+        return {
+          title: item.title,
+          categoryName: item.categoryName
+        }
+      }))
+    }
+  }) 
 
   const tableRef = useRef()
 
@@ -64,6 +84,18 @@ const TitleExcelModal = ({isModalVisible, handleOk, handleCancel, data}) => {
       key: "상품명",
       ellipsis: true,
       render: data => data.korTitle
+    },
+    {
+      title: "카테고리",
+      key: "카테고리",
+      ellipsis: true,
+      render: data => {
+        const findObj = _.find(categoryNames, {title: data.korTitle})
+        if(findObj){
+          return findObj.categoryName
+        }
+        return <Spin />
+      }
     },
     {
       title: "옵션명",
@@ -132,14 +164,14 @@ const TitleExcelModal = ({isModalVisible, handleOk, handleCancel, data}) => {
     <Modal 
     style={{minWidth: "90%", overflowX: "hidden"}}
     title="상세페이지 엑셀" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-      <ReactHTMLTableToExcel
+      {!loading && <ReactHTMLTableToExcel
             id="test-table-xls-button"
             className="download-table-xls-button"
             table="table-to-xls"
             filename={`상품명 로우데이터_${moment().format("YYYY-MM-DD HH:mm:SS")}`}
             sheet="상품명"
             buttonText="엑셀 다운"
-          />
+          />}
       <TableContaniner>
         <Table 
         ref={tableRef}
@@ -159,4 +191,3 @@ const TableContaniner = styled.div`
   overflow: auto;
   height: 650px;
 `
-
