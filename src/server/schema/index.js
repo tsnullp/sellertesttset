@@ -2382,7 +2382,7 @@ const schema = gql`
     DeleteAllWeight(userID: ID): Boolean
     SetAllWeight(userID: ID, input: [AllWeightType]): Boolean
 
-    
+    TESTTEST(code: Int): Boolean
   }
 `
 
