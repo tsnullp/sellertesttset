@@ -131,31 +131,58 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
       { waituntil: "networkidle0" }
     )
 
+    
+    try {
+      if (await page.$("#eDetailStep1 > div.modal-pop.notice-pop.modal-categoryUsed.active > div.modal-dialog > div > a")) {
+        await page.click("#eDetailStep1 > div.modal-pop.notice-pop.modal-categoryUsed.active > div.modal-dialog > div > a")
+      }
+    } catch (e) {
+      // console.log("e2", e)
+    }
 
+    try {
+      if (await page.$(".modal-dialog > .modal-outer > div > .page-close.standardPopupClose")) {
+        await page.click(".modal-dialog > .modal-outer > div > .page-close.standardPopupClose")
+      }
+    } catch (e) {
+      // console.log("e2", e)
+    }
     try {
       if (await page.$(".btnClose.imghostClose")) {
         await page.click(".btnClose.imghostClose")
-       
       }
-    } catch {}
+    } catch (e) {
+      // console.log("e1", e)
+    }
+    
+    try {
+      if (await page.$("#set_auto_update")) {
+        await page.click("#set_auto_update")
+      }
+    } catch (e) {
+      // console.log("e3", e)
+    }
 
 
-    const title = await page.$eval("#wrap > .section > .mBox.typeBorder", (elem) =>
+   
+    const title = await page.$eval("#wrap > div.mBandProductInfo > span", (elem) =>
       elem.innerText.split("/")[0].trim()
     )
 
-    // console.log("category", category)
-
+    
+    
     const categoryGruop = await page.$$(
-      "#wrap > div:nth-child(3) > div:nth-child(4) > div > table > tbody > tr"
+      // "#wrap > div:nth-child(3) > div:nth-child(4) > div > table > tbody > tr"
+      // ".mBoard > table > tbody > tr"
+      "#wrap > div.section > div > div > div:nth-child(4) > div > table > tbody > tr"
     )
-
+    
     let naver, gmarket, auction, interpark, wemake, tmon, sk11st, lotteOn
     for (const item of categoryGruop) {
       await page.$eval("#eInputSearchCategory", (el) => (el.value = ""))
-
+      // #wrap > div.section > div > div > div:nth-child(4) > div > table > tbody > tr:nth-child(1) > td:nth-child(2) > img
       const market = await page.evaluate(
-        (el) => el.querySelector("td > img").getAttribute("alt"),
+        (el) => el.querySelector("td:nth-child(2) > img").getAttribute("alt"),
         item
       )
       switch (market) {
@@ -187,7 +214,7 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
           break
       }
     }
-
+    
     const category = await getCategory({
       title,
       naver,
