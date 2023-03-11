@@ -245,9 +245,9 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
         await page.waitFor(1000)
         
         await scrollPageToBottom(page)
-
+        // #wrap > div.section > div > div > div:nth-child(4) > div > table > tbody > tr:nth-child(1) > td.eTdMarketCategory > div:nth-child(2) > div.mBox.typeBg.gScroll.gDoubleBreak > ul > li:nth-child(1) > a
         const categories = await page.$$(
-          `#wrap > div:nth-child(3) > div:nth-child(4) > div > table > tbody > tr:nth-child(${
+          `#wrap > div.section > div > div > div:nth-child(4) > div > table > tbody > tr:nth-child(${
             i + 1
           }) > td.eTdMarketCategory > div:nth-child(2) > div.mBox.typeBg.gScroll.gDoubleBreak > ul > li > a`
         )
@@ -284,14 +284,14 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
         } else {
           if (market === "스마트스토어") {
             await page.click(
-              `#wrap > div:nth-child(3) > div:nth-child(4) > div > table > tbody > tr:nth-child(${
+              `#wrap > div.section > div > div > div:nth-child(4) > div > table > tr:nth-child(${
                 i + 1
               }) > td.eTdMarketCategory > div:nth-child(2) > div.mBox.typeBg.gScroll.gDoubleBreak > ul > li > a`
             )
             passable.push(i)
           } else {
             await page.click(
-              `#wrap > div:nth-child(3) > div:nth-child(4) > div > table > tbody > tr:nth-child(${
+              `#wrap > div.section > div > div > div:nth-child(4) > div > table > tbody > tr:nth-child(${
                 i + 1
               }) > td.center > label > input`
             )
@@ -299,7 +299,7 @@ const detailProduct = async ({ mallID, page, prd_no }) => {
         }
       } else {
         await page.click(
-          `#wrap > div:nth-child(3) > div:nth-child(4) > div > table > tbody > tr:nth-child(${
+          `#wrap > div.section > div > div > div:nth-child(4) > div > table > tbody > tr:nth-child(${
             i + 1
           }) > td.center > label > input`
         )
