@@ -8616,7 +8616,7 @@ const resolvers = {
         minPrice,
         maxPrice,
       },
-      { req, model: { NaverFavoriteItem, Product, NaverSaveItemFavorite, Brand }, logger }
+      { req, model: { NaverBestItem, Product, NaverSaveItemFavorite, Brand }, logger }
     ) => {
       try {
         const match = {
@@ -8624,34 +8624,35 @@ const resolvers = {
           $or: [{originArea: {$regex: `.*중국.*`}}, {originArea: {$regex: `.*CHINA.*`}}]
         }
         let sortValue = {
-          
+          createdAt: -1,
+          recentSaleCount: -1
         }
-        switch (sort) {
-          case "a":
-            sortValue = {
-              createdAt: -1,
-              recentSaleCount: -1
-            }
-            break
-          case "b":
-            sortValue = {
-              regDate: -1,
-              recentSaleCount: -1,
-            }
-            break
-          case "c":
-            sortValue = {
-              purchaseCnt: -1,
-              recentSaleCount: -1
-            }
-            break
-          default:
-            sortValue = {
-              createdAt: -1,
-              recentSaleCount: -1
-            }
-            break
-        }
+        // switch (sort) {
+        //   case "a":
+        //     sortValue = {
+        //       createdAt: -1,
+        //       recentSaleCount: -1
+        //     }
+        //     break
+        //   case "b":
+        //     sortValue = {
+        //       regDate: -1,
+        //       recentSaleCount: -1,
+        //     }
+        //     break
+        //   case "c":
+        //     sortValue = {
+        //       purchaseCnt: -1,
+        //       recentSaleCount: -1
+        //     }
+        //     break
+        //   default:
+        //     sortValue = {
+        //       createdAt: -1,
+        //       recentSaleCount: -1
+        //     }
+        //     break
+        // }
 
         if (category && category.length > 0) {
           match.category1 = {
@@ -8659,43 +8660,43 @@ const resolvers = {
           }
         }
 
-        if (regDay !== 300) {
-          const recentDate = moment().add(-regDay, "days").format("YYYY-MM-DD")
-          match.regDate = {
-            $gte: recentDate,
-          }
-        }
-        if (minRecent === 0 && maxRecent === 50) {
-        } else if (minRecent === 0 && maxRecent < 50) {
-          match.recentSaleCount = {
-            $lte: maxRecent,
-          }
-        } else if (minRecent > 0 && maxRecent === 50) {
-          match.recentSaleCount = {
-            $gte: minRecent,
-          }
-        } else {
-          match.recentSaleCount = {
-            $gte: minRecent,
-            $lte: maxRecent,
-          }
-        }
+        // if (regDay !== 300) {
+        //   const recentDate = moment().add(-regDay, "days").format("YYYY-MM-DD")
+        //   match.regDate = {
+        //     $gte: recentDate,
+        //   }
+        // }
+        // if (minRecent === 0 && maxRecent === 50) {
+        // } else if (minRecent === 0 && maxRecent < 50) {
+        //   match.recentSaleCount = {
+        //     $lte: maxRecent,
+        //   }
+        // } else if (minRecent > 0 && maxRecent === 50) {
+        //   match.recentSaleCount = {
+        //     $gte: minRecent,
+        //   }
+        // } else {
+        //   match.recentSaleCount = {
+        //     $gte: minRecent,
+        //     $lte: maxRecent,
+        //   }
+        // }
 
-        if (totalMinSale === 0 && totalMaxSale === 100) {
-        } else if (totalMinSale === 0 && totalMaxSale < 100) {
-          match.purchaseCnt = {
-            $lte: totalMaxSale,
-          }
-        } else if (totalMinSale > 0 && totalMaxSale === 100) {
-          match.purchaseCnt = {
-            $gte: totalMinSale,
-          }
-        } else {
-          match.recentSaleCount = {
-            $gte: totalMinSale,
-            $lte: totalMaxSale,
-          }
-        }
+        // if (totalMinSale === 0 && totalMaxSale === 100) {
+        // } else if (totalMinSale === 0 && totalMaxSale < 100) {
+        //   match.purchaseCnt = {
+        //     $lte: totalMaxSale,
+        //   }
+        // } else if (totalMinSale > 0 && totalMaxSale === 100) {
+        //   match.purchaseCnt = {
+        //     $gte: totalMinSale,
+        //   }
+        // } else {
+        //   match.recentSaleCount = {
+        //     $gte: totalMinSale,
+        //     $lte: totalMaxSale,
+        //   }
+        // }
 
         if (minReview === 0 && maxReview === 1000) {
         } else if (minReview === 0 && maxReview < 1000) {
@@ -8761,7 +8762,7 @@ const resolvers = {
         console.log("productItemId", productItemId.length)
         console.log("saveItemId", saveItemId.length)
       
-        const naverItem = await NaverFavoriteItem.aggregate([
+        const naverItem = await NaverBestItem.aggregate([
           {
             $facet: {
               data: [
@@ -8910,9 +8911,18 @@ const resolvers = {
           item.titleArray = titleArr
         }
         console.log("전체 : ", naverItem[0].count[0] ? naverItem[0].count[0].count : 0)
+       
         return {
           count: naverItem[0].count[0] ? naverItem[0].count[0].count : 0,
-          list: naverItem[0].data,
+          list: naverItem[0].data.map(item => {
+            return {
+              ...item,
+              regDate: null,
+              zzim: 0,
+              purchaseCnt: 0,
+              recentSaleCount: 0
+            }
+          }),
         }
       } catch (e) {
         logger.error(`GetNaverItemList: ${e}`)
@@ -9273,11 +9283,12 @@ const resolvers = {
       {},
       {
         req,
-        model: { NaverFavoriteItem, NaverSaveItemFavorite, CoupangWinner, Product, Brand },
+        model: {NaverBestItem, NaverFavoriteItem, NaverSaveItemFavorite, CoupangWinner, Product, Brand },
         logger,
       }
     ) => {
       try {
+        
         const saveItem = await NaverSaveItemFavorite.aggregate([
           {
             $match: {
@@ -9319,7 +9330,7 @@ const resolvers = {
             },
           },
         ])
-        let naverItem = await NaverFavoriteItem.aggregate([
+        let naverItem = await NaverBestItem.aggregate([
           {
             $match: {
               productNo: { $in: saveItemId },
@@ -9479,7 +9490,15 @@ const resolvers = {
           item.titleArray = titleArr
         }
 
-        return naverItem.filter((item) => (item ? true : false))
+        return naverItem.filter((item) => (item ? true : false)).map(item => {
+          return {
+            ...item,
+            zzim: 0,
+            purchaseCnt: 0,
+            recentSaleCount: 0,
+            
+          }
+        })
         // .filter((item, index) => index < 30)
       } catch (e) {
         logger.error(`GetNaverFavoriteItemList: ${e}`)

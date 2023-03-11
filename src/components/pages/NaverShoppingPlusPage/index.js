@@ -500,7 +500,7 @@ const NaverShoppingPlusPage = () => {
               size="large"
               onClick={handleSavedItem}
             >
-              주간베스트 +
+              베스트 상품
             </Button>
           )}
           <Button

@@ -570,14 +570,14 @@ const NaverItem = ({
           <PurchaseCount>{`${reviewCount.toLocaleString("ko")}`}</PurchaseCount>
           <PurchaseTitle>리뷰</PurchaseTitle>
         </PurchaseItem>
-        <PurchaseItem>
+        <PurchaseItemColor>
           <PurchaseCount>{`${zzim.toLocaleString("ko")}`}</PurchaseCount>
           <PurchaseTitle>찜</PurchaseTitle>
-        </PurchaseItem>
-        <PurchaseItem>
+        </PurchaseItemColor>
+        <PurchaseItemColor>
           <PurchaseCount>{`${purchaseCnt.toLocaleString("ko")}`}</PurchaseCount>
           <PurchaseTitle>최근 6개월</PurchaseTitle>
-        </PurchaseItem>
+        </PurchaseItemColor>
         <PurchaseItemColor>
           <PurchaseCount>{`${recentSaleCount.toLocaleString("ko")}`}</PurchaseCount>
           <PurchaseTitle>최근 3일</PurchaseTitle>
@@ -1435,7 +1435,7 @@ const PurchaseItem = styled.div`
   box-shadow: 2px 2px 2px #ebebeb;
 `
 const PurchaseItemColor = styled(PurchaseItem)`
-  background: #ffe95c;
+  background: gray;
 `
 const PurchaseTitle = styled.div`
   text-align: center;
