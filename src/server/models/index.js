@@ -28,6 +28,7 @@ const CoupangProduct = require("./CoupangProduct")
 const OtherSellerHistory = require("./OtherSellerHistory")
 const OrderList = require("./OrderList")
 const NaverFavoriteItem = require("./NaverFavoriteItem")
+const NaverBestItem = require("./NaverBestItem")
 const NaverSaveItemFavorite = require("./NaverSaveItemFavorite")
 const NaverMainKeyword = require("./NaverMainKeyword")
 const NaverHealthFoodItem = require("./NaverHealthFoodItem")
@@ -69,6 +70,7 @@ module.exports = {
   OtherSellerHistory,
   OrderList,
   NaverFavoriteItem,
+  NaverBestItem,
   NaverSaveItemFavorite,
   NaverMainKeyword,
   NaverHealthFoodItem,

@@ -10819,6 +10819,7 @@ const resolvers = {
                 "product.korTitle" : 1,
                 "product.mainImages" : 1,
                 "product.options": 1,
+                "product.html" : 1,
                 "basic.content": 1,
                 "basic.url": 1,
                 createdAt: 1,
@@ -10826,29 +10827,40 @@ const resolvers = {
               })
 
               if(product) {
-                let image = null
-                if(product.product.mainImages && Array.isArray(product.product.mainImages) && product.product.mainImages.length > 0){
-                  image = product.product.mainImages[0]
-                }
-                if(!image) {
-                  if(product.product.options && Array.isArray(product.product.options) && product.product.options.length > 0) {
-                    image = product.product.options[0]
+                if(
+                    product.basic.url.includes("vvic") && product.product.html && 
+                    (product.product.html.includes("cm") || product.product.html.includes("크기") || product.product.html.includes("사이즈") || product.product.html.includes("오차") 
+                    )
+                  ){
+                  
+                } else {
+
+                  let image = null
+                  if(product.product.mainImages && Array.isArray(product.product.mainImages) && product.product.mainImages.length > 0){
+                    image = product.product.mainImages[0]
                   }
-                }
-                if(!image) {
-                  if(product.basic.content && Array.isArray(product.basic.content) && product.basic.content.length > 0) {
-                    image = product.basic.content[0]
+                  if(!image) {
+                    if(product.product.options && Array.isArray(product.product.options) && product.product.options.length > 0) {
+                      image = product.product.options[0]
+                    }
                   }
+                  if(!image) {
+                    if(product.basic.content && Array.isArray(product.basic.content) && product.basic.content.length > 0) {
+                      image = product.basic.content[0]
+                    }
+                  }
+                  productItems.push( {
+                    _id: product._id.toString(),
+                    detailUrl: product.basic.url,
+                    content: product.basic.content,
+                    name: product.product.korTitle,
+                    image,
+                    createdAt: product.createdAt,
+                    isContentTranslate: product.isContentTranslate
+                  })
+
                 }
-                productItems.push( {
-                  _id: product._id.toString(),
-                  detailUrl: product.basic.url,
-                  content: product.basic.content,
-                  name: product.product.korTitle,
-                  image,
-                  createdAt: product.createdAt,
-                  isContentTranslate: product.isContentTranslate
-                })
+                
               }
 
               
@@ -10869,6 +10881,7 @@ const resolvers = {
         for(const item of rankingArr){
           const product = _.find(productItems, {_id: item.name})
           if(product){
+            
             productList.push({
               _id: product._id,
               name: product.name,
@@ -10971,94 +10984,110 @@ const resolvers = {
               })
     
               if(product) {
-                let isSingle = product.basic.url.includes("iherb.com") && product.options.length === 1 ? true : false
+                if(item.content && item.content.length === 0) {
+                  await Product.findOneAndUpdate(
+                    {
+                      userID: product.userID,
+                      _id: ObjectId(item._id),
+                    },
+                    {
+                      $set: {
+                        isContentTranslate: true
+                      },
+                    },
+                    { new: true }
+                  )
+                } else {
+                  let isSingle = product.basic.url.includes("iherb.com") && product.options.length === 1 ? true : false
                 
-                let html = ``
-                for(const img of item.content.filter(fItem => fItem && fItem.length > 0 && fItem.includes("http"))){
-                  try {
-                    await imageCheck(img)
-                    html += `<img src="${img}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
-                  } catch(e) {
-                    console.log("ImageCheck--", e)
-                  }
-                   
-                }
-    
-                const htmlContent = `${product.product.gifHtml ? product.product.gifHtml : ""}${product.product.topHtml}${
-                  product.product.isClothes && product.product.clothesHtml
-                    ? product.product.clothesHtml
-                    : ""
-                }${
-                  product.product.isShoes && product.product.shoesHtml ? product.product.shoesHtml : ""
-                }${product.product.videoHtml ? product.product.videoHtml : ""}${product.product.optionHtml}${html}${product.product.bottomHtml}`
-    
-    
-                // 쿠팡
-                const response = await CoupnagGET_PRODUCT_BY_PRODUCT_ID({
-                  userID: product.userID,
-                  productID: product.product.coupang.productID,
-                })
-    
-                if (response && response.code === "SUCCESS") {
-                  for (const item of response.data.items) {
-                    for (const content of item.contents) {
-                      content.contentDetails[0].content = htmlContent
+                  let html = ``
+                  for(const img of item.content.filter(fItem => fItem && fItem.length > 0 && fItem.includes("http"))){
+                    try {
+                      await imageCheck(img)
+                      html += `<img src="${img}" style="width: 100%; max-width: 800px; display: block; margin: 0 auto; "/ />`
+                    } catch(e) {
+                      console.log("ImageCheck--", e)
                     }
+                     
                   }
       
-                  const updateProduct = await CoupnagUPDATE_PRODUCT({
-                    userID: product.userID,
-                    product: response.data,
-                  })
-    
+                  const htmlContent = `${product.product.gifHtml ? product.product.gifHtml : ""}${product.product.topHtml}${
+                    product.product.isClothes && product.product.clothesHtml
+                      ? product.product.clothesHtml
+                      : ""
+                  }${
+                    product.product.isShoes && product.product.shoesHtml ? product.product.shoesHtml : ""
+                  }${product.product.videoHtml ? product.product.videoHtml : ""}${product.product.optionHtml}${html}${product.product.bottomHtml}`
       
-                  const approveResponse = await CoupangAPPROVE_PRODUCT({
+      
+                  // 쿠팡
+                  const response = await CoupnagGET_PRODUCT_BY_PRODUCT_ID({
                     userID: product.userID,
-                    sellerProductId: response.data.sellerProductId,
+                    productID: product.product.coupang.productID,
                   })
-    
-                }
-    
-    
-                // 카페 24
-                if (
-                  product.product.cafe24 &&
-                  product.product.cafe24.mallID &&
-                  product.product.cafe24.shop_no
-                ) {
-                  product.product.cafe24_product_no = product.product.cafe24.product_no
-                  product.product.html = html
-                  product.basic.content = item.content
-                  const cafe24Response = await updateCafe24({
-                    id: product._id,
-                    isSingle,
-                    product: product.product,
-                    options: product.options,
-                    cafe24: {
-                      mallID: product.product.cafe24.mallID,
-                      shop_no: product.product.cafe24.shop_no,
+      
+                  if (response && response.code === "SUCCESS") {
+                    for (const item of response.data.items) {
+                      for (const content of item.contents) {
+                        content.contentDetails[0].content = htmlContent
+                      }
+                    }
+        
+                    const updateProduct = await CoupnagUPDATE_PRODUCT({
+                      userID: product.userID,
+                      product: response.data,
+                    })
+      
+        
+                    const approveResponse = await CoupangAPPROVE_PRODUCT({
+                      userID: product.userID,
+                      sellerProductId: response.data.sellerProductId,
+                    })
+      
+                  }
+      
+      
+                  // 카페 24
+                  if (
+                    product.product.cafe24 &&
+                    product.product.cafe24.mallID &&
+                    product.product.cafe24.shop_no
+                  ) {
+                    product.product.cafe24_product_no = product.product.cafe24.product_no
+                    product.product.html = html
+                    product.basic.content = item.content
+                    const cafe24Response = await updateCafe24({
+                      id: product._id,
+                      isSingle,
+                      product: product.product,
+                      options: product.options,
+                      cafe24: {
+                        mallID: product.product.cafe24.mallID,
+                        shop_no: product.product.cafe24.shop_no,
+                      },
+                      userID: product.userID,
+                      writerID: product.writerID,
+                    })
+                    // console.log("cafe24Response", cafe24Response)
+                  }
+      
+                  console.log(`${i++} / ${input.length} `, product.product.korTitle)
+                  await Product.findOneAndUpdate(
+                    {
+                      userID: product.userID,
+                      _id: ObjectId(item._id),
                     },
-                    userID: product.userID,
-                    writerID: product.writerID,
-                  })
-                  // console.log("cafe24Response", cafe24Response)
-                }
-    
-                console.log(`${i++} / ${input.length} `, product.product.korTitle)
-                await Product.findOneAndUpdate(
-                  {
-                    userID: product.userID,
-                    _id: ObjectId(item._id),
-                  },
-                  {
-                    $set: {
-                      "product.html": html,
-                      "product.content": item.content,
-                      isContentTranslate: true
+                    {
+                      $set: {
+                        "product.html": html,
+                        "product.content": item.content,
+                        isContentTranslate: true
+                      },
                     },
-                  },
-                  { new: true }
-                )
+                    { new: true }
+                  )
+                }
+                
                 
               }
             } catch(e){

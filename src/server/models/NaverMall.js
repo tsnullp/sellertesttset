@@ -5,6 +5,8 @@ const NaverMall = mongoose.Schema({
   mallNo: String,
   mallName: String,
   mallPcUrl: String,
+  channelID: String,
+  brandUrl: String,
   seachLabel: Number,
   businessName: String,
   representativeName: String,

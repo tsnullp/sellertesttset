@@ -57,21 +57,21 @@ const DetailPageList = () => {
 
   const handleExcel = async (value) => {
     console.log("value--", value)
-    const rowDatas = value.filter(item => {
-      if(item.아이디 && item["상세페이지 번역"]) {
-        let temp = item["상세페이지 번역"]
-        temp = temp.split("#").filter(fItem => fItem.length > 0 && fItem.includes("jpg"))
-        if(temp.length > 0){
-          return true
-        }
-      } 
+    // const rowDatas = value.filter(item => {
+    //   if(item.아이디 && item["상세페이지 번역"]) {
+    //     let temp = item["상세페이지 번역"]
+    //     temp = temp.split("#").filter(fItem => fItem.length > 0 && fItem.includes("jpg"))
+    //     if(temp.length > 0){
+    //       return true
+    //     }
+    //   } 
 
-      return false
-    })
+    //   return false
+    // })
 
-    if(rowDatas && rowDatas.length > 0){
+    if(value && value.length > 0){
       setList([])
-      setTranslateList(rowDatas)
+      setTranslateList(value)
     }
   }
 
@@ -155,11 +155,13 @@ const DetailPageList = () => {
         
           onClick={async() => {
             try {
+              
               setUploading(true)
               const response = await setModifyDetailPages({
                 variables: {
                   input: translateList.map(item => {
-                    const original = item["상세페이지 원본"].includes("https://tsnullp") ? item["상세페이지 원본"] : item["상세페이지 번역"]
+                    // const original = item["상세페이지 원본"].includes("https://tsnullp") ? item["상세페이지 원본"] : item["상세페이지 번역"]
+                    const original = item["상세페이지 번역"] ? item["상세페이지 번역"] : "" 
                     return {
                       _id: item.아이디,
                       content: original.split("#").filter(item => item.includes("jpg"))
@@ -181,7 +183,7 @@ const DetailPageList = () => {
               
 
             } catch(e) {
-              
+              console.log("에러", e)
             } finally{
               setTranslateList([])
               setUploading(false)
