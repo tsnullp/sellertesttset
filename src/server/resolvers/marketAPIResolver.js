@@ -2084,6 +2084,18 @@ const updateCoupang = async ({
             userID,
             product: coupangProduct,
           })
+
+          if(coupangProductResponse && coupangProductResponse.code === "ERROR") {
+            let returnPrice = coupangProductResponse.message.split("~ ")[1].split("원")[0].replace(/,/, "").trim()
+            
+            coupangProduct.deliveryChargeOnReturn = returnPrice
+            coupangProduct.returnCharge = returnPrice
+            coupangProductResponse = await CoupnagUpdateProduct({
+              userID,
+              product: coupangProduct,
+            })
+          }
+
         }
 
       } catch (e) {
@@ -2348,6 +2360,8 @@ const updateCoupang = async ({
           userID,
           product: coupangProduct,
         })
+
+      console.log("coupangProductResponse", coupangProductResponse)
       
         if(coupangProductResponse && coupangProductResponse.code === "ERROR") {
           if(minSalePrice <= 20000) {
@@ -2363,7 +2377,7 @@ const updateCoupang = async ({
               returnCharge = Math.floor((100000 / 2) * 0.1) * 10
             }
           }
-
+        
           coupangProduct.deliveryChargeOnReturn = returnCharge
           coupangProduct.returnCharge = returnCharge
 
@@ -2371,6 +2385,17 @@ const updateCoupang = async ({
             userID,
             product: coupangProduct,
           })
+
+          if(coupangProductResponse && coupangProductResponse.code === "ERROR") {
+            let returnPrice = coupangProductResponse.message.split("~ ")[1].split("원")[0].replace(/,/, "").trim()
+            
+            coupangProduct.deliveryChargeOnReturn = returnPrice
+            coupangProduct.returnCharge = returnPrice
+            coupangProductResponse = await CoupnagCreateProduct({
+              userID,
+              product: coupangProduct,
+            })
+          }
 
         }
       } catch (e) {
