@@ -133,7 +133,7 @@ const KeywordModal = ({
       }),
       new Promise(async (resolve, reject) => {
         setNaverTagLoading(true)
-        try {
+        try { 
           const naverTagKeywordResponse = await searchNaverTagKeyword({
             variables: {
               keyword: value,
